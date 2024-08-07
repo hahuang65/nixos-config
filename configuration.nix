@@ -71,6 +71,7 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
+    bash
     git
     gnumake
     home-manager
@@ -104,6 +105,9 @@
 
   # Enable Flakes
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
+
+  environment.shells = with pkgs; [ bash ];
+  users.defaultUserShell = pkgs.bash;
 
   # Users
   users.users.hao = {
