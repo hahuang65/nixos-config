@@ -8,21 +8,26 @@
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, ... }:
+  outputs = { self, nixpkgs, home-manager, ... }@inputs:
     let
-      lib = nixpkgs.lib;
+      inherit (self) outputs;
       system = "x86_64-linux";
       pkgs = import nixpkgs { inherit system; };
     in {
+
     nixosConfigurations = {
-      kamino = lib.nixosSystem {
-	inherit system;
-        modules = [ ./configuration.nix ];
+      endor = nixpkgs.lib.nixosSystem {
+        specialArgs = { inherit inputs outputs; };
+        modules = [
+          ./hosts/endor/configuration.nix
+        ];
       };
     };
+
     homeConfigurations = {
       hao = home-manager.lib.homeManagerConfiguration {
         inherit pkgs;
+        specialArgs = { inherit inputs outputs; };
         modules = [ ./home.nix ];
       };
     };
