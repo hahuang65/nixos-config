@@ -1,11 +1,11 @@
 { pkgs, ... }:
 
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      ../host.nix
-      ./hardware-configuration.nix
-    ];
+  imports = [
+    ../host.nix
+    ./hardware-configuration.nix
+    ../../nixosModules
+  ];
 
   host.name = "endor";
   host.extraPkgs = with pkgs; [
@@ -22,4 +22,7 @@
     description = "Howard Huang";
     extraGroups = [ "wheel" "networkmanager" ];
   };
+  
+  _1password.enable = true;
+  _1password.users = [ "hao" ];
 }
