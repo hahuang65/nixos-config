@@ -13,6 +13,7 @@
       inherit (self) outputs;
       system = "x86_64-linux";
       pkgs = import nixpkgs { inherit system; };
+      hosts = [ "endor" ];
     in {
 
     nixosConfigurations = {

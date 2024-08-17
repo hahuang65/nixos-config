@@ -3,15 +3,50 @@
 # https://search.nixos.org/options and in the NixOS manual (`nixos-help`).
 
 { config, lib, pkgs, ... }:
-with lib;
 let
+  inherit (lib) lists mkOption types;
   cfg = config.host;
+  basePkgs = with pkgs; [
+    git
+    gnumake
+    home-manager
+    openssh
+    vim
+    wget
+  ];
 in {
-  options.host = {
-    name = mkOption {
-      type = types.str;
-      description = "Hostname for the system";
+  options = {
+    host = {
+      extraPkgs = mkOption {
+        type = types.listOf types.package;
+        default = [];
+        description = "List of extra packages to install, on top of basePkgs";
+      };
+
+      name = mkOption {
+        type = types.str;
+        description = "Hostname for the system";
+      };
+      
+      timezone = mkOption {
+        type = types.str;
+        default = "America/Chicago";
+        example = "America/Chicago";
+        description = "The timezone, in tz database format";
+      };
+
+      shell = mkOption {
+        type = types.package;
+        default = pkgs.bash;
+        description = "Default shell";
+      };
+
+      trackpad.enable = mkOption {
+        type = types.bool;
+        default = false;
+      };
     };
+    
   };
   
   config = {
@@ -27,7 +62,7 @@ in {
     networking.networkmanager.enable = true;  # Easiest to use and most distros use this by default.
 
     # Set your time zone.
-    time.timeZone = "America/Chicago";
+    time.timeZone = cfg.timezone;
 
     # Configure network proxy if necessary
     # networking.proxy.default = "http://user:password@proxy:port/";
@@ -53,19 +88,14 @@ in {
     };
 
     # Enable touchpad support (enabled default in most desktopManager).
-    services.libinput.enable = true;
+    services.libinput.enable = cfg.trackpad.enable;
+
+    environment.shells = [ cfg.shell ];
+    users.defaultUserShell = cfg.shell;
 
     # List packages installed in system profile. To search, run:
     # $ nix search wget
-    environment.systemPackages = with pkgs; [
-      bash
-      git
-      gnumake
-      home-manager
-      openssh
-      vim
-      wget
-    ];
+    environment.systemPackages = lists.unique(basePkgs ++ cfg.extraPkgs ++ [ cfg.shell ]);
 
     # Some programs need SUID wrappers, can be configured further or are
     # started in user sessions.
@@ -88,9 +118,6 @@ in {
 
     # Enable Flakes
     nix.settings.experimental-features = [ "nix-command" "flakes" ];
-
-    environment.shells = with pkgs; [ bash ];
-    users.defaultUserShell = pkgs.bash;
 
     # Copy the NixOS configuration file and link it from the resulting system
     # (/run/current-system/configuration.nix). This is useful in case you
