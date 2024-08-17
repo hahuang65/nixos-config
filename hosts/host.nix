@@ -35,10 +35,16 @@ in {
         description = "The timezone, in tz database format";
       };
 
-      shell = mkOption {
+      defaultShell = mkOption {
         type = types.package;
         default = pkgs.bash;
         description = "Default shell";
+      };
+
+      shells = mkOption {
+        type = types.listOf types.package;
+        default = [ pkgs.bash ];
+        description = "List of acceptable login shells";
       };
 
       trackpad.enable = mkOption {
@@ -90,12 +96,12 @@ in {
     # Enable touchpad support (enabled default in most desktopManager).
     services.libinput.enable = cfg.trackpad.enable;
 
-    environment.shells = [ cfg.shell ];
-    users.defaultUserShell = cfg.shell;
+    environment.shells = lists.unique(cfg.shells ++ [cfg.defaultShell ]);
+    users.defaultUserShell = cfg.defaultShell;
 
     # List packages installed in system profile. To search, run:
     # $ nix search wget
-    environment.systemPackages = lists.unique(basePkgs ++ cfg.extraPkgs ++ [ cfg.shell ]);
+    environment.systemPackages = lists.unique(basePkgs ++ cfg.extraPkgs ++ [ cfg.defaultShell ]);
 
     # Some programs need SUID wrappers, can be configured further or are
     # started in user sessions.

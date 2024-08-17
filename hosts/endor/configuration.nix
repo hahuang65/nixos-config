@@ -8,7 +8,12 @@
     ];
 
   host.name = "endor";
-  # host.extraPkgs = with pkgs; [ zsh ];
+  host.extraPkgs = with pkgs; [
+    bluez
+    bluez-tools
+    docker
+    docker-compose
+  ];
 
   # Don't forget to `passwd`!
   users.users.hao = {
