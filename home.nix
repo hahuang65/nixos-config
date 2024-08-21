@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, inputs, pkgs, ... }:
 
 {
   # Home Manager needs a bit of information about you and the paths it should
@@ -67,9 +67,9 @@
   #
   #  /etc/profiles/per-user/hao/etc/profile.d/hm-session-vars.sh
   #
-  home.sessionVariables = {
-    EDITOR = "vim";
-  };
+  # home.sessionVariables = {
+  #   EDITOR = "vim";
+  # };
 
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
@@ -89,4 +89,8 @@
     enable = true;
     keys = [ "id_ed25519" ];
   };
+
+  imports = [
+    ./homeManagerModules/nvim
+  ];
 }

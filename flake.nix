@@ -28,7 +28,6 @@
     homeConfigurations = {
       hao = home-manager.lib.homeManagerConfiguration {
         inherit pkgs;
-        specialArgs = { inherit inputs outputs; };
         modules = [ ./home.nix ];
       };
     };
