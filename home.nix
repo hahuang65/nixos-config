@@ -74,19 +74,7 @@
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
 
-  # Bash
-  programs.bash = {
-    enable = true;
-    shellAliases = {
-      ll = "ls -l";
-      ".." = "cd .. ";
-    };
-  };
- 
-  # SSH keys
-  services.ssh-agent.enable = true;
-  programs.keychain = {
-    enable = true;
-    keys = [ "id_ed25519" ];
-  };
+  imports = [
+    ./homeManagerModules
+  ];
 }
