@@ -7,6 +7,7 @@ in {
     ./bash.nix
     ./foot.nix
     ./keychain.nix
+    ./sway.nix
   ];
   
   bash.enable = mkDefault true;
@@ -16,4 +17,6 @@ in {
     enable = mkDefault true;
     keys = mkDefault [ "id_ed25519" ];
   };
+
+  sway.enable = mkDefault true;
 }
