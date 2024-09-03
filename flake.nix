@@ -20,7 +20,7 @@
       endor = nixpkgs.lib.nixosSystem {
         specialArgs = { inherit inputs outputs; };
         modules = [
-          ./hosts/endor/configuration.nix
+          ./hosts/endor
         ];
       };
     };

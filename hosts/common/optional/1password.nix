@@ -16,7 +16,7 @@ in {
         type = types.listOf types.str;
         default = [];
         example = [ "vivaldi-bin" "wavebox" ];
-        description = "None standard browsers allowed to integrate with 1password";
+        description = "Non-standard browsers allowed to integrate with 1password";
       };
     };
   };
