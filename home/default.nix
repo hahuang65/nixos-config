@@ -5,6 +5,7 @@ let
 in {
   imports = [
     ./bash.nix
+    ./bat
     ./firefox
     ./foot.nix
     ./keychain.nix
@@ -12,6 +13,7 @@ in {
   ];
   
   bash.enable = mkDefault true;
+  bat.enable = mkDefault true;
   firefox.enable = mkDefault true;
   foot.enable = mkDefault true;
 
