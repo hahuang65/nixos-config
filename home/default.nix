@@ -11,6 +11,7 @@ in {
     ./foot
     ./fuzzel
     ./keychain
+    ./readline
     ./sway
   ];
   
@@ -26,5 +27,6 @@ in {
     keys = mkDefault [ "id_ed25519" ];
   };
 
+  readline.enable = mkDefault true;
   sway.enable = mkDefault true;
 }
