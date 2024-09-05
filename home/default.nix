@@ -4,12 +4,12 @@ let
   inherit (lib) mkDefault;
 in {
   imports = [
-    ./bash.nix
+    ./bash
     ./bat
     ./firefox
-    ./foot.nix
-    ./keychain.nix
-    ./sway.nix
+    ./foot
+    ./keychain
+    ./sway
   ];
   
   bash.enable = mkDefault true;
