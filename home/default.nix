@@ -5,12 +5,14 @@ let
 in {
   imports = [
     ./bash.nix
+    ./firefox
     ./foot.nix
     ./keychain.nix
     ./sway.nix
   ];
   
   bash.enable = mkDefault true;
+  firefox.enable = mkDefault true;
   foot.enable = mkDefault true;
 
   keychain = {
