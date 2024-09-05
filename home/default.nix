@@ -11,6 +11,7 @@ in {
     ./foot
     ./fuzzel
     ./keychain
+    ./mako
     ./readline
     ./sway
   ];
@@ -27,6 +28,7 @@ in {
     keys = mkDefault [ "id_ed25519" ];
   };
 
+  mako.enable = mkDefault true;
   readline.enable = mkDefault true;
   sway.enable = mkDefault true;
 }
