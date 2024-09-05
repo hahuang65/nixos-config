@@ -75,6 +75,6 @@
   programs.home-manager.enable = true;
 
   imports = [
-    ./homeManagerModules
+    ../home
   ];
 }
