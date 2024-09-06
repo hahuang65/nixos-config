@@ -1,0 +1,92 @@
+{
+  "modules-left": ["sway/workspaces", "sway/mode"],
+  // "modules-left": ["wlr/workspaces"], // For hyprland
+  "modules-center": ["cpu", "memory", "temperature"],
+  "modules-right": ["custom/media", "pulseaudio", "backlight", "network", "battery", "idle_inhibitor", "clock#calendar", "clock"],
+  // "wlr/workspaces": { // For hyprland
+  "sway/workspaces": { // For sway
+      // "sort-by-number": true, // For hyprland
+      // "on-click": "activate", // For hyprland
+      "disable-scroll": true, // For sway
+      "all-outputs": true,
+      "format": "{icon}",
+      "format-icons": {
+          "1": "󰈹",
+          "2": "",
+          "3": "",
+          "4": "",
+      }
+  },
+  "backlight": {
+      "format": "{icon} {percent}%",
+      "format-icons": ["󰃝", "󰃞", "󰃟", "󰃠"]
+  },
+  "battery": {
+      "states": {
+          "good": 80,
+          "warning": 40,
+          "critical": 20
+      },
+      "format": "{icon} {capacity}%",
+      "format-charging": " {capacity}%",
+      "format-icons": ["", "", "", "", ""]
+  },
+  "clock": {
+      "format": "󰥔 {:%H:%M}",
+  },
+  "clock#calendar": {
+      "format": " {:%Y/%m/%d}",
+      "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
+  },
+  "cpu": {
+      "format": "{usage}% ",
+      "tooltip": false
+  },
+  "memory": {
+      "format": "󰍛 {}%"
+  },
+  "network": {
+      "format-wifi": " {essid}",
+      "format-ethernet": " VPN",
+      "tooltip-format-wifi": "Signal Strength: {signalStrength}%",
+      "format-disconnected": "  NONE",
+  },
+  "temperature": {
+      "critical-threshold": 70,
+      "format-critical": "{icon} {temperatureC}°C",
+      "format": "{icon} {temperatureC}°C",
+      "format-icons": [""]
+  },
+  "pulseaudio": {
+      "scroll-step": 1, // %, can be a float
+      "format": "{icon} {volume}% {format_source}",
+      "format-bluetooth": " {icon} {volume}% {format_source}",
+      "format-bluetooth-muted": " 󰝟 {format_source}",
+      "format-muted": "󰝟 {format_source}",
+      "format-source": " {volume}%",
+      "format-source-muted": "",
+      "format-icons": {
+          "default": ["", "", ""]
+      }
+  },
+  "idle_inhibitor": {
+      "format": "{icon}",
+      "format-icons": {
+          "activated": " 󰅶 ",
+          "deactivated": " 󰛊 "
+      }
+  },
+  "custom/media": {
+      "format": "{icon} {}",
+      "return-type": "json",
+      "format-icons": {
+          "spotify": "",
+          "ncspot": "",
+          "default": ""
+      },
+      "escape": true,
+      "on-click": "playerctl play-pause",
+      // Requires `pip install PyGObject` and `pacman -S gobject-introspection'
+      "exec": "$HOME/.config/waybar/scripts/mediaplayer.py 2> /dev/null"
+  }
+}

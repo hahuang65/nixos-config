@@ -18,8 +18,10 @@ in {
   config = mkIf config.sway.enable {
     home.packages = with pkgs; [
       brightnessctl
+      gobject-introspection
       grim
       playerctl
+      python312Packages.pygobject3
       slurp
       swaybg
       swayidle
@@ -297,6 +299,19 @@ in {
       };
 
       extraConfig = "include /etc/sway/config.d/*";
+
+      systemd.enable = true; # For waybar integration
     };
+
+    programs.waybar = {
+      enable = true;
+      systemd = {
+        enable = true;
+        target = "sway-session.target";
+      };
+    };
+    xdg.configFile."waybar/config".source = ./waybar/config;
+    xdg.configFile."waybar/style.css".source = ./waybar/style.css;
+    xdg.configFile."waybar/scripts/mediaplayer.py".source = ./waybar/scripts/mediaplayer.py;
   };
 }
