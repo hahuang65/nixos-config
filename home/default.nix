@@ -15,6 +15,7 @@ in {
     ./mise
     ./readline
     ./sway
+    ./wezterm
   ];
   
   bash.enable = mkDefault true;
@@ -33,4 +34,5 @@ in {
   mise.enable = mkDefault true;
   readline.enable = mkDefault true;
   sway.enable = mkDefault true;
+  wezterm.enable = mkDefault true;
 }
