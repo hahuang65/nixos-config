@@ -1,0 +1,15 @@
+git.sr.ht/~emersion/hut
+git.sr.ht/~hwrd/pst
+git.sr.ht/~hwrd/ssm
+github.com/abhimanyu003/sttr
+github.com/charmbracelet/gum
+github.com/charmbracelet/vhs
+github.com/evilmartians/lefthook
+github.com/go-delve/delve/cmd/dlv
+github.com/golangci/golangci-lint/cmd/golangci-lint
+github.com/maaslalani/glyphs
+github.com/magefile/mage
+github.com/noahgorstein/jqp
+golang.org/x/tools/cmd/godoc
+gotest.tools/gotestsum
+honnef.co/go/tools/cmd/staticcheck

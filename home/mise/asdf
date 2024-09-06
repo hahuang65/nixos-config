@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+case "$1" in
+"plugin-add")
+  shift
+  mise plugin add "$@"
+  ;;
+
+*)
+  mise "$@"
+  ;;
+esac

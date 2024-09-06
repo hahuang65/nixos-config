@@ -1,0 +1,8 @@
+bundler
+neovim
+solargraph
+rubocop
+rubocop-rails
+rubocop-performance
+rubocop-rspec
+ruby-lsp
