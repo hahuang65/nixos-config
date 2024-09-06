@@ -17,9 +17,5 @@ in {
       wireplumber.enable = true;
       jack.enable = true;
     };
-<<<<<<< HEAD
   };
-=======
-  }
->>>>>>> 44ffca9 (WIP)
 }

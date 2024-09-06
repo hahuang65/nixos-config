@@ -1,12 +1,8 @@
 { config, lib, ... }:
 
 let
-<<<<<<< HEAD
   inherit (lib) lists mkEnableOption mkIf mkOption types;
   cfg = config.users.hao;
-=======
-  inherit (lib) mkEnableOption mkIf mkOption types;
->>>>>>> 44ffca9 (WIP)
   baseGroups = [ "wheel" "networkmanager" ];
 in {
   options = {
