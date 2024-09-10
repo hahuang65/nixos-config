@@ -2,6 +2,7 @@
 {
   imports = [
     ./bootloader.nix
+    ./font.nix
     ./host.nix
     ./locale.nix
     ./networking.nix

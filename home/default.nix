@@ -6,6 +6,7 @@ in {
   imports = [
     ./bash
     ./bat
+    ./customFonts
     ./direnv
     ./firefox
     ./foot
@@ -20,6 +21,7 @@ in {
   
   bash.enable = mkDefault true;
   bat.enable = mkDefault true;
+  customFonts.enable = mkDefault true;
   direnv.enable = mkDefault true;
   firefox.enable = mkDefault true;
   foot.enable = mkDefault true;
