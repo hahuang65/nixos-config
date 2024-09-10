@@ -3,8 +3,8 @@
 let
   inherit (lib) mkEnableOption mkIf;
   mod = "Mod1";
-  term = "foot";
-  editor = "foot -l vim";
+  term = "wezterm";
+  editor = "wezterm start -- bash -l -c nvim";
   laptopMonitor = "eDP-1";
   launcher = "pkill fuzzel || fuzzel";
   lock = "swaylock --daemonize --indicator --screenshots --clock --effect-greyscale --effect-pixelate 5";

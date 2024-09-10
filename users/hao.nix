@@ -28,6 +28,7 @@
     grex
     hub
     jq
+    neovim
     ov
     pgcli
     pick
