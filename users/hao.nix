@@ -17,7 +17,29 @@
 
   # The home.packages option allows you to install Nix packages into your
   # environment.
-  home.packages = [
+  home.packages = with pkgs; [
+    csvlens
+    curlie
+    delta
+    fd
+    fx
+    fzf
+    gh
+    grex
+    hub
+    jq
+    ov
+    pgcli
+    pick
+    portal
+    pre-commit
+    prettyping
+    procs
+    ripgrep
+    tokei
+    w3m
+    xsv
+    yank 
     # # Adds the 'hello' command to your environment. It prints a friendly
     # # "Hello, world!" when run.
     # pkgs.hello
