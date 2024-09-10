@@ -51,7 +51,7 @@ in {
           };
 
           # Catppuccin Mauve
-          "76aabc99-c1a8-4c1e-832b-d4f2941d5a7a" = {
+          "{76aabc99-c1a8-4c1e-832b-d4f2941d5a7a}" = {
             install_url = "https://addons.mozilla.org/firefox/downloads/latest/catppuccin_mocha_mauve_git/latest.xpi";
             installation_mode = "force_installed";
           };
