@@ -45,7 +45,7 @@ in {
           "*".installation_mode = "blocked";
 
           # 1Password
-          "{d634138d-c276-4fc8-924b-40a0ea21d284" = {
+          "{d634138d-c276-4fc8-924b-40a0ea21d284}" = {
             install_url = "https://addons.mozilla.org/firefox/downloads/latest/1password_x_password_manager/latest.xpi";
             installation_mode = "force_installed";
           };
