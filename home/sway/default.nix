@@ -5,6 +5,7 @@ let
   mod = "Mod1";
   term = "foot";
   editor = "foot -l vim";
+  laptopMonitor = "eDP-1";
   launcher = "pkill fuzzel || fuzzel";
   lock = "swaylock --daemonize --indicator --screenshots --clock --effect-greyscale --effect-pixelate 5";
   lockWithGrace = "${lock} --grace 15";
@@ -181,6 +182,13 @@ in {
         };
 
         modifier = mod;
+
+        output = {
+          "*".resolution = "3840x2160";
+          "${laptopMonitor}" = {
+            scale = "1.2";
+          };
+        };
         
         startup = [
           { command = "1password --silent"; }
@@ -298,7 +306,12 @@ in {
         workspaceAutoBackAndForth = true;
       };
 
-      extraConfig = "include /etc/sway/config.d/*";
+      extraConfig = ''
+        bindswitch --reload --locked lid:on exec ${lock} && output ${laptopMonitor} disable
+        bindswitch --reload --locked lid:off output ${laptopMonitor} enable
+
+        include /etc/sway/config.d/*
+      '';
 
       systemd.enable = true; # For waybar integration
     };
