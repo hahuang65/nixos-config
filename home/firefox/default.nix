@@ -84,30 +84,46 @@ in {
 	# See about:config for options
         Preferences = {
           "browser.contentblocking.category" = { Value = "strict"; Status = "locked"; };
-          "browser.topsites.contile.enabled" = lock-false;
-          "browser.newtabpage.activity-stream.feeds.section.highlights.includePocket" = lock-false;
           "browser.newtabpage.activity-stream.feeds.section.highlights.includeBookmarks" = lock-false;
           "browser.newtabpage.activity-stream.feeds.section.highlights.includeDownloads" = lock-false;
+          "browser.newtabpage.activity-stream.feeds.section.highlights.includePocket" = lock-false;
           "browser.newtabpage.activity-stream.feeds.section.highlights.includeVisited" = lock-false;
           "browser.newtabpage.activity-stream.feeds.section.topstories" = lock-false;
           "browser.newtabpage.activity-stream.feeds.snippets" = lock-false;
           "browser.newtabpage.activity-stream.showSponsored" = lock-false;
           "browser.newtabpage.activity-stream.showSponsoredTopSites" = lock-false;
           "browser.newtabpage.activity-stream.system.showSponsored" = lock-false;
+          "browser.topsites.contile.enabled" = lock-false;
           "extensions.pocket.enabled" = lock-false;
-          "toolkit.legacyUserProfile.Customizations.stylesheets" = lock-true;
+          "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
           "widget.use-xdg-desktop-portal.file-picker" = 1;
 	}; 
       };
       profiles = {
         profile_0 = {
           id = 0;
-          name = "profile_0";
           isDefault = true;
-          userChrome = builtins.readFile ./treeStyleTabs/userChrome.css;
+          name = "profile_0";
+
           settings = {
+	    "browser.search.suggest.enabled.private" = lock-false;
+	    "browser.sessionstore.enabled" = lock-true;
+	    "browser.sessionstore.resume_from_crash" = lock-true;
+	    "browser.sessionstore.resume_session_once" = lock-true;
+	    "browser.tabs.drawInTitlebar" = lock-true;
+	    "browser.tabs.tabmanager.enabled" = lock-false;
+	    "browser.urlbar.suggest.addons" = lock-false;
+	    "browser.urlbar.suggest.pocket" = lock-false;
+	    "browser.urlbar.suggest.topsites" = lock-false;
+	    "general.smoothScroll" = lock-true;
+            "browser.newtabpage.activity-stream.showSponsoredTopSites" = lock-false;
             "browser.startup.homepage" = "about:blank";
+            "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
+            "widget.use-xdg-desktop-portal.file-picker" = 1;
+            "widget.use-xdg-desktop-portal.mime-handler" = 1;
           };
+
+          userChrome = builtins.readFile ./treeStyleTabs/userChrome.css;
         };
       };
     };
