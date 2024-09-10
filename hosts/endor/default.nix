@@ -3,20 +3,11 @@
 {
   imports = [
     ./hardware-configuration.nix
-<<<<<<< HEAD
     ../common/core
     ../common/optional
 
     ../common/users/hao.nix
   ];
-=======
-  ] ++ (map configLib.relativeToRoot [
-    "hosts/common/core"
-    "hosts/common/optional"
-
-    "hosts/common/users/hao"
-  ]);
->>>>>>> 44ffca9 (WIP)
 
   host.name = "endor";
   host.extraPkgs = with pkgs; [
