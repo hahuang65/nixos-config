@@ -28,7 +28,7 @@ in {
   fuzzel.enable = mkDefault true;
 
   keychain = {
-    enable = mkDefault true;
+    enable = mkDefault false;
     keys = mkDefault [ "id_ed25519" ];
   };
 
