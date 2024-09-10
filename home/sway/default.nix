@@ -56,6 +56,8 @@ in {
           ];
         };
 
+        bars = []; # Disable swaybar
+
         colors = {
           background = "#1e1e2e";
           focused = {
@@ -197,111 +199,115 @@ in {
 
         terminal = term;
 
-        window.commands = [
-          {
-            criteria = {
-              app_id = "firefox";
-            };
-            command = "inhibit_idle fullscreen";
-          }
+        window = {
+          commands = [
+            {
+              criteria = {
+                app_id = "firefox";
+              };
+              command = "inhibit_idle fullscreen";
+            }
 
-          {
-            criteria = {
-              app_id = "google-chrome";
-            };
-            command = "inhibit_idle fullscreen";
-          }
+            {
+              criteria = {
+                app_id = "google-chrome";
+              };
+              command = "inhibit_idle fullscreen";
+            }
 
-          {
-            criteria = {
-              app_id = "mpv";
-            };
-            command = "inhibit_idle fullscreen";
-          }
+            {
+              criteria = {
+                app_id = "mpv";
+              };
+              command = "inhibit_idle fullscreen";
+            }
 
-          {
-            criteria = {
-              app_id = "org.kde.polkit-kde-authentication-agent-1";
-            };
-            command = "floating enable";
-          }
+            {
+              criteria = {
+                app_id = "org.kde.polkit-kde-authentication-agent-1";
+              };
+              command = "floating enable";
+            }
 
-          {
-            criteria = {
-              app_id = "thunar";
-            };
-            command = "floating enable";
-          }
+            {
+              criteria = {
+                app_id = "thunar";
+              };
+              command = "floating enable";
+            }
 
-          {
-            criteria = {
-              app_id = "vivaldi";
-            };
-            command = "inhibit_idle fullscreen";
-          }
+            {
+              criteria = {
+                app_id = "vivaldi";
+              };
+              command = "inhibit_idle fullscreen";
+            }
 
-          {
-            criteria = {
-              class = "1Password";
-            };
-            command = "floating enable";
-          }
-          {
-            criteria = {
-              window_role = "GtkFileChooserDialog";
-            };
-            command = "resize set 800 600";
-          }
+            {
+              criteria = {
+                class = "1Password";
+              };
+              command = "floating enable";
+            }
+            {
+              criteria = {
+                window_role = "GtkFileChooserDialog";
+              };
+              command = "resize set 800 600";
+            }
 
-          {
-            criteria = {
-              window_role = "GtkFileChooserDialog";
-            };
-            command = "move position center";
-          }
+            {
+              criteria = {
+                window_role = "GtkFileChooserDialog";
+              };
+              command = "move position center";
+            }
 
-          {
-            criteria = {
-              window_role = "pop-up";
-            };
-            command = "floating enable";
-          }
+            {
+              criteria = {
+                window_role = "pop-up";
+              };
+              command = "floating enable";
+            }
 
-          {
-            criteria = {
-              window_role = "bubble";
-            };
-            command = "floating enable";
-          }
+            {
+              criteria = {
+                window_role = "bubble";
+              };
+              command = "floating enable";
+            }
 
-          {
-            criteria = {
-              window_role = "task_dialog";
-            };
-            command = "floating enable";
-          }
+            {
+              criteria = {
+                window_role = "task_dialog";
+              };
+              command = "floating enable";
+            }
 
-          {
-            criteria = {
-              window_role = "Preferences";
-            };
-            command = "floating enable";
-          }
+            {
+              criteria = {
+                window_role = "Preferences";
+              };
+              command = "floating enable";
+            }
 
-          {
-            criteria = {
-              window_type = "dialog";
-            };
-            command = "floating enable";
-          }
+            {
+              criteria = {
+                window_type = "dialog";
+              };
+              command = "floating enable";
+            }
 
-          {
-            criteria = {
-              window_type = "menu";
-            };
-            command = "floating enable";
-          }
-        ];
+            {
+              criteria = {
+                window_type = "menu";
+              };
+              command = "floating enable";
+            }
+          ];  
+
+          titlebar = false;
+        };
 
         workspaceAutoBackAndForth = true;
       };
