@@ -3,6 +3,8 @@
 let
   inherit (lib) mkDefault;
 in {
+  news.display = "silent";
+
   imports = [
     ./bash
     ./bat
