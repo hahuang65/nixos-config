@@ -30,6 +30,8 @@
     users = [ "hao" ];
   };
 
+  thunar.enable = true;
+
   # For sway, this needs to be moved into the sway module
   users.hao.extraGroups = [ "video" ];
 

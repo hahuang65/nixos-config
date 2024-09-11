@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, lib, pkgs, ... }:
 
 {
   # Home Manager needs a bit of information about you and the paths it should
@@ -17,27 +17,56 @@
 
   # The home.packages option allows you to install Nix packages into your
   # environment.
+  nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
+    "obsidian"
+    "slack"
+  ];
+
   home.packages = with pkgs; [
+    atac
+    bandwhich
     csvlens
     curlie
     fd
+    ferdium
     fx
     fzf
     grex
+    halloy
+    htop
+    hwatch
+    hyperfine
+    ijq
     jq
+    lnav
+    miller
     neovim
+    obsidian
     ov
+    pastel
     pgcli
     pick
     portal
     pre-commit
     prettyping
     procs
+    pueue
     ripgrep
+    rsync
+    slack
+    termscp
+    thunderbird
     tokei
+    unzip
+    urlscan
     w3m
+    wget
+    wl-clipboard
+    xdg-user-dirs
     xsv
     yank 
+    zathura
+    zeal
     # # Adds the 'hello' command to your environment. It prints a friendly
     # # "Hello, world!" when run.
     # pkgs.hello

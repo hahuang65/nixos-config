@@ -5,6 +5,7 @@
     ./pipewire.nix
     ./printing.nix
     ./sway.nix
+    ./thunar.nix
     ./touchpad.nix
   ];
 }

@@ -7,6 +7,7 @@ in {
     ./bash
     ./bat
     ./customFonts
+    ./darkman
     ./direnv
     ./firefox
     ./foot
@@ -17,12 +18,14 @@ in {
     ./mise
     ./readline
     ./sway
+    ./theme
     ./wezterm
   ];
   
   bash.enable = mkDefault true;
   bat.enable = mkDefault true;
   customFonts.enable = mkDefault true;
+  darkman.enable = mkDefault true;
   direnv.enable = mkDefault true;
   firefox.enable = mkDefault true;
   foot.enable = mkDefault true;
@@ -38,5 +41,6 @@ in {
   mise.enable = mkDefault true;
   readline.enable = mkDefault true;
   sway.enable = mkDefault true;
+  theme.enable = mkDefault true;
   wezterm.enable = mkDefault true;
 }
