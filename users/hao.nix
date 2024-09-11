@@ -20,13 +20,10 @@
   home.packages = with pkgs; [
     csvlens
     curlie
-    delta
     fd
     fx
     fzf
-    gh
     grex
-    hub
     jq
     neovim
     ov
