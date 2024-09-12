@@ -14,6 +14,7 @@ in {
     ./firefox
     ./foot
     ./fuzzel
+    ./fzf
     ./git
     ./keychain
     ./mako
@@ -32,6 +33,7 @@ in {
   firefox.enable = mkDefault true;
   foot.enable = mkDefault true;
   fuzzel.enable = mkDefault true;
+  fzf.enable = mkDefault true;
   git.enable = mkDefault true;
 
   keychain = {

@@ -30,7 +30,6 @@
     fd
     ferdium
     fx
-    fzf
     grex
     halloy
     htop
