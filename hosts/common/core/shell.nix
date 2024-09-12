@@ -1,5 +1,5 @@
-{ pkgs, ... }:
+{ pkgs, programs, ... }:
 {
-    environment.shells = [ pkgs.bash ];
-    users.defaultUserShell = pkgs.bash;
+    environment.shells = [ pkgs.bashInteractive ];
+    users.defaultUserShell = pkgs.bashInteractive;
 }
