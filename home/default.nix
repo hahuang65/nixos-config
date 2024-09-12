@@ -22,6 +22,7 @@ in {
     ./readline
     ./sway
     ./theme
+    ./wallpaper
     ./wezterm
   ];
   
@@ -44,7 +45,11 @@ in {
   mako.enable = mkDefault true;
   mise.enable = mkDefault true;
   readline.enable = mkDefault true;
-  sway.enable = mkDefault true;
+  sway = {
+    enable = mkDefault true;
+    wallpaper = "unicat.png";
+  };
   theme.enable = mkDefault true;
+  wallpaper.enable = mkDefault true;
   wezterm.enable = mkDefault true;
 }

@@ -1,7 +1,7 @@
 { config, lib, pkgs, ... }:
 
 let
-  inherit (lib) mkEnableOption mkIf;
+  inherit (lib) mkEnableOption mkIf mkOption types;
   mod = "Mod1";
   term = "wezterm";
   editor = "wezterm start -- bash -l -c nvim";
@@ -13,6 +13,10 @@ in {
   options = {
     sway = {
       enable = mkEnableOption "sway";
+      wallpaper = mkOption {
+        type = types.str;
+        description = "Path to wallpaper file";
+      };
     };
   };
   
@@ -36,6 +40,7 @@ in {
 
     wayland.windowManager.sway = {
       enable = true;
+      checkConfig = false; # Otherwise it will error on the `output.*.bg` line.
       config = rec {
         assigns = {
           "1" = [
@@ -187,8 +192,9 @@ in {
 
         output = {
           "*".resolution = "3840x2160";
+          "*".bg = "${config.xdg.userDirs.pictures}/Wallpapers/${config.sway.wallpaper} fill #1e1e2e";
           "${laptopMonitor}" = {
-            scale = "1.2";
+            scale = "1.4";
           };
         };
         
