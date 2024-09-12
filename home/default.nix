@@ -8,10 +8,10 @@ in {
   imports = [
     ./bash
     ./bat
-    ./customFonts
     ./darkman
     ./direnv
     ./firefox
+    ./fonts
     ./foot
     ./fuzzel
     ./fzf
@@ -27,7 +27,7 @@ in {
   
   bash.enable = mkDefault true;
   bat.enable = mkDefault true;
-  customFonts.enable = mkDefault true;
+  fonts.enable = mkDefault true;
   darkman.enable = mkDefault true;
   direnv.enable = mkDefault true;
   firefox.enable = mkDefault true;

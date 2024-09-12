@@ -5,12 +5,12 @@ let
   customFonts = import ../../font { inherit pkgs; };
 in {
   options = {
-    customFonts = {
-      enable = mkEnableOption "customFonts";
+    fonts = {
+      enable = mkEnableOption "fonts";
     };
   };
   
-  config = mkIf config.customFonts.enable {
+  config = mkIf config.fonts.enable {
     fonts.fontconfig.enable = true;
     home.packages = [ customFonts.fonts ];
   };
