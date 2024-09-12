@@ -2,10 +2,7 @@
 
 let
   inherit (lib) mkEnableOption mkIf;
-  conditionalAliases = "conditional_aliases.bash";
-  marksFunc = "marks.bash";
-  pskFunc = "psk.bash";
-  pssFunc = "pss.bash";
+  scriptsDir = ".bash/scripts";
 in {
   options = {
     bash = {
@@ -14,10 +11,19 @@ in {
   };
   
   config = mkIf config.bash.enable {
-    xdg.configFile."bash/${conditionalAliases}".source = ./src/conditionalAliases.bash;
-    xdg.configFile."bash/${marksFunc}".source = ./src/marks.bash;
-    xdg.configFile."bash/${pskFunc}".source = ./src/psk.bash;
-    xdg.configFile."bash/${pssFunc}".source = ./src/pss.bash;
+    home.file = {
+      ".bash/custom" = {
+        source = ./custom;
+        recursive = true;
+      };
+
+      "${scriptsDir}" = {
+        source = ./scripts;
+        recursive = true;
+      };
+    };
+
+    home.sessionPath = [ "$HOME/${scriptsDir}" ];
 
     programs.bash = {
       enable = true;
@@ -62,10 +68,7 @@ in {
           _wanted files expl 'local files' _files
         }
         
-        source ~/.config/bash/${conditionalAliases}
-        source ~/.config/bash/${marksFunc}
-        source ~/.config/bash/${pskFunc}
-        source ~/.config/bash/${pssFunc}
+        for f in ~/.bash/custom/*.bash; do source "$f"; done
       '';
 
       sessionVariables = {

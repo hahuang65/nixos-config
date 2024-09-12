@@ -4,3 +4,5 @@
 function pss() {
   ps aux | grep -i "$1" | grep -v grep
 }
+
+pss

@@ -19,3 +19,5 @@ function psk() {
     kill -9 "$process_id"
   fi
 }
+
+psk
