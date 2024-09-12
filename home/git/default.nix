@@ -2,9 +2,11 @@
 
 let
   inherit (lib) mkEnableOption mkIf;
-  a5Config = ".a5.gitconfig";
-  aliases = ".gitaliases";
-  gitmessage = ".gitmessage";
+  customDir = "${config.xdg.configHome}/git";
+  a5Config = "${customDir}/a5.config";
+  aliases = "${customDir}/aliases";
+  gitmessage = "${customDir}/message";
+  secret = "${customDir}/.secret.config";
   editor = "nvim";
 in {
   options = {
@@ -84,7 +86,7 @@ in {
           ui = "auto";
         };
         commit = {
-          template = "~/${gitmessage}";
+          template = gitmessage;
           verbose = true;
         };
         core = {
@@ -170,17 +172,19 @@ in {
       ];
 
       includes = [
-        { path = "~/.gitconfig.secret"; }
-        { path = "~/${aliases}"; }
+        { path = secret; }
+        { path = aliases; }
         {
-          path = "~/${a5Config}";
+          path = a5Config;
           condition = "gitdir:**/a5/**";
         }
       ];
     };
     
-    home.file."${a5Config}".source = ./a5.config;
-    home.file."${aliases}".source = ./aliases;
-    home.file."${gitmessage}".source = ./message;
+    home.file = {
+      "${aliases}".source = ./aliases;
+      "${gitmessage}".source = ./message;
+      "${a5Config}".source = ./a5.config;
+    };
   };
 }

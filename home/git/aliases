@@ -1,5 +1,5 @@
 [alias]
-  aliases = "!f() { LINE=$(grep --line-number alias ~/.gitaliases | head --lines=1 |cut --fields=1 --delimiter=:); tail --lines=+"$LINE" ~/.gitaliases; }; f"
+  aliases = "!f() { LINE=$(grep --line-number alias ~/.config/git/aliases | head --lines=1 |cut --fields=1 --delimiter=:); tail --lines=+"$LINE" ~/.config/git/aliases; }; f"
   amend = commit --amend
   branches = branch --list
   branch-name = rev-parse --abbrev-ref HEAD

@@ -61,7 +61,6 @@
     w3m
     wget
     wl-clipboard
-    xdg-user-dirs
     xsv
     yank 
     zathura
@@ -121,6 +120,12 @@
 
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
+
+  # User directories
+  xdg.userDirs = {
+    enable = true;
+    createDirectories = true;
+  };
 
   imports = [
     ../home

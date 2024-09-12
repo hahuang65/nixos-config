@@ -2,7 +2,8 @@
 
 let
   inherit (lib) mkEnableOption mkIf;
-  scriptsDir = ".bash/scripts";
+  customDir = "${config.xdg.configHome}/bash/custom";
+  scriptsDir = "${config.xdg.configHome}/bash/scripts";
 in {
   options = {
     bash = {
@@ -12,7 +13,7 @@ in {
   
   config = mkIf config.bash.enable {
     home.file = {
-      ".bash/custom" = {
+      "${customDir}" = {
         source = ./custom;
         recursive = true;
       };
@@ -23,7 +24,7 @@ in {
       };
     };
 
-    home.sessionPath = [ "$HOME/${scriptsDir}" ];
+    home.sessionPath = [ scriptsDir ];
 
     programs.bash = {
       enable = true;
@@ -68,7 +69,7 @@ in {
           _wanted files expl 'local files' _files
         }
         
-        for f in ~/.bash/custom/*.bash; do source "$f"; done
+        for f in ${customDir}/*.bash; do source "$f"; done
       '';
 
       sessionVariables = {

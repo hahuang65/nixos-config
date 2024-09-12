@@ -132,9 +132,9 @@ in {
           "${mod}+space" = "exec ${launcher}";
           "${mod}+shift+space" = "exec ${lock}";
 
-          "${mod}+s" = "exec $HOME/.scripts/scratchpad";
-          "${mod}+w" = "exec $HOME/.scripts/notepad";
-          "${mod}+x" = "exec $HOME/.scripts/docs";
+          "${mod}+s" = "exec ${config.xdg.userDirs.pictures}/.scripts/scratchpad";
+          "${mod}+w" = "exec ${config.xdg.userDirs.pictures}/.scripts/notepad";
+          "${mod}+x" = "exec ${config.xdg.userDirs.pictures}/.scripts/docs";
           "ctrl+shift+p" = "exec 1password --quick-access --ozone-platform-hint=auto";
 
           "${mod}+q" = "kill";
@@ -142,7 +142,7 @@ in {
 
           "${mod}+shift+c" = "reload";
           "${mod}+shift+r" = "mode \"resize\"";
-          "${mod}+shift+4" = "exec grim -g \"$(slurp)\" \"$HOME/Pictures/Screenshots/$(date +'screenshot-%m/%d/%y-%H:%M:%S.png')\"";
+          "${mod}+shift+4" = "exec grim -g \"$(slurp)\" \"${config.xdg.userDirs.pictures}/Pictures/Screenshots/$(date +'screenshot-%m/%d/%y-%H:%M:%S.png')\"";
 
           "${mod}+1" = "workspace number 1";
           "${mod}+2" = "workspace number 2";
