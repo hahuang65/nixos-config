@@ -2,7 +2,7 @@
 
 let
   inherit (lib) mkEnableOption mkIf;
-  customFonts = import ../../font { inherit pkgs; };
+  customFonts = import ../../modules/fonts { inherit pkgs; };
 in {
   options = {
     fonts = {

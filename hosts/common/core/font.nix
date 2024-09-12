@@ -1,7 +1,7 @@
 { pkgs,... }:
 
 let
-  customFonts = import ../../../font { inherit pkgs; };
+  customFonts = import ../../../modules/fonts { inherit pkgs; };
 in {
   fonts.packages = [ customFonts.fonts ];
 }
