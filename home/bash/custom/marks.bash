@@ -28,4 +28,8 @@ _completemarks() {
   return 0
 }
 
-complete -F _completemarks jump unmark j
+set -h
+if hash complete 2>/dev/null; then
+  complete -F _completemarks jump unmark j
+fi
+set +h
