@@ -40,10 +40,6 @@ in {
       ];
 
       profileExtra = ''
-        bind "set completion-ignore-case"
-        bind "set completion-map-case"
-        bind "set show-all-if-ambiguous"
-
         set -o ignoreeof
         set -o noclobber # Use `>|` to force redirection to existing file
 

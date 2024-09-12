@@ -20,6 +20,7 @@ in {
         editing-mode = "vi";
         colored-stats = true;
         completion-ignore-case = true;
+        completion-map-case = true;
         completion-prefix-display-length = 3;
         mark-symlinked-directories = true;
         show-all-if-ambiguous = true;
