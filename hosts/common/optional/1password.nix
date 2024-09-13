@@ -43,6 +43,7 @@ in {
 
     security.polkit = {
       enable = true;
+      # FIXME: This should allow a specific list of users, rather than wheel group
       extraConfig = ''
         /* Allow members of the wheel group to execute the defined actions
          * without password authentication, similar to `sudo NOPASSWD:`

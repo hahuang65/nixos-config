@@ -1,4 +1,4 @@
-{ config, lib, ... }:
+{ config, lib, pkgs, ... }:
 
 let
   inherit (lib) mkEnableOption mkIf;
@@ -18,8 +18,8 @@ in {
     home.file.".default-npm-packages".source = ./default-npm-packages;
     home.file.".default-python-packages".source = ./default-python-packages;
 
-    home.file.".local/bin/asdf" = mkIf config.mise.asdfShimEnable {
-      source = ./asdf;
-    };
+    home.packages = mkIf config.mise.asdfShimEnable [
+      (import ./scripts/asdf.nix { inherit pkgs; })
+    ];
   };
 }

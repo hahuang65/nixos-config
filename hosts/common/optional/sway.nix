@@ -23,7 +23,7 @@ in {
     security.polkit.enable = true;
     security.pam.services.swaylock = {};
 
-    # This next bit doesn't work, but we should fix it instead of hard-coding
+    # FIXME: This next bit doesn't work, but we should fix it instead of hard-coding
     # forEach config.sway.users (u:
     #   users.users.${u}.extraGroups += [ "video" ];
     # )

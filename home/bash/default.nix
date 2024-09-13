@@ -1,9 +1,8 @@
-{ config, lib, ... }:
+{ config, lib, pkgs, ... }:
 
 let
   inherit (lib) mkEnableOption mkIf;
-  customDir = "${config.xdg.configHome}/bash/custom";
-  scriptsDir = "${config.xdg.configHome}/bash/scripts";
+  configDir = "${config.xdg.configHome}/bash";
 in {
   options = {
     bash = {
@@ -12,19 +11,17 @@ in {
   };
   
   config = mkIf config.bash.enable {
-    home.file = {
-      "${customDir}" = {
-        source = ./custom;
-        recursive = true;
-      };
+    home.packages = with pkgs; [
+      (import ./scripts/psk.nix { inherit pkgs; })
+      (import ./scripts/pss.nix { inherit pkgs; })
+    ];
 
-      "${scriptsDir}" = {
-        source = ./scripts;
+    home.file = {
+      "${configDir}" = {
+        source = ./config;
         recursive = true;
       };
     };
-
-    home.sessionPath = [ scriptsDir ];
 
     programs.bash = {
       enable = true;
@@ -69,7 +66,7 @@ in {
           _wanted files expl 'local files' _files
         }
         
-        for f in ${customDir}/*.bash; do source "$f"; done
+        for f in ${configDir}/*.bash; do source "$f"; done
       '';
 
       sessionVariables = {

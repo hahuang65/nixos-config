@@ -2,6 +2,7 @@
 
 let
   inherit (lib) mkEnableOption mkIf mkOption types;
+  waybar-media = (import ./scripts/media.nix { inherit pkgs; });
   mod = "Mod1";
   term = "wezterm";
   editor = "wezterm start -- bash -l -c nvim";
@@ -23,10 +24,8 @@ in {
   config = mkIf config.sway.enable {
     home.packages = with pkgs; [
       brightnessctl
-      gobject-introspection
       grim
       playerctl
-      python312Packages.pygobject3
       slurp
       swaybg
       swayidle
@@ -335,8 +334,221 @@ in {
         target = "sway-session.target";
       };
     };
-    xdg.configFile."waybar/config".source = ./waybar/config;
-    xdg.configFile."waybar/style.css".source = ./waybar/style.css;
-    xdg.configFile."waybar/scripts/mediaplayer.py".source = ./waybar/scripts/mediaplayer.py;
+    xdg.configFile."waybar/config".text = ''
+      {
+        "modules-left": ["sway/workspaces", "sway/mode"],
+        "modules-center": ["cpu", "memory", "temperature"],
+        "modules-right": ["custom/media", "pulseaudio", "backlight", "network", "battery", "idle_inhibitor", "clock#calendar", "clock"],
+        "sway/workspaces": {
+            "disable-scroll": true,
+            "all-outputs": true,
+            "format": "{icon}",
+            "format-icons": {
+                "1": "󰈹",
+                "2": "",
+                "3": "",
+                "4": "",
+            }
+        },
+        "backlight": {
+            "format": "{icon} {percent}%",
+            "format-icons": ["󰃝", "󰃞", "󰃟", "󰃠"]
+        },
+        "battery": {
+            "states": {
+                "good": 80,
+                "warning": 40,
+                "critical": 20
+            },
+            "format": "{icon} {capacity}%",
+            "format-charging": " {capacity}%",
+            "format-icons": ["", "", "", "", ""]
+        },
+        "clock": {
+            "format": "󰥔 {:%H:%M}",
+        },
+        "clock#calendar": {
+            "format": " {:%Y/%m/%d}",
+            "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
+        },
+        "cpu": {
+            "format": "{usage}% ",
+            "tooltip": false
+        },
+        "memory": {
+            "format": "󰍛 {}%"
+        },
+        "network": {
+            "format-wifi": " {essid}",
+            "format-ethernet": " VPN",
+            "tooltip-format-wifi": "Signal Strength: {signalStrength}%",
+            "format-disconnected": "  NONE",
+        },
+        "temperature": {
+            "critical-threshold": 70,
+            "format-critical": "{icon} {temperatureC}°C",
+            "format": "{icon} {temperatureC}°C",
+            "format-icons": [""]
+        },
+        "pulseaudio": {
+            "scroll-step": 1, // %, can be a float
+            "format": "{icon} {volume}% {format_source}",
+            "format-bluetooth": " {icon} {volume}% {format_source}",
+            "format-bluetooth-muted": " 󰝟 {format_source}",
+            "format-muted": "󰝟 {format_source}",
+            "format-source": " {volume}%",
+            "format-source-muted": "",
+            "format-icons": {
+                "default": ["", "", ""]
+            }
+        },
+        "idle_inhibitor": {
+            "format": "{icon}",
+            "format-icons": {
+                "activated": " 󰅶 ",
+                "deactivated": " 󰛊 "
+            }
+        },
+        "custom/media": {
+            "format": "{icon} {}",
+            "return-type": "json",
+            "format-icons": {
+                "spotify": "",
+                "ncspot": "",
+                "default": ""
+            },
+            "escape": true,
+            "on-click": "playerctl play-pause",
+            "exec": "${lib.getExe waybar-media} 2> /dev/null"
+        }
+      }
+    '';
+
+    xdg.configFile."waybar/style.css".text = ''
+      /* Catppuccin */
+      @define-color background #1E1D2F;
+      @define-color highlight  #575268;
+      @define-color foreground #D9E0EE;
+      @define-color comment    #988BA2;
+      @define-color cyan       #89DCEB;
+      @define-color green      #ABE9B3;
+      @define-color orange     #F8BD96;
+      @define-color pink       #F5C2E7;
+      @define-color blue       #96CDFB;
+      @define-color red        #F28FAD;
+      @define-color yellow     #FAE3B0;
+      
+      * {
+        border: none;
+        border-radius: 0;
+        font-family: "Homespun TT BRK", "FontAwesome";
+        font-size: 20px;
+        min-height: 0;
+      }
+      
+      window#waybar {
+        background: @background;
+        border-bottom: 3px solid @orange;
+        color: @yellow;
+      }
+      
+      @keyframes blink {
+        to {
+          background-color: @foreground;
+          color: @foreground;
+        }
+      }
+      
+      #clock,
+      #battery,
+      #cpu,
+      #memory,
+      #temperature,
+      #backlight,
+      #network,
+      #pulseaudio {
+        margin: 0 10px;
+      }
+      
+      #battery {
+        color: @green;
+      }
+      
+      #battery.charging {
+        color: @green;
+      }
+      
+      #battery.good {
+        color: @yellow;
+      }
+      
+      #battery.warning {
+        color: @orange;
+      }
+      
+      #battery.critical {
+        color: @pink;
+      }
+      
+      #battery.warning:not(.charging),
+      #battery.critical:not(.charging) {
+        padding: 0 10px;
+        border-bottom: 3px solid @highlight; /* Same as window#waybar for consistency */
+        background: @red;
+        animation-name: blink;
+        animation-duration: 0.5s;
+        animation-timing-function: linear;
+        animation-iteration-count: infinite;
+        animation-direction: alternate;
+      }
+      
+      #backlight {
+        color: @yellow;
+      }
+      
+      #clock {
+        color: @pink;
+      }
+      
+      #cpu {
+        color: @red;
+      }
+      
+      #memory {
+        color: @cyan;
+      }
+      
+      #network {
+        color: @blue;
+      }
+      
+      #pulseaudio {
+        color: @cyan;
+      }
+      
+      #temperature {
+        color: @orange;
+      }
+      
+      #idle_inhibitor {
+        color: @red;
+      }
+      
+      #temperature.critical {
+        color: @red;
+      }
+      
+      #workspaces button {
+        background: transparent;
+        color: @comment;
+        border-bottom: 3px solid transparent;
+      }
+      
+      #workspaces button.focused {
+        background: @highlight;
+        border-bottom: 2px solid white;
+        color: @orange;
+      }
+    '';
   };
 }

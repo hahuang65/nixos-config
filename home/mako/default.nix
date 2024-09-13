@@ -12,6 +12,7 @@ in {
   config = mkIf config.mako.enable {
     home.packages = with pkgs; [
       libnotify
+      (import ./scripts/test.nix { inherit pkgs; })
     ];
 
     services.mako = {
@@ -39,7 +40,5 @@ in {
         text-color=#f28fad
       '';
     };
-
-    xdg.configFile."mako/test.sh".source = ./test.sh;
   };
 }

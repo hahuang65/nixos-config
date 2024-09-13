@@ -27,6 +27,7 @@
     bandwhich
     csvlens
     curlie
+    erdtree
     fd
     ferdium
     fx
