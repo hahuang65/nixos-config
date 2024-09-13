@@ -2,7 +2,6 @@
 
 let
   inherit (lib) mkEnableOption mkIf;
-  customFonts = import ../../modules/fonts { inherit pkgs; };
 in {
   options = {
     fonts = {
@@ -12,6 +11,5 @@ in {
   
   config = mkIf config.fonts.enable {
     fonts.fontconfig.enable = true;
-    home.packages = [ customFonts.fonts ];
   };
 }
