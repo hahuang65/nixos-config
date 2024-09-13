@@ -2,6 +2,9 @@
 
 let
   inherit (lib) mkEnableOption mkIf mkOption types;
+  docs = (import ./scripts/docs.nix { inherit pkgs; });
+  notepad = (import ./scripts/notepad.nix { inherit pkgs; });
+  scratchpad = (import ./scripts/scratchpad.nix { inherit pkgs; });
   waybar-media = (import ./scripts/media.nix { inherit pkgs; });
   mod = "Mod1";
   term = "wezterm";
@@ -31,6 +34,8 @@ in {
       swayidle
       swaylock-effects
       wl-clipboard
+
+      (import ./scripts/restart.nix { inherit pkgs; })
     ];
 
     home.sessionVariables = {
@@ -131,9 +136,9 @@ in {
           "${mod}+space" = "exec ${launcher}";
           "${mod}+shift+space" = "exec ${lock}";
 
-          "${mod}+s" = "exec ${config.xdg.userDirs.pictures}/.scripts/scratchpad";
-          "${mod}+w" = "exec ${config.xdg.userDirs.pictures}/.scripts/notepad";
-          "${mod}+x" = "exec ${config.xdg.userDirs.pictures}/.scripts/docs";
+          "${mod}+s" = "exec ${lib.getExe scratchpad}";
+          "${mod}+w" = "exec ${lib.getExe notepad}";
+          "${mod}+x" = "exec ${lib.getExe docs}";
           "ctrl+shift+p" = "exec 1password --quick-access --ozone-platform-hint=auto";
 
           "${mod}+q" = "kill";
