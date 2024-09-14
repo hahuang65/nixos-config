@@ -19,6 +19,7 @@ in {
     ./keychain
     ./mako
     ./mise
+    ./neovim
     ./readline
     ./sway
     ./theme
@@ -44,6 +45,7 @@ in {
 
   mako.enable = mkDefault true;
   mise.enable = mkDefault true;
+  neovim.enable = mkDefault true;
   readline.enable = mkDefault true;
   sway = {
     enable = mkDefault true;

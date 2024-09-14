@@ -40,7 +40,6 @@
     jq
     lnav
     miller
-    neovim
     obsidian
     ov
     pastel
