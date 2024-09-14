@@ -1,6 +1,8 @@
 { config, lib, pkgs, ... }:
 
-{
+let
+  inherit (lib) mkDefault;
+in {
   # Home Manager needs a bit of information about you and the paths it should
   # manage.
   home.username = "hao";
@@ -58,6 +60,7 @@
     tokei
     unzip
     urlscan
+    vim
     w3m
     wget
     wl-clipboard
@@ -115,7 +118,7 @@
   #  /etc/profiles/per-user/hao/etc/profile.d/hm-session-vars.sh
   #
   home.sessionVariables = {
-    EDITOR = "nvim";
+    EDITOR = mkDefault "vim";
   };
 
   # Let Home Manager install and manage itself.

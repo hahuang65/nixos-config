@@ -7,7 +7,6 @@ let
   aliases = "${customDir}/aliases";
   gitmessage = "${customDir}/message";
   secret = "${customDir}/.secret.config";
-  editor = "nvim";
 in {
   options = {
     git = {
@@ -88,9 +87,6 @@ in {
         commit = {
           template = gitmessage;
           verbose = true;
-        };
-        core = {
-          editor = editor;
         };
         diff = {
           algorithm = "histogram";

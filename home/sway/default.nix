@@ -8,7 +8,7 @@ let
   waybar-media = (import ./scripts/media.nix { inherit pkgs; });
   mod = "Mod1";
   term = "wezterm";
-  editor = "wezterm start -- bash -l -c nvim";
+  editor = "wezterm start -- bash -l -c $EDITOR";
   laptopMonitor = "eDP-1";
   launcher = "pkill fuzzel || fuzzel";
   lock = "swaylock --daemonize --indicator --screenshots --clock --effect-greyscale --effect-pixelate 5";
