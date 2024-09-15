@@ -7,9 +7,10 @@
       url = "github:nix-community/home-manager/release-24.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    stylix.url = "github:danth/stylix";
   };
 
-  outputs = { self, home-manager, nixpkgs, nixpkgs-unstable, ... }@inputs:
+  outputs = { self, home-manager, nixpkgs, nixpkgs-unstable, stylix, ... }@inputs:
     let
       inherit (self) outputs;
       system = "x86_64-linux";
@@ -37,7 +38,10 @@
       hao = home-manager.lib.homeManagerConfiguration {
         inherit pkgs;
         extraSpecialArgs = { inherit unstable; };
-        modules = [ ./users/hao.nix ];
+        modules = [
+	  stylix.homeManagerModules.stylix
+	  ./users/hao.nix
+	];
       };
     };
   };  

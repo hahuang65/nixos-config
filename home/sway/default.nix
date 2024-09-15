@@ -17,10 +17,6 @@ in {
   options = {
     sway = {
       enable = mkEnableOption "sway";
-      wallpaper = mkOption {
-        type = types.str;
-        description = "Path to wallpaper file";
-      };
     };
   };
   
@@ -67,52 +63,13 @@ in {
 
         bars = []; # Disable swaybar
 
-        colors = {
-          background = "#1e1e2e";
-          focused = {
-            background = "#1e1e2e";
-            border = "#f5c2e7";
-            childBorder = "#cba6f7";
-            indicator = "#f5e0dc";
-            text = "#cdd6f4";
-          };
-          focusedInactive = {
-            background = "#1e1e2e";
-            border = "#cba6f7";
-            childBorder = "#313244";
-            indicator = "#f5e0dc";
-            text = "#cdd6f4";
-          };
-          placeholder = {
-            background = "#1e1e2e";
-            border = "#6c7086";
-            childBorder = "#6c7086";
-            indicator = "#6c7086";
-            text = "#cdd6f4";
-          };
-          unfocused = {
-            background = "#1e1e2e";
-            border = "#cba6f7";
-            childBorder = "#313244";
-            indicator = "#f5e0dc";
-            text = "#cdd6f4";
-          };
-          urgent = {
-            background = "#1e1e2e";
-            border = "#fab387";
-            childBorder = "#f38ba8";
-            indicator = "#6c7086";
-            text = "#fab387";
-          };
-        };
-
         focus = {
           followMouse = false;
           wrapping = "no";
         };
 
         gaps = {
-          inner = 10;
+          inner = 0;
           outer = 10;
         };
 
@@ -196,7 +153,6 @@ in {
 
         output = {
           "*".resolution = "3840x2160";
-          "*".bg = "${config.xdg.userDirs.pictures}/Wallpapers/${config.sway.wallpaper} fill #1e1e2e";
           "${laptopMonitor}" = {
             scale = "1.4";
           };

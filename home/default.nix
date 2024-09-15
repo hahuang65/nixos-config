@@ -21,9 +21,8 @@ in {
     ./mise
     ./neovim
     ./readline
+    ./styles
     ./sway
-    ./theme
-    ./wallpaper
     ./wezterm
   ];
   
@@ -47,11 +46,14 @@ in {
   mise.enable = mkDefault true;
   neovim.enable = mkDefault true;
   readline.enable = mkDefault true;
-  sway = {
-    enable = mkDefault true;
+
+  style = {
+    font.size = {
+      popup = 18;
+    };
     wallpaper = "unicat.png";
   };
-  theme.enable = mkDefault true;
-  wallpaper.enable = mkDefault true;
+
+  sway.enable = mkDefault true;
   wezterm.enable = mkDefault true;
 }

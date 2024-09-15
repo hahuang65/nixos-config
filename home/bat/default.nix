@@ -14,10 +14,7 @@ in {
       enable = true;
       config = {
         style = "plain";
-        theme = "catppuccin";
       };
     };
-
-    xdg.configFile."bat/themes/catppuccin.tmTheme".source = ./catppuccin.tmTheme;
   };
 }
