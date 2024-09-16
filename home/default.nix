@@ -48,7 +48,10 @@ in {
   readline.enable = mkDefault true;
 
   style = {
+    cursor.size = 36;
+    font.style.sansSerif = "General Sans";
     font.size = {
+      desktop = 18;
       popup = 18;
     };
     wallpaper = "unicat.png";

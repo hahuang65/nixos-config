@@ -290,11 +290,139 @@ in {
 
     programs.waybar = {
       enable = true;
+
       systemd = {
         enable = true;
         target = "sway-session.target";
       };
+
+      style = ''
+        @define-color background #${config.lib.stylix.colors.base00};
+        @define-color highlight  #${config.lib.stylix.colors.base02};
+        @define-color foreground #${config.lib.stylix.colors.base05};
+        @define-color comment    #${config.lib.stylix.colors.base03};
+        @define-color cyan       #${config.lib.stylix.colors.base0C};
+        @define-color green      #${config.lib.stylix.colors.base0B};
+        @define-color orange     #${config.lib.stylix.colors.base09};
+        @define-color pink       #${config.lib.stylix.colors.base0F};
+        @define-color blue       #${config.lib.stylix.colors.base0D};
+        @define-color red        #${config.lib.stylix.colors.base08};
+        @define-color yellow     #${config.lib.stylix.colors.base0A};
+        
+        * {
+          border: none;
+          border-radius: 0;
+          font-family: "Homespun TT BRK", "FontAwesome";
+          font-size: ${builtins.toString config.stylix.fonts.sizes.desktop}px;
+          min-height: 0;
+        }
+        
+        window#waybar {
+          background: @background;
+          border-bottom: 3px solid @orange;
+          color: @yellow;
+        }
+        
+        @keyframes blink {
+          to {
+            background-color: @foreground;
+            color: @foreground;
+          }
+        }
+        
+        #clock,
+        #battery,
+        #cpu,
+        #memory,
+        #temperature,
+        #backlight,
+        #network,
+        #pulseaudio {
+          margin: 0 10px;
+        }
+        
+        #battery {
+          color: @green;
+        }
+        
+        #battery.charging {
+          color: @green;
+        }
+        
+        #battery.good {
+          color: @yellow;
+        }
+        
+        #battery.warning {
+          color: @orange;
+        }
+        
+        #battery.critical {
+          color: @pink;
+        }
+        
+        #battery.warning:not(.charging),
+        #battery.critical:not(.charging) {
+          padding: 0 10px;
+          border-bottom: 3px solid @highlight; /* Same as window#waybar for consistency */
+          background: @red;
+          animation-name: blink;
+          animation-duration: 0.5s;
+          animation-timing-function: linear;
+          animation-iteration-count: infinite;
+          animation-direction: alternate;
+        }
+        
+        #backlight {
+          color: @yellow;
+        }
+        
+        #clock {
+          color: @pink;
+        }
+        
+        #cpu {
+          color: @red;
+        }
+        
+        #memory {
+          color: @cyan;
+        }
+        
+        #network {
+          color: @blue;
+        }
+        
+        #pulseaudio {
+          color: @cyan;
+        }
+        
+        #temperature {
+          color: @orange;
+        }
+        
+        #idle_inhibitor {
+          color: @red;
+        }
+        
+        #temperature.critical {
+          color: @red;
+        }
+        
+        #workspaces button {
+          background: transparent;
+          color: @comment;
+          border-bottom: 3px solid transparent;
+        }
+        
+        #workspaces button.focused {
+          background: @highlight;
+          border-bottom: 2px solid white;
+          color: @orange;
+        }
+      '';
     };
+
     xdg.configFile."waybar/config".text = ''
       {
         "modules-left": ["sway/workspaces", "sway/mode"],
@@ -312,7 +440,7 @@ in {
             }
         },
         "backlight": {
-            "format": "{icon} {percent}%",
+            "format": "{percent}% {icon}",
             "format-icons": ["󰃝", "󰃞", "󰃟", "󰃠"]
         },
         "battery": {
@@ -321,15 +449,15 @@ in {
                 "warning": 40,
                 "critical": 20
             },
-            "format": "{icon} {capacity}%",
-            "format-charging": " {capacity}%",
+            "format": "{capacity}% {icon}",
+            "format-charging": "{capacity}% ",
             "format-icons": ["", "", "", "", ""]
         },
         "clock": {
-            "format": "󰥔 {:%H:%M}",
+            "format": "{:%H:%M} 󰥔",
         },
         "clock#calendar": {
-            "format": " {:%Y/%m/%d}",
+            "format": "{:%Y/%m/%d} ",
             "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
         },
         "cpu": {
@@ -337,27 +465,27 @@ in {
             "tooltip": false
         },
         "memory": {
-            "format": "󰍛 {}%"
+            "format": "{}% 󰍛"
         },
         "network": {
-            "format-wifi": " {essid}",
-            "format-ethernet": " VPN",
+            "format-wifi": "{essid} ",
+            "format-ethernet": "VPN ",
             "tooltip-format-wifi": "Signal Strength: {signalStrength}%",
-            "format-disconnected": "  NONE",
+            "format-disconnected": "NONE ",
         },
         "temperature": {
             "critical-threshold": 70,
             "format-critical": "{icon} {temperatureC}°C",
-            "format": "{icon} {temperatureC}°C",
+            "format": "{temperatureC}°C {icon}",
             "format-icons": [""]
         },
         "pulseaudio": {
             "scroll-step": 1, // %, can be a float
-            "format": "{icon} {volume}% {format_source}",
-            "format-bluetooth": " {icon} {volume}% {format_source}",
-            "format-bluetooth-muted": " 󰝟 {format_source}",
-            "format-muted": "󰝟 {format_source}",
-            "format-source": " {volume}%",
+            "format": "{volume}% {icon}  | {format_source}",
+            "format-bluetooth": "{volume}% {icon}  | {format_source}",
+            "format-bluetooth-muted": " 󰝟  | {format_source}",
+            "format-muted": "󰝟  | {format_source}",
+            "format-source": "{volume}% ",
             "format-source-muted": "",
             "format-icons": {
                 "default": ["", "", ""]
@@ -371,7 +499,7 @@ in {
             }
         },
         "custom/media": {
-            "format": "{icon} {}",
+            "format": "{} {icon}",
             "return-type": "json",
             "format-icons": {
                 "spotify": "",
@@ -385,131 +513,5 @@ in {
       }
     '';
 
-    xdg.configFile."waybar/style.css".text = ''
-      /* Catppuccin */
-      @define-color background #1E1D2F;
-      @define-color highlight  #575268;
-      @define-color foreground #D9E0EE;
-      @define-color comment    #988BA2;
-      @define-color cyan       #89DCEB;
-      @define-color green      #ABE9B3;
-      @define-color orange     #F8BD96;
-      @define-color pink       #F5C2E7;
-      @define-color blue       #96CDFB;
-      @define-color red        #F28FAD;
-      @define-color yellow     #FAE3B0;
-      
-      * {
-        border: none;
-        border-radius: 0;
-        font-family: "Homespun TT BRK", "FontAwesome";
-        font-size: 20px;
-        min-height: 0;
-      }
-      
-      window#waybar {
-        background: @background;
-        border-bottom: 3px solid @orange;
-        color: @yellow;
-      }
-      
-      @keyframes blink {
-        to {
-          background-color: @foreground;
-          color: @foreground;
-        }
-      }
-      
-      #clock,
-      #battery,
-      #cpu,
-      #memory,
-      #temperature,
-      #backlight,
-      #network,
-      #pulseaudio {
-        margin: 0 10px;
-      }
-      
-      #battery {
-        color: @green;
-      }
-      
-      #battery.charging {
-        color: @green;
-      }
-      
-      #battery.good {
-        color: @yellow;
-      }
-      
-      #battery.warning {
-        color: @orange;
-      }
-      
-      #battery.critical {
-        color: @pink;
-      }
-      
-      #battery.warning:not(.charging),
-      #battery.critical:not(.charging) {
-        padding: 0 10px;
-        border-bottom: 3px solid @highlight; /* Same as window#waybar for consistency */
-        background: @red;
-        animation-name: blink;
-        animation-duration: 0.5s;
-        animation-timing-function: linear;
-        animation-iteration-count: infinite;
-        animation-direction: alternate;
-      }
-      
-      #backlight {
-        color: @yellow;
-      }
-      
-      #clock {
-        color: @pink;
-      }
-      
-      #cpu {
-        color: @red;
-      }
-      
-      #memory {
-        color: @cyan;
-      }
-      
-      #network {
-        color: @blue;
-      }
-      
-      #pulseaudio {
-        color: @cyan;
-      }
-      
-      #temperature {
-        color: @orange;
-      }
-      
-      #idle_inhibitor {
-        color: @red;
-      }
-      
-      #temperature.critical {
-        color: @red;
-      }
-      
-      #workspaces button {
-        background: transparent;
-        color: @comment;
-        border-bottom: 3px solid transparent;
-      }
-      
-      #workspaces button.focused {
-        background: @highlight;
-        border-bottom: 2px solid white;
-        color: @orange;
-      }
-    '';
   };
 }

@@ -161,6 +161,10 @@ in {
 	  terminal = config.style.font.size.terminal;
 	};
       };
+    
+      targets = {
+        waybar.enable = false;
+      };
     };
 
     gtk = {
