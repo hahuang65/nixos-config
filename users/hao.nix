@@ -19,10 +19,7 @@ in {
 
   # The home.packages option allows you to install Nix packages into your
   # environment.
-  nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
-    "obsidian"
-    "slack"
-  ];
+  nixpkgs.config.allowUnfree = true;
 
   home.packages = with pkgs; [
     atac

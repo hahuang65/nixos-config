@@ -10,6 +10,7 @@ let
     git
     gnumake
     home-manager
+    nix-bundle
     openssh
     vim
     wget
