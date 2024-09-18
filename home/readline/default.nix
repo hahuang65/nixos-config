@@ -2,13 +2,14 @@
 
 let
   inherit (lib) mkEnableOption mkIf;
-in {
+in
+{
   options = {
     readline = {
       enable = mkEnableOption "readline";
     };
   };
-  
+
   config = mkIf config.readline.enable {
     programs.readline = {
       enable = true;

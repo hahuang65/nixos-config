@@ -2,13 +2,14 @@
 
 let
   inherit (lib) mkEnableOption mkIf;
-in {
+in
+{
   options = {
     wezterm = {
       enable = mkEnableOption "wezterm";
     };
   };
-  
+
   config = mkIf config.wezterm.enable {
     programs.wezterm.enable = true;
 

@@ -2,9 +2,7 @@
 
 pkgs.writeShellApplication {
   name = "asdf";
-  runtimeInputs = with pkgs; [
-    mise
-  ];
+  runtimeInputs = with pkgs; [ mise ];
 
   text = ''
     case "$1" in
@@ -12,7 +10,7 @@ pkgs.writeShellApplication {
       shift
       mise plugin add "$@"
       ;;
-    
+
     *)
       mise "$@"
       ;;

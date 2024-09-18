@@ -1,14 +1,20 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   inherit (lib) mkEnableOption mkIf;
-in {
+in
+{
   options = {
     mako = {
       enable = mkEnableOption "mako";
     };
   };
-  
+
   config = mkIf config.mako.enable {
     home.packages = with pkgs; [
       libnotify

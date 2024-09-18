@@ -11,14 +11,14 @@ pkgs.writeShellApplication {
     toggle_docs() {
       if ! docs_opened; then
         launch_docs
-    
+
         while ! pgrep "zeal" >/dev/null; do
           sleep .1
         done
         sleep 1
         position_docs
       fi
-    
+
       focus_docs
     }
 

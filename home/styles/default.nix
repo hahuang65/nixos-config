@@ -1,9 +1,21 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
-  inherit (lib) mkDefault mkEnableOption mkIf mkOption types;
+  inherit (lib)
+    mkDefault
+    mkEnableOption
+    mkIf
+    mkOption
+    types
+    ;
   customFonts = import ../../modules/fonts { inherit pkgs; };
-in {
+in
+{
   options = {
     style = {
       wallpaper = mkOption {
@@ -71,7 +83,7 @@ in {
             description = "Font size for applications to use";
             default = 12;
           };
-          
+
           desktop = mkOption {
             type = types.int;
             description = "Font size for WM (desktop chrome) to use";
@@ -121,7 +133,7 @@ in {
       };
     };
   };
-  
+
   config = {
     home.packages = [ pkgs.dconf ];
 
@@ -138,30 +150,30 @@ in {
 
       fonts = {
         serif = {
-	  package = customFonts.fonts;
-	  name = config.style.font.style.serif;
-	};
+          package = customFonts.fonts;
+          name = config.style.font.style.serif;
+        };
         sansSerif = {
-	  package = customFonts.fonts;
-	  name = config.style.font.style.sansSerif;
-	};
+          package = customFonts.fonts;
+          name = config.style.font.style.sansSerif;
+        };
         monospace = {
-	  package = customFonts.fonts;
-	  name = config.style.font.style.monospace;
-	};
+          package = customFonts.fonts;
+          name = config.style.font.style.monospace;
+        };
         emoji = {
-	  package = customFonts.fonts;
-	  name = config.style.font.style.emoji;
-	};
+          package = customFonts.fonts;
+          name = config.style.font.style.emoji;
+        };
 
-	sizes = {
-	  applications = config.style.font.size.application;
-	  desktop = config.style.font.size.desktop;
-	  popups = config.style.font.size.popup;
-	  terminal = config.style.font.size.terminal;
-	};
+        sizes = {
+          applications = config.style.font.size.application;
+          desktop = config.style.font.size.desktop;
+          popups = config.style.font.size.popup;
+          terminal = config.style.font.size.terminal;
+        };
       };
-    
+
       targets = {
         neovim.enable = false;
         waybar.enable = false;

@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   inherit (lib) mkEnableOption mkIf;
@@ -7,13 +12,14 @@ let
   aliases = "${customDir}/aliases";
   gitmessage = "${customDir}/message";
   secret = "${customDir}/.secret.config";
-in {
+in
+{
   options = {
     git = {
       enable = mkEnableOption "git";
     };
   };
-  
+
   config = mkIf config.git.enable {
     home.packages = with pkgs; [
       delta
@@ -78,7 +84,7 @@ in {
         init = {
           defaultBranch = "main";
         };
-	branch = {
+        branch = {
           sort = "-committerdate";
         };
         color = {
@@ -176,7 +182,7 @@ in {
         }
       ];
     };
-    
+
     home.file = {
       "${aliases}".source = ./aliases;
       "${gitmessage}".source = ./message;

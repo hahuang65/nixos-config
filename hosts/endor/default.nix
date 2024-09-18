@@ -24,7 +24,7 @@
 
   printing.enable = true;
   pipewire.enable = true;
-  
+
   sway = {
     enable = true;
     users = [ "hao" ];

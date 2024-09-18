@@ -2,13 +2,14 @@
 
 let
   inherit (lib) mkEnableOption mkIf;
-in {
+in
+{
   options = {
     bat = {
       enable = mkEnableOption "bat";
     };
   };
-  
+
   config = mkIf config.bat.enable {
     programs.bat = {
       enable = true;

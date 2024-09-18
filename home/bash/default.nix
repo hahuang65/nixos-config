@@ -1,15 +1,21 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   inherit (lib) mkEnableOption mkIf;
   configDir = "${config.xdg.configHome}/bash";
-in {
+in
+{
   options = {
     bash = {
       enable = mkEnableOption "bash";
     };
   };
-  
+
   config = mkIf config.bash.enable {
     home.packages = with pkgs; [
       (import ./scripts/psk.nix { inherit pkgs; })
@@ -65,7 +71,7 @@ in {
         __git_files() {
           _wanted files expl 'local files' _files
         }
-        
+
         for f in ${configDir}/*.bash; do source "$f"; done
       '';
 

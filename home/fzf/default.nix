@@ -2,13 +2,14 @@
 
 let
   inherit (lib) mkEnableOption mkIf;
-in {
+in
+{
   options = {
     fzf = {
       enable = mkEnableOption "fzf";
     };
   };
-  
+
   config = mkIf config.fzf.enable {
     programs.fzf = {
       enable = true;
@@ -24,9 +25,7 @@ in {
         "--color header:italic"
       ];
 
-      changeDirWidgetOptions = [
-        "--preview 'tree -C {}'"
-      ];
+      changeDirWidgetOptions = [ "--preview 'tree -C {}'" ];
     };
   };
 }

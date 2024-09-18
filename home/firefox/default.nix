@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   inherit (lib) mkEnableOption mkIf;
@@ -12,13 +17,14 @@ let
     Value = true;
     Status = "locked";
   };
-in {
+in
+{
   options = {
     firefox = {
       enable = mkEnableOption "firefox";
     };
   };
-  
+
   config = mkIf config.firefox.enable {
     programs.firefox = {
       enable = true;
@@ -81,9 +87,12 @@ in {
           };
         };
 
-	# See about:config for options
+        # See about:config for options
         Preferences = {
-          "browser.contentblocking.category" = { Value = "strict"; Status = "locked"; };
+          "browser.contentblocking.category" = {
+            Value = "strict";
+            Status = "locked";
+          };
           "browser.newtabpage.activity-stream.feeds.section.highlights.includeBookmarks" = lock-false;
           "browser.newtabpage.activity-stream.feeds.section.highlights.includeDownloads" = lock-false;
           "browser.newtabpage.activity-stream.feeds.section.highlights.includePocket" = lock-false;
@@ -97,7 +106,7 @@ in {
           "extensions.pocket.enabled" = lock-false;
           "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
           "widget.use-xdg-desktop-portal.file-picker" = 1;
-	}; 
+        };
       };
       profiles = {
         profile_0 = {
@@ -106,16 +115,16 @@ in {
           name = "profile_0";
 
           settings = {
-	    "browser.search.suggest.enabled.private" = lock-false;
-	    "browser.sessionstore.enabled" = lock-true;
-	    "browser.sessionstore.resume_from_crash" = lock-true;
-	    "browser.sessionstore.resume_session_once" = lock-true;
-	    "browser.tabs.drawInTitlebar" = lock-true;
-	    "browser.tabs.tabmanager.enabled" = lock-false;
-	    "browser.urlbar.suggest.addons" = lock-false;
-	    "browser.urlbar.suggest.pocket" = lock-false;
-	    "browser.urlbar.suggest.topsites" = lock-false;
-	    "general.smoothScroll" = lock-true;
+            "browser.search.suggest.enabled.private" = lock-false;
+            "browser.sessionstore.enabled" = lock-true;
+            "browser.sessionstore.resume_from_crash" = lock-true;
+            "browser.sessionstore.resume_session_once" = lock-true;
+            "browser.tabs.drawInTitlebar" = lock-true;
+            "browser.tabs.tabmanager.enabled" = lock-false;
+            "browser.urlbar.suggest.addons" = lock-false;
+            "browser.urlbar.suggest.pocket" = lock-false;
+            "browser.urlbar.suggest.topsites" = lock-false;
+            "general.smoothScroll" = lock-true;
             "browser.newtabpage.activity-stream.showSponsoredTopSites" = lock-false;
             "browser.startup.homepage" = "about:blank";
             "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
@@ -127,7 +136,7 @@ in {
         };
       };
     };
-    
+
     home.sessionVariables = {
       MOZ_USE_XINPUT2 = "1"; # Improves touchscreen/touchpad, and smoothscroll
     };
@@ -148,7 +157,7 @@ in {
         --yellow: #${config.lib.stylix.colors.base0A};
         --font: "${config.stylix.fonts.sansSerif.name}";
         --fontsize: ${builtins.toString config.stylix.fonts.sizes.popups}pt;
-      
+
         --tridactyl-fg: var(--fg);
         --tridactyl-bg: var(--bg);
         --tridactyl-url-fg: var(--pink);
@@ -162,11 +171,11 @@ in {
         --tridactyl-cmplt-font-family: var(--font);
         --tridactyl-hintspan-font-family: var(--font);
         --tridactyl-hintspan-font-size: var(--fontsize);
-      
+
         /* Hint character tags */
         --tridactyl-hintspan-fg: var(--bg) !important;
         --tridactyl-hintspan-bg: var(--pink) !important;
-      
+
         /* Element Highlights */
         --tridactyl-hint-active-fg: none;
         --tridactyl-hint-active-bg: none;
@@ -174,13 +183,13 @@ in {
         --tridactyl-hint-bg: none;
         --tridactyl-hint-outline: none;
       }
-      
+
       #command-line-holder {
         order: 1;
         border: 2px solid var(--purple);
         background: var(--tridactyl-bg);
       }
-      
+
       #tridactyl-input {
         padding: 1rem;
         color: var(--tridactyl-fg);
@@ -191,7 +200,7 @@ in {
         padding-left: unset;
         padding: 1rem;
       }
-      
+
       #completions table {
         font-size: var(--fontsize);
         font-weight: 200;
@@ -201,14 +210,14 @@ in {
         padding-top: 0 !important;
         padding-bottom: 1rem;
       }
-      
+
       #completions > div {
         max-height: calc(20 * var(--option-height));
         min-height: calc(10 * var(--option-height));
       }
-      
+
       /* COMPLETIONS */
-      
+
       #completions {
         --option-height: 1.4em;
         color: var(--tridactyl-fg);
@@ -221,50 +230,50 @@ in {
         border-top: unset;
         order: 2;
       }
-      
+
       /* Olie doesn't know how CSS inheritance works */
       #completions .HistoryCompletionSource {
         max-height: unset;
         min-height: unset;
       }
-      
+
       #completions .HistoryCompletionSource table {
         width: 100%;
         font-size: var(--fontsize);
         border-spacing: 0;
         table-layout: fixed;
       }
-      
+
       /* redundancy 2: redundancy 2: more redundancy */
       #completions .BmarkCompletionSource {
         max-height: unset;
         min-height: unset;
       }
-      
+
       #completions table tr td.prefix,
       #completions table tr td.privatewindow,
       #completions table tr td.container,
       #completions table tr td.icon {
         display: none;
       }
-      
+
       #completions .BufferCompletionSource table {
         width: unset;
         font-size: unset;
         border-spacing: unset;
         table-layout: unset;
       }
-      
+
       #completions table tr .title {
         width: 50%;
       }
-      
+
       #completions table tr {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
       }
-      
+
       #completions .sectionHeader {
         background: unset;
         font-weight: bold;
@@ -273,7 +282,7 @@ in {
         padding-left: unset;
         padding-bottom: 0.2rem !important;
       }
-      
+
       #cmdline_iframe {
         position: fixed !important;
         bottom: unset;
@@ -283,7 +292,7 @@ in {
         width: 80% !important;
         box-shadow: rgba(0, 0, 0, 0.5) 0px 0px 20px !important;
       }
-      
+
       .TridactylStatusIndicator {
         position: fixed !important;
         bottom: 0 !important;
@@ -294,12 +303,12 @@ in {
         /*font-weight: 200 !important;*/
         padding: 0.8ex !important;
       }
-      
+
       #completions .focused {
         background: var(--pink);
         color: var(--bg);
       }
-      
+
       #completions .focused .url {
         background: var(--pink);
         color: var(--bg);

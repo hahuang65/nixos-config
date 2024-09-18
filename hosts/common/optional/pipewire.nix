@@ -1,7 +1,8 @@
 { config, lib, ... }:
 let
   inherit (lib) mkEnableOption mkIf;
-in {
+in
+{
   options = {
     pipewire = {
       enable = mkEnableOption "pipewire";

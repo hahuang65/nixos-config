@@ -2,9 +2,7 @@
 
 pkgs.writeShellApplication {
   name = "notepad";
-  runtimeInputs = with pkgs; [
-    obsidian
-  ];
+  runtimeInputs = with pkgs; [ obsidian ];
 
   text = ''
     toggle_notepad() {
@@ -16,33 +14,33 @@ pkgs.writeShellApplication {
         sleep 1
         position_notepad
       fi
-    
+
       focus_notepad
     }
-    
+
     notepad_opened() {
       pgrep --full "obsidian" | wc --lines
     }
-    
+
     launch_notepad() {
       obsidian &
     }
-    
+
     position_notepad() {
       swaymsg "[instance=obsidian] move scratchpad"
       resize_notepad
     }
-    
+
     resize_notepad() {
       swaymsg "[instance=obsidian] resize set 2560 1440"
       swaymsg "[instance=obsidian] move absolute position center"
     }
-    
+
     focus_notepad() {
       resize_notepad
       swaymsg "[instance=obsidian] scratchpad show"
     }
-    
+
     toggle_notepad
   '';
 }

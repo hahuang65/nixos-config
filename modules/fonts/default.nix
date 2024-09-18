@@ -1,4 +1,6 @@
-{ pkgs ? import <nixpkgs> {} }:
+{
+  pkgs ? import <nixpkgs> { },
+}:
 
 let
   fonts = pkgs.stdenvNoCC.mkDerivation {
@@ -22,7 +24,6 @@ let
 in
 {
   inherit fonts;
-  
+
   xdg.configFile."fontconfig/noto-emoji.conf".source = "./custom/truetype/Noto Color Emoji/noto-emoji.conf";
 }
-

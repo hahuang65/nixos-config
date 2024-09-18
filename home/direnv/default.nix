@@ -2,14 +2,13 @@
 
 let
   inherit (lib) mkEnableOption mkIf;
-in {
+in
+{
   options = {
     direnv = {
       enable = mkEnableOption "direnv";
     };
   };
-  
-  config = mkIf config.direnv.enable {
-    programs.direnv.enable = true;
-  };
+
+  config = mkIf config.direnv.enable { programs.direnv.enable = true; };
 }

@@ -2,13 +2,14 @@
 
 let
   inherit (lib) mkEnableOption mkIf;
-in {
+in
+{
   options = {
     bluetooth = {
       enable = mkEnableOption "bluetooth";
     };
   };
-  
+
   config = mkIf config.bluetooth.enable {
     home.packages = with pkgs; [
       blueberry

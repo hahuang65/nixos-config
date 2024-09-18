@@ -1,7 +1,17 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
-  inherit (lib) mkEnableOption mkIf mkOption types;
+  inherit (lib)
+    mkEnableOption
+    mkIf
+    mkOption
+    types
+    ;
   docs = (import ./scripts/docs.nix { inherit pkgs; });
   notepad = (import ./scripts/notepad.nix { inherit pkgs; });
   scratchpad = (import ./scripts/scratchpad.nix { inherit pkgs; });
@@ -13,13 +23,14 @@ let
   launcher = "pkill fuzzel || fuzzel";
   lock = "swaylock --daemonize --indicator --screenshots --clock --effect-greyscale --effect-pixelate 5";
   lockWithGrace = "${lock} --grace 15";
-in {
+in
+{
   options = {
     sway = {
       enable = mkEnableOption "sway";
     };
   };
-  
+
   config = mkIf config.sway.enable {
     home.packages = with pkgs; [
       brightnessctl
@@ -56,12 +67,10 @@ in {
             { class = "senpai"; }
             { class = "Slack"; }
           ];
-          "3" = [
-            { app_id = "mpv"; }
-          ];
+          "3" = [ { app_id = "mpv"; } ];
         };
 
-        bars = []; # Disable swaybar
+        bars = [ ]; # Disable swaybar
 
         focus = {
           followMouse = false;
@@ -157,10 +166,12 @@ in {
             scale = "1.4";
           };
         };
-        
+
         startup = [
           { command = "1password --silent"; }
-          { command = "swayidle -w timeout 900 ${lockWithGrace} timeout 1000 'swaymsg \"output * power off\"' resume 'swaymsg \"output * power on \"' before-sleep ${lock}"; }
+          {
+            command = "swayidle -w timeout 900 ${lockWithGrace} timeout 1000 'swaymsg \"output * power off\"' resume 'swaymsg \"output * power on \"' before-sleep ${lock}";
+          }
         ];
 
         terminal = term;
@@ -270,7 +281,7 @@ in {
               };
               command = "floating enable";
             }
-          ];  
+          ];
 
           titlebar = false;
         };
@@ -308,7 +319,7 @@ in {
         @define-color blue       #${config.lib.stylix.colors.base0D};
         @define-color red        #${config.lib.stylix.colors.base08};
         @define-color yellow     #${config.lib.stylix.colors.base0A};
-        
+
         * {
           border: none;
           border-radius: 0;
@@ -316,20 +327,20 @@ in {
           font-size: ${builtins.toString config.stylix.fonts.sizes.desktop}px;
           min-height: 0;
         }
-        
+
         window#waybar {
           background: @background;
           border-bottom: 3px solid @orange;
           color: @yellow;
         }
-        
+
         @keyframes blink {
           to {
             background-color: @foreground;
             color: @foreground;
           }
         }
-        
+
         #clock,
         #battery,
         #cpu,
@@ -340,27 +351,27 @@ in {
         #pulseaudio {
           margin: 0 10px;
         }
-        
+
         #battery {
           color: @green;
         }
-        
+
         #battery.charging {
           color: @green;
         }
-        
+
         #battery.good {
           color: @yellow;
         }
-        
+
         #battery.warning {
           color: @orange;
         }
-        
+
         #battery.critical {
           color: @pink;
         }
-        
+
         #battery.warning:not(.charging),
         #battery.critical:not(.charging) {
           padding: 0 10px;
@@ -372,49 +383,49 @@ in {
           animation-iteration-count: infinite;
           animation-direction: alternate;
         }
-        
+
         #backlight {
           color: @yellow;
         }
-        
+
         #clock {
           color: @pink;
         }
-        
+
         #cpu {
           color: @red;
         }
-        
+
         #memory {
           color: @cyan;
         }
-        
+
         #network {
           color: @blue;
         }
-        
+
         #pulseaudio {
           color: @cyan;
         }
-        
+
         #temperature {
           color: @orange;
         }
-        
+
         #idle_inhibitor {
           color: @red;
         }
-        
+
         #temperature.critical {
           color: @red;
         }
-        
+
         #workspaces button {
           background: transparent;
           color: @comment;
           border-bottom: 3px solid transparent;
         }
-        
+
         #workspaces button.focused {
           background: @highlight;
           border-bottom: 2px solid white;

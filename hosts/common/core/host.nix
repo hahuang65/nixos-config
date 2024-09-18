@@ -2,7 +2,12 @@
 # your system. Help is available in the configuration.nix(5) man page, on
 # https://search.nixos.org/options and in the NixOS manual (`nixos-help`).
 
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
   inherit (lib) lists mkOption types;
   cfg = config.host;
@@ -15,12 +20,13 @@ let
     vim
     wget
   ];
-in {
+in
+{
   options = {
     host = {
       extraPkgs = mkOption {
         type = types.listOf types.package;
-        default = [];
+        default = [ ];
         description = "List of extra packages to install, on top of basePkgs";
       };
 
@@ -29,15 +35,15 @@ in {
         description = "Hostname for the system";
       };
     };
-    
+
   };
-  
+
   config = {
     # Hostname
     networking.hostName = cfg.name;
 
     # List packages installed in system profile. To search, run:
     # $ nix search wget
-    environment.systemPackages = lists.unique(basePkgs ++ cfg.extraPkgs);
+    environment.systemPackages = lists.unique (basePkgs ++ cfg.extraPkgs);
   };
 }

@@ -2,9 +2,7 @@
 
 pkgs.writeShellApplication {
   name = "restart-waybar";
-  runtimeInputs = with pkgs; [
-    waybar
-  ];
+  runtimeInputs = with pkgs; [ waybar ];
 
   text = ''
     pgrep --full waybar | xargs kill -9

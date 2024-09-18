@@ -1,8 +1,14 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   inherit (lib) mkDefault;
-in {
+in
+{
   # Home Manager needs a bit of information about you and the paths it should
   # manage.
   home.username = "hao";
@@ -62,7 +68,7 @@ in {
     wget
     wl-clipboard
     xsv
-    yank 
+    yank
     zathura
     zeal
     # # Adds the 'hello' command to your environment. It prints a friendly
@@ -127,7 +133,5 @@ in {
     createDirectories = true;
   };
 
-  imports = [
-    ../home
-  ];
+  imports = [ ../home ];
 }

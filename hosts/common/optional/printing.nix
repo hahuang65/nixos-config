@@ -1,7 +1,8 @@
 { config, lib, ... }:
 let
   inherit (lib) mkEnableOption mkIf;
-in {
+in
+{
   options = {
     printing = {
       enable = mkEnableOption "printing";
@@ -9,7 +10,7 @@ in {
   };
 
   config = mkIf config.printing.enable {
-   # Enable CUPS to print documents.
-   services.printing.enable = true;
+    # Enable CUPS to print documents.
+    services.printing.enable = true;
   };
 }

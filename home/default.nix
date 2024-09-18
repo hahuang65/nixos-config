@@ -2,7 +2,8 @@
 
 let
   inherit (lib) mkDefault;
-in {
+in
+{
   news.display = "silent";
 
   imports = [
@@ -25,7 +26,7 @@ in {
     ./sway
     ./wezterm
   ];
-  
+
   bash.enable = mkDefault true;
   bat.enable = mkDefault true;
   fonts.enable = mkDefault true;
