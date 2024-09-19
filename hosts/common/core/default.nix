@@ -4,7 +4,6 @@
     ./bootloader.nix
     ./font.nix
     ./host.nix
-    ./just.nix
     ./locale.nix
     ./networking.nix
     ./shell.nix

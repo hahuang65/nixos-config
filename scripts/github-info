@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+
+PARENT=$(echo ${1%/*})
+OWNER=$(echo ${PARENT##*/})
+REPO=$(echo ${1##*/})
+nix run nixpkgs#nix-prefetch-github "$OWNER" "$REPO" \
+	| head -n -1 \
+	| tail -n +2 \
+	| sed -E 's/(^ *)"([^"]*)":/\1\2:/' \
+	| sed 's/:/ =/' \
+	| sed '/[^,] *$/s/$/,/' \
+	| sed 's/,$/;/' \
+	| awk '{$1=$1;print}'

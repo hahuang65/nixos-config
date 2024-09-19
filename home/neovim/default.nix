@@ -15,11 +15,11 @@ let
       rev,
       hash,
     }:
-    # Run `nx git-info <githubUrl>` to get info to fill in here:
     # TODO: Can we make this less onerous to add/update?
     pkgs.vimUtils.buildVimPlugin {
       name = "${pkgs.lib.strings.sanitizeDerivationName owner}/${pkgs.lib.strings.sanitizeDerivationName repo}";
       src = pkgs.fetchFromGitHub {
+        # Use `scripts/github-info` to populate
         owner = owner;
         repo = repo;
         rev = rev;
