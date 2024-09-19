@@ -49,7 +49,13 @@ in
         "* --help"
       ];
 
-      profileExtra = ''
+      bashrcExtra = ''
+        export CLICOLOR=1;
+        export GREP_COLOR="mt=1;32";
+        export HISTTIMEFORMAT="%F %T - "; # Add timestamps to history
+        export PROMPT_COMMAND="history -a"; # Append to history immediately instead of session end
+        export PS1="\\[\\e[34m\\]\$(git prompt 2>/dev/null)\\[\\e[39m\\]$ ";
+
         set -o ignoreeof
         set -o noclobber # Use `>|` to force redirection to existing file
 
@@ -75,26 +81,16 @@ in
         for f in ${configDir}/*.bash; do source "$f"; done
       '';
 
-      sessionVariables = {
-        CLICOLOR = 1;
-        GREP_COLOR = "mt=1;32";
-
-        PS1 = "\\[\\e[34m\\]\$(git prompt 2>/dev/null)\\[\\e[39m\\]$ ";
-
-        PROMPT_COMMAND = "history -a"; # Append to history immediately instead of session end
-        HISTTIMEFORMAT = "%F %T - "; # Add timestamps to history
-      };
-
       shellAliases = {
         ".." = "cd .. ";
         cp = "cp --interactive --verbose --recursive";
         grep = "grep --color=auto";
         hs = "history | grep --color=auto";
-        ll = "ls -l";
         ls = "ls --color=auto";
         mkdir = "mkdir --verbose --parents";
         mv = "mv --interactive --verbose";
         open = "xdg-open";
+        v = "vim";
       };
     };
   };
