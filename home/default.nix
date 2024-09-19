@@ -22,6 +22,7 @@ in
     ./mise
     ./neovim
     ./readline
+    ./sops
     ./styles
     ./sway
     ./wezterm

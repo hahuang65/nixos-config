@@ -1,18 +1,15 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}:
+{ lib, pkgs, ... }:
 
 let
   inherit (lib) mkDefault;
+  username = "hao";
+  homeDir = "/home/${username}";
 in
 {
   # Home Manager needs a bit of information about you and the paths it should
   # manage.
-  home.username = "hao";
-  home.homeDirectory = "/home/hao";
+  home.username = username;
+  home.homeDirectory = homeDir;
 
   # This value determines the Home Manager release that your configuration is
   # compatible with. This helps avoid breakage when a new Home Manager release
