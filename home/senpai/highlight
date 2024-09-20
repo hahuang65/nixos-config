@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+escape() {
+  printf "%s" "$1" | sed 's#\\#\\\\#g'
+}
+
+if [[ "$HERE" -eq 0 ]]; then
+  if [ "$(uname)" == "Linux" ]; then
+    notify-send --urgency=critical --wait "[$BUFFER] $SENDER" "$(escape "$MESSAGE")"
+  elif [ "$(uname)" == "Darwin" ]; then
+    osascript -e "display notification \"$(escape "$MESSAGE")\" with title \"[$BUFFER] $SENDER\""
+  fi
+fi

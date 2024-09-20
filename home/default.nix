@@ -22,6 +22,7 @@ in
     ./mise
     ./neovim
     ./readline
+    ./senpai
     ./sops
     ./styles
     ./sway
@@ -48,6 +49,7 @@ in
   mise.enable = mkDefault true;
   neovim.enable = mkDefault true;
   readline.enable = mkDefault true;
+  senpai.enable = mkDefault true;
 
   style = {
     cursor.size = 36;
