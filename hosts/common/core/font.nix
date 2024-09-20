@@ -1,7 +1,7 @@
-{ pkgs, ... }:
+{ configLib, pkgs, ... }:
 
 let
-  customFonts = import ../../../modules/fonts { inherit pkgs; };
+  customFonts = import (configLib.fromRoot "modules/fonts") { inherit pkgs; };
 in
 {
   fonts.packages = [ customFonts.fonts ];

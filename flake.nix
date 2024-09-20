@@ -31,21 +31,29 @@
       system = "x86_64-linux";
       pkgs = import nixpkgs { inherit system; };
       unstable = import nixpkgs-unstable { inherit system; };
+
+      inherit (nixpkgs) lib;
+      configLib = import ./lib { inherit lib; };
+      specialArgs = {
+        inherit
+          inputs
+          outputs
+          configLib
+          nixpkgs
+          unstable
+          ;
+      };
     in
     {
 
       nixosConfigurations = {
         endor = nixpkgs.lib.nixosSystem {
-          specialArgs = {
-            inherit inputs outputs;
-          };
+          inherit specialArgs;
           modules = [ ./hosts/endor ];
         };
 
         bespin = nixpkgs.lib.nixosSystem {
-          specialArgs = {
-            inherit inputs outputs;
-          };
+          inherit specialArgs;
           modules = [ ./hosts/bespin ];
         };
       };
@@ -53,9 +61,7 @@
       homeConfigurations = {
         hao = home-manager.lib.homeManagerConfiguration {
           inherit pkgs;
-          extraSpecialArgs = {
-            inherit inputs unstable;
-          };
+          extraSpecialArgs = specialArgs;
           modules = [
             stylix.homeManagerModules.stylix
             ./users/hao.nix

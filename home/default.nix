@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ configLib, lib, ... }:
 
 let
   inherit (lib) mkDefault;
@@ -6,33 +6,11 @@ in
 {
   news.display = "silent";
 
-  imports = [
-    ./bash
-    ./bat
-    ./darkman
-    ./direnv
-    ./ferdium
-    ./firefox
-    ./fonts
-    ./foot
-    ./fuzzel
-    ./fzf
-    ./git
-    ./keychain
-    ./mako
-    ./mise
-    ./neovim
-    ./readline
-    ./senpai
-    ./sops
-    ./styles
-    ./sway
-    ./thunderbird
-    ./wezterm
-  ];
+  imports = (configLib.scanPaths ./.);
 
   bash.enable = mkDefault true;
   bat.enable = mkDefault true;
+  bluetooth.enable = mkDefault false;
   fonts.enable = mkDefault true;
   darkman.enable = mkDefault true;
   direnv.enable = mkDefault true;

@@ -1,19 +1,14 @@
 {
   config,
+  configLib,
   lib,
   pkgs,
   ...
 }:
 
 let
-  inherit (lib)
-    mkDefault
-    mkEnableOption
-    mkIf
-    mkOption
-    types
-    ;
-  customFonts = import ../../modules/fonts { inherit pkgs; };
+  inherit (lib) mkDefault mkOption types;
+  customFonts = import (configLib.fromRoot "modules/fonts") { inherit pkgs; };
 in
 {
   options = {

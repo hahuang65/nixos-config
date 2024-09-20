@@ -1,4 +1,9 @@
-{ lib, pkgs, ... }:
+{
+  configLib,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   inherit (lib) mkDefault;
@@ -129,5 +134,5 @@ in
     createDirectories = true;
   };
 
-  imports = [ ../home ];
+  imports = [ (configLib.fromRoot "home") ];
 }

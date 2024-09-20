@@ -1,13 +1,6 @@
-{ ... }:
+{ configLib, ... }:
 {
-  imports = [
-    ./bootloader.nix
-    ./font.nix
-    ./host.nix
-    ./locale.nix
-    ./networking.nix
-    ./shell.nix
-  ];
+  imports = (configLib.scanPaths ./.) ++ [ ]; # Any other imports go in here
 
   # Enable Flakes
   nix.settings.experimental-features = [
