@@ -34,7 +34,6 @@ in
     ferdium
     fx
     grex
-    halloy
     htop
     hwatch
     hyperfine

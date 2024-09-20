@@ -6,15 +6,11 @@
 }:
 
 let
-  inherit (lib)
-    mkEnableOption
-    mkIf
-    mkOption
-    types
-    ;
+  inherit (lib) mkEnableOption mkIf;
   docs = (import ./scripts/docs.nix { inherit pkgs; });
   notepad = (import ./scripts/notepad.nix { inherit pkgs; });
   scratchpad = (import ./scripts/scratchpad.nix { inherit pkgs; });
+  sway-startup = (import ./scripts/start.nix { inherit pkgs; });
   waybar-media = (import ./scripts/media.nix { inherit pkgs; });
   mod = "Mod1";
   term = "wezterm";
@@ -52,7 +48,7 @@ in
     wayland.windowManager.sway = {
       enable = true;
       checkConfig = false; # Otherwise it will error on the `output.*.bg` line.
-      config = rec {
+      config = {
         assigns = {
           "1" = [
             { app_id = "firefox"; }
@@ -294,6 +290,8 @@ in
         bindswitch --reload --locked lid:off output ${laptopMonitor} enable
 
         include /etc/sway/config.d/*
+
+        exec ${lib.getExe sway-startup}
       '';
 
       systemd.enable = true; # For waybar integration
