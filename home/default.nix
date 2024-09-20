@@ -20,6 +20,7 @@ in
   fuzzel.enable = mkDefault true;
   fzf.enable = mkDefault true;
   git.enable = mkDefault true;
+  gtkTheme.enable = mkDefault true;
 
   keychain = {
     enable = mkDefault false;
@@ -31,18 +32,14 @@ in
   neovim.enable = mkDefault true;
   readline.enable = mkDefault true;
   senpai.enable = mkDefault true;
-
-  style = {
-    cursor.size = 36;
-    font.style.sansSerif = "General Sans";
-    font.size = {
-      desktop = 18;
-      popup = 18;
-    };
-    wallpaper = "unicat.png";
-  };
-
   sway.enable = mkDefault true;
   thunderbird.enable = mkDefault true;
   wezterm.enable = mkDefault true;
+
+  stylix = {
+    targets = {
+      neovim.enable = false;
+      waybar.enable = false;
+    };
+  };
 }

@@ -14,7 +14,6 @@ let
   basePkgs = with pkgs; [
     git
     gnumake
-    home-manager
     nix-bundle
     openssh
     vim
@@ -35,11 +34,9 @@ in
         description = "Hostname for the system";
       };
     };
-
   };
 
   config = {
-    # Hostname
     networking.hostName = cfg.name;
 
     # List packages installed in system profile. To search, run:

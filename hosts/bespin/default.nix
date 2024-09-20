@@ -10,10 +10,7 @@
       "hosts/common/users/hao.nix"
     ]);
 
-  host.name = "bespin";
   host.extraPkgs = with pkgs; [
-    bluez
-    bluez-tools
     docker
     docker-compose
   ];

@@ -23,17 +23,18 @@
       home-manager,
       nixpkgs,
       nixpkgs-unstable,
+      sops-nix,
       stylix,
       ...
     }@inputs:
     let
       inherit (self) outputs;
       system = "x86_64-linux";
-      pkgs = import nixpkgs { inherit system; };
       unstable = import nixpkgs-unstable { inherit system; };
 
       inherit (nixpkgs) lib;
       configLib = import ./lib { inherit lib; };
+
       specialArgs = {
         inherit
           inputs
@@ -43,31 +44,45 @@
           unstable
           ;
       };
+
+      commonModules = name: [
+        {
+          nix.settings.experimental-features = [
+            "nix-command"
+            "flakes"
+          ];
+          host.name = name;
+        }
+        home-manager.nixosModules.home-manager
+        {
+          home-manager = {
+            extraSpecialArgs = specialArgs;
+            sharedModules = [ inputs.sops-nix.homeManagerModules.sops ];
+          };
+        }
+        stylix.nixosModules.stylix
+        sops-nix.nixosModules.sops
+        ./hosts/${name}
+      ];
+
+      mkHost =
+        name: cfg:
+        nixpkgs.lib.nixosSystem {
+          system = cfg.system or "x86_64-linux";
+          modules = (commonModules name) ++ (cfg.extraModules or [ ]);
+          inherit specialArgs;
+        };
+
+      hosts = {
+        bespin = {
+          extraModules = [ ];
+        };
+        endor = {
+          extraModules = [ ];
+        };
+      };
     in
     {
-
-      nixosConfigurations = {
-        endor = nixpkgs.lib.nixosSystem {
-          inherit specialArgs;
-          modules = [ ./hosts/endor ];
-        };
-
-        bespin = nixpkgs.lib.nixosSystem {
-          inherit specialArgs;
-          modules = [ ./hosts/bespin ];
-        };
-      };
-
-      homeConfigurations = {
-        hao = home-manager.lib.homeManagerConfiguration {
-          inherit pkgs;
-          extraSpecialArgs = specialArgs;
-          modules = [
-            stylix.homeManagerModules.stylix
-            ./users/hao.nix
-          ];
-        };
-      };
+      nixosConfigurations = nixpkgs.lib.mapAttrs mkHost hosts;
     };
-
 }

@@ -14,25 +14,15 @@ clean:
 gc:
 	sudo nix-collect-garbage --delete-old
 
-## home: run home-manager build for current user
-.PHONY: home
-home:
-	home-manager switch --flake .#`whoami`
-
-## home/debug: debug home-manager build for current user
-.PHONY: home/debug
-home/debug:
-	home-manager switch --flake .#`whoami` --show-trace --verbose
-
-## os: run NixOS build for the current host
-.PHONY: os
-os:
+## build: run NixOS build for the current host
+.PHONY: build
+build:
 	sudo nixos-rebuild switch --flake .#`hostname`
 
-## os/debug: debug NixOS build for current user
-.PHONY: os/debug
-	os/debug:
-	nixos-rebuild switch --flake . --show-trace --verbose
+## build/debug: debug NixOS build for current user
+.PHONY: build/debug
+build/debug:
+	sudo nixos-rebuild switch --flake .#`hostname` --show-trace --verbose  --option eval-cache false
 
 ## repl: start Nix REPL
 .PHONY: repl

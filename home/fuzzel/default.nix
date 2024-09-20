@@ -16,7 +16,7 @@ in
       settings = {
         main = {
           prompt = "❯  ";
-          icon-theme = config.style.iconTheme.name;
+          icon-theme = config.gtkTheme.iconTheme.name;
         };
       };
     };

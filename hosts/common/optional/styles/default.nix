@@ -7,7 +7,7 @@
 }:
 
 let
-  inherit (lib) mkDefault mkOption types;
+  inherit (lib) mkOption types;
   customFonts = import (configLib.fromRoot "modules/fonts") { inherit pkgs; };
 in
 {
@@ -98,39 +98,11 @@ in
           };
         };
       };
-
-      iconTheme = {
-        name = mkOption {
-          type = types.str;
-          description = "Name of the GTK icon theme";
-          default = "Arc";
-        };
-
-        package = mkOption {
-          type = types.package;
-          description = "Package that contains the icon theme with given name";
-          default = pkgs.arc-icon-theme;
-        };
-      };
-
-      theme = {
-        name = mkOption {
-          type = types.str;
-          description = "Name of the GTK theme";
-          default = "Arc-Dark";
-        };
-
-        package = mkOption {
-          type = types.package;
-          description = "Package that contains the theme with given name";
-          default = pkgs.arc-theme;
-        };
-      };
     };
   };
 
   config = {
-    home.packages = [ pkgs.dconf ];
+    environment.systemPackages = [ pkgs.dconf ];
 
     stylix = {
       enable = true;
@@ -167,25 +139,6 @@ in
           popups = config.style.font.size.popup;
           terminal = config.style.font.size.terminal;
         };
-      };
-
-      targets = {
-        neovim.enable = false;
-        waybar.enable = false;
-      };
-    };
-
-    gtk = {
-      enable = true;
-
-      theme = {
-        name = mkDefault config.style.theme.name;
-        package = mkDefault config.style.theme.package;
-      };
-
-      iconTheme = {
-        name = mkDefault config.style.iconTheme.name;
-        package = mkDefault config.style.iconTheme.package;
       };
     };
   };
