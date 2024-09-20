@@ -11,6 +11,7 @@ in
     ./bat
     ./darkman
     ./direnv
+    ./ferdium
     ./firefox
     ./fonts
     ./foot
@@ -26,6 +27,7 @@ in
     ./sops
     ./styles
     ./sway
+    ./thunderbird
     ./wezterm
   ];
 
@@ -34,6 +36,7 @@ in
   fonts.enable = mkDefault true;
   darkman.enable = mkDefault true;
   direnv.enable = mkDefault true;
+  ferdium.enable = mkDefault true;
   firefox.enable = mkDefault true;
   foot.enable = mkDefault true;
   fuzzel.enable = mkDefault true;
@@ -62,5 +65,6 @@ in
   };
 
   sway.enable = mkDefault true;
+  thunderbird.enable = mkDefault true;
   wezterm.enable = mkDefault true;
 }
