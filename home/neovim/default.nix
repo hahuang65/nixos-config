@@ -147,7 +147,7 @@ in
           pyperclip
         ];
 
-      plugins = with pkgs.vimPlugins; [
+      plugins = with unstable.vimPlugins; [
         FixCursorHold-nvim
         boole-nvim
         catppuccin-nvim

@@ -42,4 +42,4 @@ repl:
 ## update: update flake, updates all if no flake specified
 .PHONY: update
 update:
-	nix flake update "$@"
+	nix flake update
