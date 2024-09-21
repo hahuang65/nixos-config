@@ -27,6 +27,19 @@ in
       borderSize = 2;
       height = 300;
       width = 600;
+
+      extraConfig = ''
+        [urgency=low]
+        default-timeout=10000
+
+        [urgency=normal]
+        default-timeout=10000
+
+        [urgency=high]
+        default-timeout=0
+        border-color=#${config.lib.stylix.colors.base09}
+        text-color=#${config.lib.stylix.colors.base08}
+      '';
     };
   };
 }
