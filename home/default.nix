@@ -32,6 +32,7 @@ in
   neovim.enable = mkDefault true;
   readline.enable = mkDefault true;
   senpai.enable = mkDefault true;
+  spotify.enable = mkDefault true;
   sway.enable = mkDefault true;
   thunderbird.enable = mkDefault true;
   wezterm.enable = mkDefault true;

@@ -63,7 +63,11 @@ in
             { class = "senpai"; }
             { class = "Slack"; }
           ];
-          "3" = [ { app_id = "mpv"; } ];
+          "3" = [
+            { app_id = "mpv"; }
+            { class = "Spotify"; }
+            { class = "plexmediaplayer"; }
+          ];
         };
 
         bars = [ ]; # Disable swaybar
