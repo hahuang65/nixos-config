@@ -36,6 +36,9 @@ pkgs.writeShellApplication {
     wait_for_window "Thunderbird"
     swaymsg "focus left; splitv; exec ferdium"
     wait_for_window "Ferdium"
+    swaymsg "workspace 3"
+    swaymsg "splith; exec wezterm start -- bash -l -c spotify_player"
+    wait_for_window "spotify_player"
     swaymsg "workspace 1"
   '';
 }
