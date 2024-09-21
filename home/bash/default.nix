@@ -17,7 +17,7 @@ in
   };
 
   config = mkIf config.bash.enable {
-    home.packages = with pkgs; [
+    home.packages = [
       (import ./scripts/psk.nix { inherit pkgs; })
       (import ./scripts/pss.nix { inherit pkgs; })
     ];
