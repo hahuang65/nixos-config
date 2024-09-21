@@ -78,7 +78,7 @@ in
         };
 
         gaps = {
-          inner = 0;
+          inner = 10;
           outer = 10;
         };
 
