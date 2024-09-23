@@ -25,6 +25,8 @@
   printing.enable = true;
   pipewire.enable = true;
 
+  nvidia.enable = true;
+
   sway = {
     enable = true;
     users = [ "hao" ];
