@@ -12,8 +12,7 @@
 
   host.name = "endor";
   host.extraPkgs = with pkgs; [
-    bluez
-    bluez-tools
+    blueberry
     docker
     docker-compose
   ];
@@ -30,6 +29,8 @@
     enable = true;
     users = [ "hao" ];
   };
+
+  hardware.bluetooth.enable = true;
 
   # For sway, this needs to be moved into the sway module
   users.hao.extraGroups = [ "video" ];
