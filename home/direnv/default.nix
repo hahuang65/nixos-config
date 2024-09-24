@@ -10,5 +10,11 @@ in
     };
   };
 
-  config = mkIf config.direnv.enable { programs.direnv.enable = true; };
+  config = mkIf config.direnv.enable {
+    programs.direnv = {
+      enable = true;
+      enableBashIntegration = true;
+      nix-direnv.enable = true;
+    };
+  };
 }

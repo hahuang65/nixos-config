@@ -28,7 +28,7 @@ in
   };
 
   mako.enable = mkDefault true;
-  mise.enable = mkDefault true;
+  mise.enable = mkDefault false;
   neovim.enable = mkDefault true;
   readline.enable = mkDefault true;
   senpai.enable = mkDefault true;
