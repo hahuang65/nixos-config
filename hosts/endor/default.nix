@@ -1,4 +1,9 @@
-{ configLib, pkgs, ... }:
+{
+  configLib,
+  lib,
+  pkgs,
+  ...
+}:
 
 {
   imports =
@@ -36,6 +41,21 @@
 
   # For sway, this needs to be moved into the sway module
   users.hao.extraGroups = [ "video" ];
+
+  nixpkgs.config.allowUnfreePredicate =
+    pkg:
+    builtins.elem (lib.getName pkg) [
+      "steam"
+      "steam-original"
+      "steam-run"
+    ];
+
+  programs.steam = {
+    enable = true;
+    remotePlay.openFirewall = true; # Open ports in the firewall for Steam Remote Play
+    dedicatedServer.openFirewall = true; # Open ports in the firewall for Source Dedicated Server
+    localNetworkGameTransfers.openFirewall = true; # Open ports in the firewall for Steam Local Network Game Transfers
+  };
 
   # This option defines the first version of NixOS you have installed on this particular machine,
   # and is used to maintain compatibility with application data (e.g. databases) created on older NixOS versions.

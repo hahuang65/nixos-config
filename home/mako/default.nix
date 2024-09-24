@@ -30,13 +30,13 @@ in
 
       extraConfig = ''
         [urgency=low]
-        default-timeout=10000
+        default-timeout=5000
 
         [urgency=normal]
-        default-timeout=10000
+        default-timeout=5000
 
         [urgency=high]
-        default-timeout=0
+        default-timeout=15000
         border-color=#${config.lib.stylix.colors.base09}
         text-color=#${config.lib.stylix.colors.base08}
       '';
