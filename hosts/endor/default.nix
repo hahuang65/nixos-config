@@ -37,6 +37,8 @@
     users = [ "hao" ];
   };
 
+  thunar.enable = true;
+
   hardware.bluetooth.enable = true;
 
   # For sway, this needs to be moved into the sway module
