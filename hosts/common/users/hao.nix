@@ -12,7 +12,9 @@ let
     mkOption
     types
     ;
-  cfg = config.users.hao;
+
+  name = "hao";
+  cfg = config.users.${name};
   baseGroups = [
     "wheel"
     "networkmanager"
@@ -20,11 +22,11 @@ let
 in
 {
   options = {
-    users.hao = {
+    users.${name} = {
       extraGroups = mkOption {
         type = types.listOf types.str;
         default = [ ];
-        description = "Extra groups to add user hao to";
+        description = "Extra groups to add user ${name} to";
       };
     };
   };
@@ -32,15 +34,15 @@ in
   config = {
     # Don't forget to `passwd`!
     users.users = {
-      hao = {
+      ${name} = {
         isNormalUser = true;
-        home = "/home/hao";
-        description = "Howard Huang";
+        home = "/home/${name}";
         extraGroups = lists.unique (baseGroups ++ cfg.extraGroups);
+        openssh.authorizedKeys.keyFiles = [ config.sops.secrets."ssh/pubkeys/${name}".path ];
       };
     };
 
-    home-manager.users.hao =
+    home-manager.users.${name} =
       { pkgs, ... }:
       {
         home.packages = with pkgs; [
