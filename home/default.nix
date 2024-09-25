@@ -32,7 +32,7 @@ in
   mise.enable = mkDefault false;
   neovim.enable = mkDefault true;
   readline.enable = mkDefault true;
-  senpai.enable = mkDefault true;
+  senpai.enable = mkDefault false;
   spotify.enable = mkDefault true;
   sway.enable = mkDefault true;
   thunderbird.enable = mkDefault true;
