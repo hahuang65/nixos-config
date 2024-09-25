@@ -282,6 +282,14 @@ in
               };
               command = "floating enable";
             }
+
+            {
+              criteria = {
+                app_id = "firefox";
+                title = "^Picture-in-Picture$";
+              };
+              command = "floating enable, resize set 800 450";
+            }
           ];
 
           titlebar = false;
@@ -449,7 +457,7 @@ in
             "format-icons": {
                 "1": "󰈹",
                 "2": "",
-                "3": "",
+                "3": "",
                 "4": "",
             }
         },
