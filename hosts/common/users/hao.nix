@@ -32,13 +32,13 @@ in
   };
 
   config = {
-    sops.secrets."user/hao".neededForUsers = true;
+    sops.secrets."user/${name}".neededForUsers = true;
     users.mutableUsers = false;
 
     users.users = {
       ${name} = {
         isNormalUser = true;
-        hashedPasswordFile = config.sops.secrets."user/hao".path;
+        hashedPasswordFile = config.sops.secrets."user/${name}".path;
         home = "/home/${name}";
         extraGroups = lists.unique (baseGroups ++ cfg.extraGroups);
         openssh.authorizedKeys.keyFiles = [ config.sops.secrets."ssh/pubkeys/${name}".path ];
@@ -98,12 +98,6 @@ in
           EDITOR = mkDefault "vim";
         };
 
-        # User directories
-        xdg.userDirs = {
-          enable = true;
-          createDirectories = true;
-        };
-
         imports = [ (configLib.fromRoot "home") ];
 
         senpai = {
@@ -116,10 +110,6 @@ in
             "hahuang65"
           ];
         };
-
-        # The state version is required and should stay at the version you
-        # originally installed.
-        home.stateVersion = "24.05";
       };
 
     style = {

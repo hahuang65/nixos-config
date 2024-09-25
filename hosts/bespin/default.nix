@@ -15,7 +15,11 @@
     users = [ config.users.users.hao.name ];
   };
 
-  docker.enable = true;
+  docker = {
+    enable = true;
+    users = [ config.users.users.hao.name ];
+  };
+
   location.enable = true;
   printing.enable = true;
   pipewire.enable = true;

@@ -16,7 +16,12 @@
   };
 
   bluetooth.enable = true;
-  docker.enable = true;
+
+  docker = {
+    enable = true;
+    users = [ config.users.users.hao.name ];
+  };
+
   location.enable = true;
   nvidia.enable = true;
   printing.enable = true;

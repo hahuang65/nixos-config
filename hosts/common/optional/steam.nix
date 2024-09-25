@@ -6,7 +6,7 @@ in
 {
   options = {
     steam = {
-      enable = mkEnableOption "1password";
+      enable = mkEnableOption "steam";
     };
   };
 
