@@ -51,7 +51,7 @@
             "nix-command"
             "flakes"
           ];
-          host.name = name;
+          networking.hostName = name;
         }
         home-manager.nixosModules.home-manager
         {

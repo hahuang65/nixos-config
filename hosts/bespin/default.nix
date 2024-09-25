@@ -1,4 +1,4 @@
-{ configLib, pkgs, ... }:
+{ config, configLib, ... }:
 
 {
   imports =
@@ -10,28 +10,21 @@
       "hosts/common/users/hao.nix"
     ]);
 
-  host.extraPkgs = with pkgs; [
-    docker
-    docker-compose
-  ];
-
   _1password = {
     enable = true;
-    users = [ "hao" ];
+    users = [ config.users.users.hao.name ];
   };
 
+  docker.enable = true;
   printing.enable = true;
   pipewire.enable = true;
 
   sway = {
     enable = true;
-    users = [ "hao" ];
+    users = [ config.users.users.hao.name ];
   };
 
   thunar.enable = true;
-
-  # FIXME: For sway, this needs to be moved into the sway module
-  users.hao.extraGroups = [ "video" ];
 
   # TRIM support
   fileSystems."/".options = [

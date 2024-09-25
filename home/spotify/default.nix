@@ -17,7 +17,7 @@ in
   };
 
   config = mkIf config.spotify.enable {
-    sops.secrets."spotify/${osConfig.host.name}" = {
+    sops.secrets."spotify/${osConfig.networking.hostName}" = {
       path = "${config.xdg.cacheHome}/spotify-player/credentials.json";
     };
 

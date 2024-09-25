@@ -23,6 +23,7 @@ in
     users.hao = {
       extraGroups = mkOption {
         type = types.listOf types.str;
+        default = [ ];
         description = "Extra groups to add user hao to";
       };
     };

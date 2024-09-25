@@ -75,9 +75,6 @@ in
       export WLR_RENDERER=vulkan
     '';
 
-    # FIXME: This next bit doesn't work, but we should fix it instead of hard-coding
-    # forEach config.sway.users (u:
-    #   users.users.${u}.extraGroups += [ "video" ];
-    # )
+    users.groups.video.members = config.sway.users;
   };
 }

@@ -1,9 +1,4 @@
-{
-  configLib,
-  lib,
-  pkgs,
-  ...
-}:
+{ config, configLib, ... }:
 
 {
   imports =
@@ -15,49 +10,24 @@
       "hosts/common/users/hao.nix"
     ]);
 
-  host.name = "endor";
-  host.extraPkgs = with pkgs; [
-    blueberry
-    docker
-    docker-compose
-  ];
-
   _1password = {
     enable = true;
-    users = [ "hao" ];
+    users = [ config.users.users.hao.name ];
   };
 
+  bluetooth.enable = true;
+  docker.enable = true;
+  nvidia.enable = true;
   printing.enable = true;
   pipewire.enable = true;
-
-  nvidia.enable = true;
+  steam.enable = true;
 
   sway = {
     enable = true;
-    users = [ "hao" ];
+    users = [ config.users.users.hao.name ];
   };
 
   thunar.enable = true;
-
-  hardware.bluetooth.enable = true;
-
-  # For sway, this needs to be moved into the sway module
-  users.hao.extraGroups = [ "video" ];
-
-  nixpkgs.config.allowUnfreePredicate =
-    pkg:
-    builtins.elem (lib.getName pkg) [
-      "steam"
-      "steam-original"
-      "steam-run"
-    ];
-
-  programs.steam = {
-    enable = true;
-    remotePlay.openFirewall = true; # Open ports in the firewall for Steam Remote Play
-    dedicatedServer.openFirewall = true; # Open ports in the firewall for Source Dedicated Server
-    localNetworkGameTransfers.openFirewall = true; # Open ports in the firewall for Steam Local Network Game Transfers
-  };
 
   # This option defines the first version of NixOS you have installed on this particular machine,
   # and is used to maintain compatibility with application data (e.g. databases) created on older NixOS versions.
