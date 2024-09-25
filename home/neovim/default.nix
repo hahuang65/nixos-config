@@ -1,6 +1,7 @@
 {
   config,
   lib,
+  osConfig,
   pkgs,
   unstable,
   ...
@@ -48,6 +49,7 @@ in
       pkgs.gotools
       pkgs.hadolint
       pkgs.jq
+      pkgs.lua5_1
       pkgs.lua-language-server
       pkgs.markdownlint-cli
       pkgs.marksman
@@ -124,7 +126,32 @@ in
         safeRequire("terminal")
         safeRequire("keymaps")
 
-        vim.env.PATH = vim.fn.expand(require("common").shims_dir) .. ":" .. vim.env.PATH
+        -- Using with nixOS, according to https://nixalted.com/
+        require("lazy").setup({
+          performance = {
+            reset_packpath = false,
+            rtp = {
+                reset = false,
+              }
+            },
+          dev = {
+            path = "${
+              pkgs.vimUtils.packDir
+                osConfig.home-manager.users.${config.home.username}.programs.neovim.finalPackage.passthru.packpathDirs
+            }/pack/myNeovimPackages/start",
+            patterns = {""}, -- Specify that all of our plugins will use the dev dir. Empty string is a wildcard.
+            fallback = false,
+          },
+          install = {
+            -- Safeguard in case we forget to install a plugin with Nix
+            missing = false,
+          },
+          spec = {
+            -- This will load plugins specified in lua/plugins/init.lua
+            -- as well as merge in any other lua/plugins/*.lua files
+            { import = "plugins" },
+          },
+        })
 
         vim.cmd([[ filetype plugin on ]])
       '';
@@ -133,6 +160,7 @@ in
       extraPackages = with pkgs; [
         pkgs.antiprism
         pkgs.gcc
+        pkgs.luarocks-nix
         pkgs.tree-sitter
 
         nodePackages.neovim
@@ -167,6 +195,7 @@ in
         gv-vim
         indent-blankline-nvim
         jupytext-nvim
+        lazy-nvim
         lsp_lines-nvim
         lsp_signature-nvim
         lspkind-nvim
@@ -200,7 +229,7 @@ in
         plenary-nvim
         popup-nvim
         pretty-fold-nvim
-        quarto-nvim
+        # quarto-nvim
         quick-scope
         refactoring-nvim
         telescope-fzf-native-nvim
