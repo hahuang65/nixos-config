@@ -17,12 +17,13 @@ gc:
 ## build: run NixOS build for the current host
 .PHONY: build
 build:
-	sudo nixos-rebuild switch --flake .#`hostname`
+	# https://mgdm.net/weblog/nixos-with-private-flakes/#don-t-use-sudo-with-nixos-rebuild
+	nixos-rebuild switch --flake .#`hostname` --use-remote-sudo
 
 ## build/debug: debug NixOS build for current user
 .PHONY: build/debug
 build/debug:
-	sudo nixos-rebuild switch --flake .#`hostname` --show-trace --verbose  --option eval-cache false
+	nixos-rebuild switch --flake .#`hostname` --use-remote-sudo --show-trace --verbose  --option eval-cache false
 
 ## repl: start Nix REPL
 .PHONY: repl

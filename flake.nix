@@ -15,6 +15,11 @@
     };
 
     stylix.url = "github:danth/stylix";
+
+    nix-secrets = {
+      url = "git+ssh://git@github.com/hahuang65/nix-secrets.git?ref=main&shallow=1";
+      flake = false;
+    };
   };
 
   outputs =

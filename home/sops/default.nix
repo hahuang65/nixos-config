@@ -1,8 +1,11 @@
-{ configLib, ... }:
+{ inputs, ... }:
+let
+  secrets = builtins.toString inputs.nix-secrets;
+in
 {
   sops = {
     age.keyFile = /var/lib/sops-nix/key.txt;
-    defaultSopsFile = configLib.fromRoot "secrets/secrets.yaml";
+    defaultSopsFile = "${secrets}/secrets.yaml";
     validateSopsFiles = false;
   };
 }
