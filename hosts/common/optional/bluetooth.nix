@@ -18,6 +18,10 @@ in
   config = mkIf config.bluetooth.enable {
     hardware.bluetooth.enable = true;
 
-    environment.systemPackages = with pkgs; [ blueberry ];
+    environment.systemPackages = with pkgs; [
+      blueberry
+      bluez
+      bluez-tools
+    ];
   };
 }
