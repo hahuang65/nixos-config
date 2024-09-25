@@ -186,6 +186,7 @@ in
         cmp_luasnip
         comment-nvim
         conform-nvim
+        direnv-vim
         dressing-nvim
         fidget-nvim
         fold-preview-nvim
