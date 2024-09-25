@@ -188,5 +188,9 @@ in
       "${gitmessage}".source = ./message;
       "${a5Config}".source = ./a5.config;
     };
+
+    sops.secrets."git/secrets/${config.home.username}" = {
+      path = "${secret}";
+    };
   };
 }
