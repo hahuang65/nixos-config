@@ -16,6 +16,7 @@
   };
 
   docker.enable = true;
+  location.enable = true;
   printing.enable = true;
   pipewire.enable = true;
 

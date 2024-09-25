@@ -17,6 +17,7 @@
 
   bluetooth.enable = true;
   docker.enable = true;
+  location.enable = true;
   nvidia.enable = true;
   printing.enable = true;
   pipewire.enable = true;
