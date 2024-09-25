@@ -32,10 +32,13 @@ in
   };
 
   config = {
-    # Don't forget to `passwd`!
+    sops.secrets."user/hao".neededForUsers = true;
+    users.mutableUsers = false;
+
     users.users = {
       ${name} = {
         isNormalUser = true;
+        hashedPasswordFile = config.sops.secrets."user/hao".path;
         home = "/home/${name}";
         extraGroups = lists.unique (baseGroups ++ cfg.extraGroups);
         openssh.authorizedKeys.keyFiles = [ config.sops.secrets."ssh/pubkeys/${name}".path ];

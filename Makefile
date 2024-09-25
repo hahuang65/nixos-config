@@ -34,3 +34,8 @@ repl:
 .PHONY: update
 update:
 	nix flake update
+
+## update/secrets: update nix-secrets
+.PHONY: update/secrets
+update/secrets:
+	nix flake lock --update-input nix-secrets
