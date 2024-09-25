@@ -43,8 +43,6 @@ in
     home-manager.users.hao =
       { pkgs, ... }:
       {
-        nixpkgs.config.allowUnfree = true;
-
         home.packages = with pkgs; [
           atac
           bandwhich

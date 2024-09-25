@@ -5,6 +5,7 @@ let
 in
 {
   news.display = "silent";
+  nixpkgs.config.allowUnfree = true;
 
   imports = (configLib.scanPaths ./.);
 

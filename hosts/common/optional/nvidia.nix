@@ -11,15 +11,6 @@ in
   };
 
   config = mkIf config.nvidia.enable {
-    nixpkgs.config.allowUnfree = true;
-    nixpkgs.config.allowUnfreePredicate =
-      pkg:
-      builtins.elem (lib.getName pkg) [
-        "nvidia-x11"
-        "nvidia-settings"
-        "nvidia-persistenced"
-      ];
-
     # Enable OpenGL
     hardware.opengl = {
       enable = true;
