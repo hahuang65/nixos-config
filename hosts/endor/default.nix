@@ -23,10 +23,10 @@
   };
 
   location.enable = true;
-  nvidia.enable = true;
+  nvidia.enable = false;
   printing.enable = true;
   pipewire.enable = true;
-  steam.enable = true;
+  steam.enable = false;
 
   sway = {
     enable = true;
