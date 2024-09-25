@@ -17,13 +17,19 @@ gc:
 ## build: run NixOS build for the current host
 .PHONY: build
 build:
-	# https://mgdm.net/weblog/nixos-with-private-flakes/#don-t-use-sudo-with-nixos-rebuild
+	@# https://mgdm.net/weblog/nixos-with-private-flakes/#don-t-use-sudo-with-nixos-rebuild
 	nixos-rebuild switch --flake .#`hostname` --use-remote-sudo
+
+.PHONY: b
+b: build
 
 ## build/debug: debug NixOS build for current user
 .PHONY: build/debug
 build/debug:
 	nixos-rebuild switch --flake .#`hostname` --use-remote-sudo --show-trace --verbose  --option eval-cache false
+
+.PHONY: d
+d: build/debug
 
 ## repl: start Nix REPL
 .PHONY: repl
@@ -39,3 +45,6 @@ update:
 .PHONY: update/secrets
 update/secrets:
 	nix flake lock --update-input nix-secrets
+
+.PHONY: s
+s: update/secrets
