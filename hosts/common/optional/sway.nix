@@ -65,6 +65,9 @@ in
       extraPackages = [ pkgs.vulkan-validation-layers ];
     };
 
+    # Default to Wayland wherever possible https://nixos.wiki/wiki/Wayland
+    environment.sessionVariables.NIXOS_OZONE_WL = "1";
+
     security.polkit.enable = true;
     security.pam.services.swaylock = { };
 
