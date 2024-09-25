@@ -1,4 +1,9 @@
-{ config, lib, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   inherit (lib) mkEnableOption mkIf;
@@ -14,6 +19,22 @@ in
     # Enable OpenGL
     hardware.opengl = {
       enable = true;
+    };
+
+    nixpkgs.config.nvidia.acceptLicense = true;
+
+    environment = {
+      systemPackages = with pkgs; [ egl-wayland ];
+
+      sessionVariables = {
+        ELECTRON_OZONE_PLATFORM_HINT = "auto";
+        GBM_BACKEND = "nvidia-drm";
+        GLX_VENDOR_LIBRARY_NAME = "nvidia";
+        LIBVA_DRIVER_NAME = "nvidia";
+        NVD_BACKEND = "direct";
+        WLR_NO_HARDWARE_CURSORS = 1;
+        XDG_SESSION_TYPE = "wayland";
+      };
     };
 
     # Load nvidia driver for Xorg and Wayland
@@ -48,7 +69,12 @@ in
       nvidiaSettings = true;
 
       # Optionally, you may need to select the appropriate driver version for your specific GPU.
-      package = config.boot.kernelPackages.nvidiaPackages.stable;
+      package = config.boot.kernelPackages.nvidiaPackages.mkDriver {
+        version = "560.31.02";
+        sha256_64bit = "sha256-0cwgejoFsefl2M6jdWZC+CKc58CqOXDjSi4saVPNKY0=";
+        settingsSha256 = "sha256-ZpuVZybW6CFN/gz9rx+UJvQ715FZnAOYfHn5jt5Z2C8=";
+        persistencedSha256 = lib.fakeSha256;
+      };
     };
   };
 }

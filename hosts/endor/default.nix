@@ -23,7 +23,7 @@
   };
 
   location.enable = true;
-  nvidia.enable = false;
+  nvidia.enable = true;
   printing.enable = true;
   pipewire.enable = true;
   steam.enable = false;
