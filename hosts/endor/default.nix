@@ -7,7 +7,7 @@
       "hosts/common/core"
       "hosts/common/optional"
 
-      "hosts/common/users/hao.nix"
+      "users/hao"
     ]);
 
   _1password = {
