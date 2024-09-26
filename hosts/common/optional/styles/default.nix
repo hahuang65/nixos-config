@@ -22,7 +22,7 @@ in
       colorscheme = mkOption {
         type = types.str;
         description = "YAML file in ${pkgs.base16-schemes}/share/themes";
-        default = "catppuccin-mocha.yaml";
+        default = "catppuccin-mocha";
       };
 
       cursor = {
@@ -106,7 +106,7 @@ in
 
     stylix = {
       enable = true;
-      base16Scheme = "${pkgs.base16-schemes}/share/themes/${config.style.colorscheme}";
+      base16Scheme = "${pkgs.base16-schemes}/share/themes/${config.style.colorscheme}.yaml";
       image = ./. + "/wallpapers/${config.style.wallpaper}";
 
       cursor = {
