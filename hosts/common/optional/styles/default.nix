@@ -7,7 +7,8 @@
 }:
 
 let
-  inherit (lib) mkOption types;
+  inherit (lib) mkIf mkOption types;
+  inherit (pkgs) stdenv;
   customFonts = import (configLib.fromRoot "modules/fonts") { inherit pkgs; };
 in
 {
@@ -109,11 +110,6 @@ in
       base16Scheme = "${pkgs.base16-schemes}/share/themes/${config.style.colorscheme}.yaml";
       image = ./. + "/wallpapers/${config.style.wallpaper}";
 
-      cursor = {
-        name = config.style.cursor.name;
-        package = config.style.cursor.package;
-        size = config.style.cursor.size;
-      };
 
       fonts = {
         serif = {
