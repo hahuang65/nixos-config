@@ -27,18 +27,18 @@ pkgs.writeShellApplication {
     }
 
     position_notepad() {
-      swaymsg "[instance=obsidian] move scratchpad"
+      swaymsg "[app_id=obsidian] move scratchpad"
       resize_notepad
     }
 
     resize_notepad() {
-      swaymsg "[instance=obsidian] resize set 2560 1440"
-      swaymsg "[instance=obsidian] move absolute position center"
+      swaymsg "[app_id=obsidian] resize set 2560 1440"
+      swaymsg "[app_id=obsidian] move absolute position center"
     }
 
     focus_notepad() {
       resize_notepad
-      swaymsg "[instance=obsidian] scratchpad show"
+      swaymsg "[app_id=obsidian] scratchpad show"
     }
 
     toggle_notepad

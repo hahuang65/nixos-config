@@ -141,7 +141,7 @@ in
           font_size = font_size,
           enable_tab_bar = true,
           hide_tab_bar_if_only_one_tab = true,
-          enable_wayland = false,
+          enable_wayland = true,
           front_end = "OpenGL",
           window_decorations = decorations,
           window_padding = {

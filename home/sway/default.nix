@@ -290,6 +290,21 @@ in
               };
               command = "floating enable, resize set 800 450";
             }
+
+            {
+              criteria = {
+                class = "^steam_app";
+                title = "^Battle.net$";
+              };
+              command = "floating enable, resize set 1600 900";
+            }
+
+            {
+              criteria = {
+                class = "^steam$";
+              };
+              command = "floating enable, resize set 1600 900";
+            }
           ];
 
           titlebar = false;

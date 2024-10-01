@@ -26,7 +26,7 @@
   nvidia.enable = true;
   printing.enable = true;
   pipewire.enable = true;
-  steam.enable = false;
+  steam.enable = true;
 
   sway = {
     enable = true;
