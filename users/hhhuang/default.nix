@@ -2,6 +2,7 @@
   config,
   configLib,
   lib,
+  pkgs,
   ...
 }:
 
@@ -82,7 +83,7 @@ in
 
         ferdium.enable = false; # Unsupported on `aarch64-apple-darwin` and `aarch64-darwin`
         firefox.enable = false; # Unsupported on `aarch64-apple-darwin` (investigate why this isn't `aarch64-darwin`)
-        neovim.enable = false; # Broken building antiprism
+        neovim.enable = true;
         spotify.enable = false;
         thunderbird.enable = false; # Unsupported on `aarch64-apple-darwin` (investigate why this isn't `aarch64-darwin`)
       };

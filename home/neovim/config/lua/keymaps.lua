@@ -36,8 +36,6 @@ keymap("x", "<leader>P", require("util").paste, { desc = "Create [P]aste in past
 
 -- Quickfix
 keymap("n", "<leader>q", require("util").toggle_quickfix, { desc = "Toggle [q]uickfix list" })
-keymap("n", "]q", ":cnext<CR>", { desc = "Next quickfix entry" })
-keymap("n", "[q", ":cprev<CR>", { desc = "Previous quickfix entry" })
 
 -- Macros
 keymap("n", "Q", "@qj")
