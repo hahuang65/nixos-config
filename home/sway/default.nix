@@ -7,6 +7,8 @@
 
 let
   inherit (lib) mkEnableOption mkIf;
+  inherit (pkgs) stdenv;
+
   docs = (import ./scripts/docs.nix { inherit pkgs; });
   notepad = (import ./scripts/notepad.nix { inherit pkgs; });
   scratchpad = (import ./scripts/scratchpad.nix { inherit pkgs; });
@@ -27,7 +29,7 @@ in
     };
   };
 
-  config = mkIf config.sway.enable {
+  config = mkIf (stdenv.isLinux && config.sway.enable) {
     home.packages = with pkgs; [
       brightnessctl
       grim

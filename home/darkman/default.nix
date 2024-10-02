@@ -2,6 +2,7 @@
   config,
   lib,
   osConfig,
+  pkgs,
   ...
 }:
 
@@ -12,6 +13,7 @@ let
     mkIf
     types
     ;
+  inherit (pkgs) stdenv;
 in
 {
   options = {
@@ -32,7 +34,7 @@ in
     };
   };
 
-  config = mkIf config.darkman.enable {
+  config = mkIf (stdenv.isLinux && config.darkman.enable) {
     services.darkman = {
       enable = true;
       settings = {

@@ -13,6 +13,7 @@ let
     mkOption
     types
     ;
+  inherit (pkgs) stdenv;
 in
 {
   options = {
@@ -49,7 +50,7 @@ in
     };
   };
 
-  config = mkIf config.gtkTheme.enable {
+  config = mkIf (stdenv.isLinux && config.gtkTheme.enable) {
     gtk = {
       enable = true;
 

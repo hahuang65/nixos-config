@@ -7,6 +7,7 @@
 
 let
   inherit (lib) mkEnableOption mkIf;
+  inherit (pkgs) stdenv;
 in
 {
   options = {
@@ -15,7 +16,7 @@ in
     };
   };
 
-  config = mkIf config.mako.enable {
+  config = mkIf (stdenv.isLinux && config.mako.enable) {
     home.packages = with pkgs; [
       libnotify
       (import ./scripts/test.nix { inherit pkgs; })

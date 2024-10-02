@@ -1,6 +1,6 @@
 { configLib, pkgs, ... }:
 {
-  imports = (configLib.scanPaths ./.) ++ [ ]; # Any other imports go in here
+  imports = (configLib.scanPaths ./.);
 
   nixpkgs.config.allowUnfree = true;
 

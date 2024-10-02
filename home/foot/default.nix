@@ -1,7 +1,13 @@
-{ config, lib, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   inherit (lib) mkEnableOption mkIf;
+  inherit (pkgs) stdenv;
 in
 {
   options = {
@@ -10,7 +16,7 @@ in
     };
   };
 
-  config = mkIf config.foot.enable {
+  config = mkIf (stdenv.isLinux && config.foot.enable) {
     programs.foot = {
       enable = true;
       settings = {

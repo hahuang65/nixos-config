@@ -230,7 +230,7 @@ in
         plenary-nvim
         popup-nvim
         pretty-fold-nvim
-        # quarto-nvim
+        quarto-nvim
         quick-scope
         refactoring-nvim
         telescope-fzf-native-nvim

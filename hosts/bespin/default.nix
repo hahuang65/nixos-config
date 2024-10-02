@@ -4,8 +4,8 @@
   imports =
     [ ./hardware-configuration.nix ]
     ++ (map configLib.fromRoot [
-      "hosts/common/core"
-      "hosts/common/optional"
+      "hosts/common/linux/core"
+      "hosts/common/linux/optional"
 
       "users/hao"
     ]);
