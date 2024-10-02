@@ -31,6 +31,8 @@
       url = "git+ssh://git@github.com/hahuang65/nix-secrets.git?ref=main&shallow=1";
       flake = false;
     };
+
+    neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
   };
 
   outputs =
@@ -110,7 +112,7 @@
           system.configurationRevision = self.rev or self.dirtyRev or null;
         }
 
-	home-manager.darwinModules.home-manager
+	home-manager-darwin.darwinModules.home-manager
         {
           home-manager = {
             extraSpecialArgs = specialArgsDarwin;

@@ -6,7 +6,7 @@
 }:
 
 let
-  inherit (lib) mkEnableOption mkIf;
+  inherit (lib) mkEnableOption mkOption mkIf types;
 
   lock-false = {
     Value = false;

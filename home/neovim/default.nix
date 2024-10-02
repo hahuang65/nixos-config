@@ -1,5 +1,6 @@
 {
   config,
+  inputs,
   lib,
   osConfig,
   pkgs,
@@ -7,7 +8,8 @@
   ...
 }:
 let
-  inherit (lib) mkEnableOption mkIf;
+  inherit (lib) mkEnableOption mkIf optionals;
+  inherit (pkgs) stdenv;
   configDir = "${config.xdg.configHome}/nvim";
   fromGitHub =
     {
@@ -92,7 +94,7 @@ in
 
     programs.neovim = {
       enable = true;
-      package = unstable.neovim-unwrapped;
+      package = inputs.neovim-nightly-overlay.packages.${pkgs.system}.default;
 
       defaultEditor = true;
       viAlias = true;
@@ -158,22 +160,25 @@ in
 
       extraLuaPackages = ps: [ ps.jsregexp ];
       extraPackages = with pkgs; [
-        pkgs.antiprism
-        pkgs.gcc
-        pkgs.luarocks-nix
-        pkgs.tree-sitter
+        gcc
+        luarocks-nix
+        tree-sitter
 
         nodePackages.neovim
-      ];
+      ] ++ (optionals (stdenv.isLinux) [
+        pkgs.antiprism # Only because this won't compile thru nix-darwin
+      ]);
+
       extraPython3Packages =
         ps: with ps; [
           cairosvg
           jupyter-client
           pillow
-          plotly
           pnglatex
           pyperclip
-        ];
+        ] ++ (optionals (stdenv.isLinux) [
+          pkgs.plotly # Only because this won't compile thru nix-darwin
+        ]);
 
       plugins = with unstable.vimPlugins; [
         FixCursorHold-nvim
