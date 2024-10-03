@@ -15,6 +15,7 @@
     users = [ config.users.users.hao.name ];
   };
 
+  amdGPU.enable = false;
   bluetooth.enable = true;
 
   docker = {
@@ -23,7 +24,6 @@
   };
 
   location.enable = true;
-  nvidia.enable = false;
   printing.enable = true;
   pipewire.enable = true;
   steam.enable = true;
