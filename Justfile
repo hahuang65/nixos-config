@@ -10,6 +10,11 @@ alias b := build
 build:
   nixos-rebuild switch --flake .#`hostname` --use-remote-sudo
 
+# Build the Nix configuration
+[macos]
+build:
+  darwin-rebuild switch --flake .#`scutil --get HostName`
+
 [private]
 alias c := clean
 
@@ -24,6 +29,11 @@ alias d := debug
 [linux]
 debug:
   nixos-rebuild switch --flake .#`hostname` --use-remote-sudo --show-trace --verbose --option eval-cache false
+
+# Build in debug mode (verbose, tracing)
+[macos]
+debug:
+  darwin-rebuild switch --flake .#`scutil -- HostName` --show-trace --verbose
 
 [private]
 alias h := history
