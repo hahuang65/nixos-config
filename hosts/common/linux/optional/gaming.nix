@@ -10,12 +10,12 @@ let
 in
 {
   options = {
-    steam = {
-      enable = mkEnableOption "steam";
+    gaming = {
+      enable = mkEnableOption "gaming";
     };
   };
 
-  config = mkIf config.steam.enable {
+  config = mkIf config.gaming.enable {
     programs.steam = {
       enable = true;
       remotePlay.openFirewall = true; # Open ports in the firewall for Steam Remote Play
@@ -23,6 +23,9 @@ in
       localNetworkGameTransfers.openFirewall = true; # Open ports in the firewall for Steam Local Network Game Transfers
     };
 
-    environment.systemPackages = with pkgs; [ protonup-qt ];
+    environment.systemPackages = with pkgs; [
+      protonup-qt
+      wowup-cf
+    ];
   };
 }

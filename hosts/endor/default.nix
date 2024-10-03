@@ -26,7 +26,7 @@
   location.enable = true;
   printing.enable = true;
   pipewire.enable = true;
-  steam.enable = true;
+  gaming.enable = true;
 
   sway = {
     enable = true;
