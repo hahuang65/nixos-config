@@ -9,6 +9,7 @@
   environment.systemPackages = with pkgs; [
     git
     gnumake
+    just
     nix-bundle
     openssh
     vim
