@@ -1,4 +1,9 @@
-{ configLib, lib, ... }:
+{
+  configLib,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   inherit (lib) mkDefault;
@@ -7,10 +12,33 @@ in
   news.display = "silent";
   nixpkgs.config.allowUnfree = true;
 
-  # User directories
-  xdg.userDirs = {
-    enable = true;
-    createDirectories = true;
+  xdg = {
+    portal = {
+      enable = true;
+      extraPortals = with pkgs; [
+        xdg-desktop-portal-wlr
+        xdg-desktop-portal-gtk
+      ];
+      config = {
+        common = {
+          default = [ "wlr" ];
+        };
+      };
+    };
+
+    mimeApps = {
+      enable = true;
+      defaultApplications = {
+        "application/pdf" = [ "zathura.desktop" ];
+        "inode/directory" = [ "thunar.desktop" ];
+      };
+    };
+
+    # User directories
+    userDirs = {
+      enable = true;
+      createDirectories = true;
+    };
   };
 
   imports = (configLib.scanPaths ./.);
