@@ -173,7 +173,7 @@ in
         startup = [
           { command = "1password --silent"; }
           {
-            command = "swayidle -w timeout 900 ${lockWithGrace} timeout 1000 'swaymsg \"output * power off\"' resume 'swaymsg \"output * power on \"' before-sleep ${lock}";
+            command = "swayidle -w timeout 900 '${lockWithGrace}' timeout 1000 'swaymsg \"output * power off\"' resume 'swaymsg \"output * power on \"' before-sleep '${lock}'";
           }
         ];
 
