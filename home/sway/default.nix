@@ -115,7 +115,7 @@ in
 
           "${mod}+shift+c" = "reload";
           "${mod}+shift+r" = "mode \"resize\"";
-          "${mod}+shift+4" = "exec grim -g \"$(slurp)\" \"${config.xdg.userDirs.pictures}/Pictures/Screenshots/$(date +'screenshot-%m/%d/%y-%H:%M:%S.png')\"";
+          "${mod}+shift+4" = "exec grim -g \"$(slurp)\" \"${config.xdg.userDirs.pictures}/Screenshots/$(date +'screenshot-%m-%d-%y-%H%M%S.png')\"";
 
           "${mod}+1" = "workspace number 1";
           "${mod}+2" = "workspace number 2";
@@ -475,8 +475,7 @@ in
                 "1": "󰈹",
                 "2": "",
                 "3": "",
-                "4": "",
-            }
+                "4": "", }
         },
         "backlight": {
             "format": "{percent}% {icon}",
