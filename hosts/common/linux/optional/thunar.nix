@@ -23,5 +23,8 @@ in
         thunar-volman
       ];
     };
+
+    # For integration with removable drives etc.
+    services.gvfs.enable = true;
   };
 }
