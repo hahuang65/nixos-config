@@ -73,7 +73,7 @@ in
 
   stylix = {
     targets = {
-      neovim.enable = false;
+      # neovim.enable = false;
       waybar.enable = false;
     };
   };

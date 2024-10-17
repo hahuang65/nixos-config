@@ -14,7 +14,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    stylix.url = "github:danth/stylix";
+    stylix = {
+      url = "github:danth/stylix/release-24.05";
+      inputs.home-manager.follows = "home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     nix-secrets = {
       url = "git+ssh://git@github.com/hahuang65/nix-secrets.git?ref=main&shallow=1";
