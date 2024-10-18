@@ -1,9 +1,4 @@
-{
-  configLib,
-  lib,
-  pkgs,
-  ...
-}:
+{ configLib, lib, ... }:
 
 let
   inherit (lib) mkDefault;
@@ -11,35 +6,6 @@ in
 {
   news.display = "silent";
   nixpkgs.config.allowUnfree = true;
-
-  xdg = {
-    portal = {
-      enable = true;
-      extraPortals = with pkgs; [
-        xdg-desktop-portal-wlr
-        xdg-desktop-portal-gtk
-      ];
-      config = {
-        common = {
-          default = [ "wlr" ];
-        };
-      };
-    };
-
-    mimeApps = {
-      enable = true;
-      defaultApplications = {
-        "application/pdf" = [ "zathura.desktop" ];
-        "inode/directory" = [ "thunar.desktop" ];
-      };
-    };
-
-    # User directories
-    userDirs = {
-      enable = true;
-      createDirectories = true;
-    };
-  };
 
   imports = (configLib.scanPaths ./.);
 
@@ -77,6 +43,8 @@ in
       waybar.enable = false;
     };
   };
+
+  xdgConfig.enable = mkDefault true;
 
   # The state version is required and should stay at the version you
   # originally installed.
