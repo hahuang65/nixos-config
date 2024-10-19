@@ -70,6 +70,7 @@ in
           pastel
           pgcli
           pick
+          plexamp
           plex-media-player
           portal
           pre-commit
