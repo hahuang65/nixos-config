@@ -70,6 +70,7 @@ in
             { app_id = "spotify"; }
             { class = "Spotify"; }
             { class = "plexmediaplayer"; }
+            { class = "Plexamp"; }
           ];
         };
 
