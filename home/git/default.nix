@@ -153,6 +153,7 @@ in
 
       ignores = [
         ".DS_Store"
+        ".dccache"
         "._*"
         "Thumbs.db"
         "tags"
