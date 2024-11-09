@@ -37,14 +37,30 @@
     };
 
     neovim-nightly-overlay.url = "github:nix-community/neovim-nightly-overlay";
+
+    nix-homebrew.url = "github:zhaofengli-wip/nix-homebrew";
+
+    # Optional: Declarative tap management
+    homebrew-core = {
+      url = "github:homebrew/homebrew-core";
+      flake = false;
+    };
+
+    homebrew-cask = {
+      url = "github:homebrew/homebrew-cask";
+      flake = false;
+    };
   };
 
   outputs =
     {
       self,
+      homebrew-cask,
+      homebrew-core,
       home-manager,
       home-manager-darwin,
       nix-darwin,
+      nix-homebrew,
       nixpkgs,
       nixpkgs-darwin,
       nixpkgs-unstable,
@@ -127,6 +143,34 @@
               sharedModules = [ inputs.sops-nix.homeManagerModules.sops ];
             };
           }
+
+          nix-homebrew.darwinModules.nix-homebrew
+          {
+            nix-homebrew = {
+              # Install Homebrew under the default prefix
+              enable = true;
+
+              # Apple Silicon Only: Also install Homebrew under the default Intel prefix for Rosetta 2
+              enableRosetta = false;
+
+              # User owning the Homebrew prefix
+              user = "hhhuang";
+
+              # Optional: Declarative tap management
+              taps = {
+                "homebrew/homebrew-core" = homebrew-core;
+                "homebrew/homebrew-cask" = homebrew-cask;
+              };
+
+              # Optional: Enable fully-declarative tap management
+              #
+              # With mutableTaps disabled, taps can no longer be added imperatively with `brew tap`.
+              mutableTaps = false;
+
+              autoMigrate = true;
+            };
+          }
+
           stylix.darwinModules.stylix
         ];
 
