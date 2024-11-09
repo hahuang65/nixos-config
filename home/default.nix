@@ -1,4 +1,9 @@
-{ configLib, lib, ... }:
+{
+  configLib,
+  lib,
+  pkgs,
+  ...
+}:
 let
   inherit (lib) mkDefault mkIf;
   inherit (pkgs) stdenv;
@@ -6,12 +11,6 @@ in
 {
   news.display = "silent";
   nixpkgs.config.allowUnfree = true;
-
-  # User directories
-  xdg.userDirs = {
-    enable = true;
-    createDirectories = true;
-  };
 
   imports = (configLib.scanPaths ./.);
 

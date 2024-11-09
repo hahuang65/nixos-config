@@ -26,7 +26,7 @@
     };
 
     stylix = {
-      url = "github:danth/stylix/release-24.05";
+      url = "github:danth/stylix";
       inputs.home-manager.follows = "home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
@@ -90,41 +90,45 @@
         ./hosts/${name}
       ];
 
-      linuxModules = name: commonModules name ++ [
-        {
-          networking.hostName = name;
-        }
-        home-manager.nixosModules.home-manager
-        {
-          home-manager = {
-            extraSpecialArgs = specialArgs;
-            sharedModules = [ inputs.sops-nix.homeManagerModules.sops ];
-          };
-        }
-        stylix.nixosModules.stylix
-        sops-nix.nixosModules.sops
-      ];
+      linuxModules =
+        name:
+        commonModules name
+        ++ [
+          { networking.hostName = name; }
+          home-manager.nixosModules.home-manager
+          {
+            home-manager = {
+              extraSpecialArgs = specialArgs;
+              sharedModules = [ inputs.sops-nix.homeManagerModules.sops ];
+            };
+          }
+          stylix.nixosModules.stylix
+          sops-nix.nixosModules.sops
+        ];
 
-      darwinModules = name: commonModules name ++ [
-        {
-          networking.computerName = name;
-          networking.hostName = name;
-          networking.localHostName = name;
-          system.defaults.smb.NetBIOSName = name;
+      darwinModules =
+        name:
+        commonModules name
+        ++ [
+          {
+            networking.computerName = name;
+            networking.hostName = name;
+            networking.localHostName = name;
+            system.defaults.smb.NetBIOSName = name;
 
-          # Set Git commit hash for darwin-version.
-          system.configurationRevision = self.rev or self.dirtyRev or null;
-        }
+            # Set Git commit hash for darwin-version.
+            system.configurationRevision = self.rev or self.dirtyRev or null;
+          }
 
-	home-manager-darwin.darwinModules.home-manager
-        {
-          home-manager = {
-            extraSpecialArgs = specialArgsDarwin;
-            sharedModules = [ inputs.sops-nix.homeManagerModules.sops ];
-          };
-        }
-        stylix.darwinModules.stylix
-      ];
+          home-manager-darwin.darwinModules.home-manager
+          {
+            home-manager = {
+              extraSpecialArgs = specialArgsDarwin;
+              sharedModules = [ inputs.sops-nix.homeManagerModules.sops ];
+            };
+          }
+          stylix.darwinModules.stylix
+        ];
 
       mkLinuxHost =
         name: cfg:
@@ -159,7 +163,7 @@
     in
     {
       nixosConfigurations = nixpkgs.lib.mapAttrs mkLinuxHost linuxHosts;
-      
+
       darwinConfigurations = nixpkgs.lib.mapAttrs mkDarwinHost darwinHosts;
     };
 }

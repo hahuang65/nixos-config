@@ -159,24 +159,30 @@ in
       '';
 
       extraLuaPackages = ps: [ ps.jsregexp ];
-      extraPackages = with pkgs; [
-        gcc
-        luarocks-nix
-        tree-sitter
+      extraPackages =
+        with pkgs;
+        [
+          gcc
+          luarocks-nix
+          tree-sitter
 
-        nodePackages.neovim
-      ] ++ (optionals (stdenv.isLinux) [
-        pkgs.antiprism # Only because this won't compile thru nix-darwin
-      ]);
+          nodePackages.neovim
+        ]
+        ++ (optionals (stdenv.isLinux) [
+          pkgs.antiprism # Only because this won't compile thru nix-darwin
+        ]);
 
       extraPython3Packages =
-        ps: with ps; [
+        ps:
+        with ps;
+        [
           cairosvg
           jupyter-client
           pillow
           pnglatex
           pyperclip
-        ] ++ (optionals (stdenv.isLinux) [
+        ]
+        ++ (optionals (stdenv.isLinux) [
           pkgs.plotly # Only because this won't compile thru nix-darwin
         ]);
 
