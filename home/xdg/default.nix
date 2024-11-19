@@ -34,7 +34,11 @@ in
       mimeApps = {
         enable = true;
         defaultApplications = {
-          "application/pdf" = [ "zathura.desktop" ];
+          # If something isn't working, use the following to debug:
+          # XDG_UTILS_DEBUG_LEVEL=2 xdg-mime query filetype <file>
+          # XDG_UTILS_DEBUG_LEVEL=2 xdg-mime query default <filetype, i.e. application/pdf>
+          # fd <desktop file, i.e. zathura.desktop> /
+          "application/pdf" = [ "org.pwmt.zathura.desktop" ];
           "inode/directory" = [ "thunar.desktop" ];
         };
       };
