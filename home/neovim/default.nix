@@ -204,7 +204,7 @@ in
         luasnip
         molten-nvim
         neotest
-        neotest-go
+        neotest-golang
         neotest-python
         neotest-rspec
         nvim-autopairs

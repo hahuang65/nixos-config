@@ -118,9 +118,7 @@ return {
         require("neotest-python")({
           dap = { justMyCode = false },
         }),
-        require("neotest-golang")({
-          { dap_go_enabled = true },
-        }),
+        require("neotest-golang"),
         require("neotest-rspec"),
       },
     })
