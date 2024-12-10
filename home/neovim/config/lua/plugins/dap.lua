@@ -12,7 +12,7 @@ return {
     "leoluz/nvim-dap-go",
     "mfussenegger/nvim-dap-python",
     "rcarriga/nvim-dap-ui",
-    "suketa/nvim-dap-ruby",
+    { "suketa/nvim-dap-ruby", name = "vimplugin-suketa-nvim-dap-ruby" },
     "theHamsta/nvim-dap-virtual-text",
   },
   keys = {

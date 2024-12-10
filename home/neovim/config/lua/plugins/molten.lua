@@ -5,6 +5,7 @@ return {
   dependencies = {
     {
       "willothy/wezterm.nvim",
+      name = "vimplugin-willothy-wezterm.nvim",
       opts = { create_commands = false },
     },
   },

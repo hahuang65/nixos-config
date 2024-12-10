@@ -2,6 +2,7 @@
 
 return {
   "mhanberg/output-panel.nvim",
+  name = "vimplugin-mhanberg-output-panel.nvim",
   cmd = "OutputPanel",
   event = "LspAttach",
   config = function()

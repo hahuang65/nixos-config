@@ -2,7 +2,7 @@
 
 return {
   "catppuccin/nvim",
-  name = "catppuccin",
+  name = "catppuccin-nvim",
   config = function()
     local catppuccin = require("catppuccin")
     vim.g.catppuccin_flavour = require("common").catppuccin_palette

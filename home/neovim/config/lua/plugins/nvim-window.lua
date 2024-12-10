@@ -2,6 +2,7 @@
 
 return {
   "https://gitlab.com/yorickpeterse/nvim-window.git",
+  name = "vimplugin-yorickpeterse-nvim-window",
   keys = {
     {
       "<M-w>",

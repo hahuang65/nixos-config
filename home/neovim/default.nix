@@ -187,6 +187,7 @@ in
         cmp_luasnip
         comment-nvim
         conform-nvim
+        copilot-lua
         direnv-vim
         dressing-nvim
         fidget-nvim
