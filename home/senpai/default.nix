@@ -40,11 +40,6 @@ in
         description = "List of tokens that should trigger highlighting";
       };
 
-      secretPath = mkOption {
-        type = types.str;
-        description = "Path to the secret in nix-secrets";
-      };
-
       widths = {
         channels = mkOption {
           type = types.int;
@@ -79,7 +74,7 @@ in
           address "${cfg.server}"
           nickname "${cfg.nickname}"
           realname "${cfg.realName}"
-          password-cmd cat ${config.sops.secrets."${cfg.secretPath}".path}
+          password-cmd cat ${config.sops.secrets."sourcehut/chat/token".path}
           highlight ${lib.strings.concatStringsSep " " cfg.highlightTokens}
 
           pane-widths {

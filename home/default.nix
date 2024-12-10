@@ -21,6 +21,7 @@ in
   fzf.enable = mkDefault true;
   git.enable = mkDefault true;
   gtkTheme.enable = mkDefault true;
+  hut.enable = mkDefault true;
 
   keychain = {
     enable = mkDefault false;

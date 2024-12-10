@@ -105,7 +105,6 @@ in
           enable = true;
           server = "chat.sr.ht";
           nickname = "hwrd";
-          secretPath = "sourcehut/chat/token";
           highlightTokens = [
             "hwrd"
             "hahuang65"

@@ -188,6 +188,14 @@ in
       "${aliases}".source = ./aliases;
       "${gitmessage}".source = ./message;
       "${a5Config}".source = ./a5.config;
+      "${config.xdg.configHome}/gh/config.yml".text = ''
+        # The current version of the config schema
+        version: 1
+        # What protocol to use when performing git operations. Supported values: ssh, https
+        git_protocol: ssh
+        # When to interactively prompt. This is a global config that cannot be overridden by hostname. Supported values: enabled, disabled
+        prompt: enabled
+      '';
     };
 
     sops.secrets."git/secrets/${config.home.username}" = {

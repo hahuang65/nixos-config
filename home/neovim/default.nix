@@ -177,6 +177,7 @@ in
 
       plugins = with unstable.vimPlugins; [
         FixCursorHold-nvim
+        avante-nvim
         boole-nvim
         catppuccin-nvim
         cmp-buffer
@@ -194,6 +195,7 @@ in
         git-conflict-nvim
         gitsigns-nvim
         gv-vim
+        img-clip-nvim
         indent-blankline-nvim
         jupytext-nvim
         lazy-nvim
@@ -233,6 +235,7 @@ in
         quarto-nvim
         quick-scope
         refactoring-nvim
+        render-markdown-nvim
         telescope-fzf-native-nvim
         telescope-nvim
         todo-comments-nvim
