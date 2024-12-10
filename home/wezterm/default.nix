@@ -142,7 +142,7 @@ in
           enable_tab_bar = true,
           hide_tab_bar_if_only_one_tab = true,
           enable_wayland = true,
-          front_end = "OpenGL",
+          front_end = "WebGpu",
           window_decorations = decorations,
           window_padding = {
             left = "4px",

@@ -60,7 +60,7 @@ in
       })
     ];
 
-    hardware.opengl = {
+    hardware.graphics = {
       enable = true;
       extraPackages = [ pkgs.vulkan-validation-layers ];
     };

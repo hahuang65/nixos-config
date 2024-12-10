@@ -158,12 +158,10 @@ in
 
       extraLuaPackages = ps: [ ps.jsregexp ];
       extraPackages = with pkgs; [
-        pkgs.antiprism
-        pkgs.gcc
-        pkgs.luarocks-nix
-        pkgs.tree-sitter
-
-        nodePackages.neovim
+        antiprism
+        gcc
+        luarocks-nix
+        tree-sitter
       ];
       extraPython3Packages =
         ps: with ps; [
