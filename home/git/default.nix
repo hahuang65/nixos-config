@@ -179,7 +179,7 @@ in
         { path = aliases; }
         {
           path = a5Config;
-          condition = "gitdir:**/a5/**";
+          condition = "hasconfig:remote.*.url:git@github.com:summit-partners/**";
         }
       ];
     };
