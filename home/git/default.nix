@@ -26,6 +26,12 @@ in
       gh
     ];
 
+    sops.secrets."git/github/token" = { };
+
+    programs.bash.sessionVariables = {
+      GITHUB_TOKEN = "$(cat ${config.sops.secrets."git/github/token".path})";
+    };
+
     programs.git = {
       enable = true;
 

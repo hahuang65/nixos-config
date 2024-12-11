@@ -29,10 +29,7 @@ in
       };
     };
 
-    sops.secrets = {
-      "anthropic/apikey" = { };
-      "git/github/token" = { };
-    };
+    sops.secrets."anthropic/apikey" = { };
 
     programs.bash = {
       enable = true;
@@ -100,7 +97,6 @@ in
 
       sessionVariables = {
         ANTHROPIC_API_KEY = "$(cat ${config.sops.secrets."anthropic/apikey".path})";
-        GITHUB_TOKEN = "$(cat ${config.sops.secrets."git/github/token".path})";
       };
     };
   };
