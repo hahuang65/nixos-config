@@ -1,6 +1,7 @@
 -- https://github.com/GCBallesteros/jupytext.nvim
 return {
   "GCBallesteros/jupytext.nvim",
+  event = "VeryLazy",
   config = function()
     require("jupytext").setup({
       style = "markdown",

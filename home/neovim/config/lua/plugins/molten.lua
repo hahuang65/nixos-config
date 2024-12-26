@@ -9,6 +9,7 @@ return {
       opts = { create_commands = false },
     },
   },
+  event = "VeryLazy",
   build = ":UpdateRemotePlugins",
   init = function()
     vim.g.molten_image_provider = "wezterm"
