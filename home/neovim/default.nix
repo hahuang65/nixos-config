@@ -39,6 +39,7 @@ in
 
     home.packages = [
       pkgs.autoflake
+      pkgs.biome
       pkgs.delve
       pkgs.dockerfile-language-server-nodejs
       pkgs.gci
