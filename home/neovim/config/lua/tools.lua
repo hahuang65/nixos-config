@@ -30,7 +30,7 @@ return {
     lua = { "stylua" },
     markdown = { "markdownlint", "prettierd" },
     nix = { "nixfmt" },
-    python = { "autoflake", "ruff_fix", "ruff_format", "ruff_organize_imports" },
+    python = { "ruff_fix", "ruff_format", "ruff_organize_imports" },
     ruby = { "rubyfmt" },
     sh = { "shfmt", "shellcheck" },
     terraform = { "terraform_fmt" },
