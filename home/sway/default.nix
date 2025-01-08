@@ -109,14 +109,15 @@ in
           "${mod}+s" = "exec ${lib.getExe scratchpad}";
           "${mod}+w" = "exec ${lib.getExe notepad}";
           "${mod}+x" = "exec ${lib.getExe docs}";
-          "ctrl+shift+p" = "exec 1password --quick-access --ozone-platform-hint=auto";
+          "${mod}+shift+p" = "exec 1password --quick-access --ozone-platform-hint=auto";
 
           "${mod}+q" = "kill";
           "${mod}+z" = "fullscreen";
 
           "${mod}+shift+c" = "reload";
           "${mod}+shift+r" = "mode \"resize\"";
-          "${mod}+shift+4" = "exec grim -g \"$(slurp)\" \"${config.xdg.userDirs.pictures}/Screenshots/$(date +'screenshot-%m-%d-%y-%H%M%S.png')\"";
+          "${mod}+shift+4" =
+            "exec grim -g \"$(slurp)\" \"${config.xdg.userDirs.pictures}/Screenshots/$(date +'screenshot-%m-%d-%y-%H%M%S.png')\"";
 
           "${mod}+1" = "workspace number 1";
           "${mod}+2" = "workspace number 2";
