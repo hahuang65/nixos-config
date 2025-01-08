@@ -150,7 +150,6 @@ in
             top = "2px",
             bottom = "2px",
           },
-          use_resize_increments = true,
           scrollback_lines = 10000,
           window_close_confirmation = "NeverPrompt",
           keys = {
