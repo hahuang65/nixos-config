@@ -26,6 +26,7 @@ local function projects()
   local scan = require("plenary.scandir")
 
   local project_dirs = {
+    "~/.config",
     "~/Documents/Projects",
     "~/Documents/Projects/a5",
     "~/Documents/Projects/bitsmithy",
