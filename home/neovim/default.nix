@@ -210,6 +210,7 @@ in
         neotest-python
         neotest-rspec
         nvim-autopairs
+        nvim-bqf
         nvim-cmp
         nvim-dap
         nvim-dap-go
