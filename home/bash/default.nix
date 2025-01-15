@@ -56,7 +56,6 @@ in
         export GREP_COLOR="mt=1;32";
         export HISTTIMEFORMAT="%F %T - "; # Add timestamps to history
         export PROMPT_COMMAND="history -a"; # Append to history immediately instead of session end
-        export PS1="\\[\\e[34m\\]\$(git prompt 2>/dev/null)\\[\\e[39m\\]$ ";
 
         set -o ignoreeof
         set -o noclobber # Use `>|` to force redirection to existing file
