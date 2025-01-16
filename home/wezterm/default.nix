@@ -189,6 +189,8 @@ in
               mods = 'SHIFT|CTRL',
               action = wezterm.action.DisableDefaultAssignment,
             },
+            { key = 'PageUp', action = wezterm.action.ScrollByPage(-0.33) },
+            { key = 'PageDown', action = wezterm.action.ScrollByPage(0.33) },
           },
           hyperlink_rules = hyperlink_rules,
         }

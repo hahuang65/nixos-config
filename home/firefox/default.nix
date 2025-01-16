@@ -128,6 +128,8 @@ in
             "browser.newtabpage.activity-stream.showSponsoredTopSites" = lock-false;
             "browser.startup.homepage" = "about:blank";
             "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
+            "toolkit.scrollbox.pagescroll.maxOverlapLines" = 50;
+            "toolkit.scrollbox.pagescroll.maxOverlapPercent" = 67;
             "widget.use-xdg-desktop-portal.file-picker" = 1;
             "widget.use-xdg-desktop-portal.mime-handler" = 1;
           };
