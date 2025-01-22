@@ -195,6 +195,7 @@ in
         git-conflict-nvim
         gitsigns-nvim
         gv-vim
+        hover-nvim
         img-clip-nvim
         indent-blankline-nvim
         jupytext-nvim
