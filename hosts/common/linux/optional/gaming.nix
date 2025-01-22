@@ -26,6 +26,7 @@ in
     environment.systemPackages = with pkgs; [
       protonup-qt
       wowup-cf
+      chiaki-ng
     ];
   };
 }
