@@ -17,13 +17,8 @@
 
   amdGPU.enable = false;
   bluetooth.enable = true;
-
-  docker = {
-    enable = true;
-    users = [ config.users.users.hao.name ];
-  };
-
   location.enable = true;
+  podman.enable = true;
   printing.enable = true;
   pipewire.enable = true;
   gaming.enable = true;
