@@ -62,7 +62,7 @@ in
           monospace = mkOption {
             type = types.str;
             description = "Name of the monospace font to use";
-            default = "Iosevka";
+            default = "Departure Mono";
           };
 
           emoji = mkOption {
