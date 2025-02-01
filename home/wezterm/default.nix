@@ -59,7 +59,7 @@ in
         local primary_font = "${config.stylix.fonts.monospace.name}"
         local font_size = (setmetatable({
           ["ilum"] = 12,
-          ["bespin"] = 16,
+          ["bespin"] = 14,
           ["endor"] = 12,
           ["6649L06"] = 16,
         }, {
