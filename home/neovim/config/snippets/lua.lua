@@ -1,4 +1,4 @@
-local ls = require"luasnip"
+local ls = require("luasnip")
 local c = ls.choice_node
 local d = ls.dynamic_node
 local f = ls.function_node
@@ -23,59 +23,41 @@ local function endif()
   return sn(nil, {
     c(1, {
       t("end"),
-      sn(nil, fmt(
-        [[
+      sn(
+        nil,
+        fmt(
+          [[
           else
             <>
           end
         ]],
-        {
-          i(1)
-        }
-      )),
-      sn(nil, fmt(
-        [[
+          {
+            i(1),
+          }
+        )
+      ),
+      sn(
+        nil,
+        fmt(
+          [[
           elseif <1> then
             <2>
           <3>
         ]],
-        {
-          i(1),
-          i(2),
-          d(3, endif, {})
-        }
-      ))
-    })
+          {
+            i(1),
+            i(2),
+            d(3, endif, {}),
+          }
+        )
+      ),
+    }),
   })
 end
 
 return {
-  s("req",
-    fmt([[local <> = require('<>')]], { f(function(import_name)
-      return split_path(import_name[1][1])
-    end, { 1 }), i(1) })
-  ),
-
-  s("func",
-    fmt(
-      [[
-      <1> <2>(<3>)
-        <4>
-      end
-      ]],
-      {
-        c(1, {
-          t("function"),
-          t("local function")
-        }),
-        i(2, "name"),
-        i(3),
-        i(4)
-      }
-    )
-  ),
-
-  s("if",
+  s(
+    "if",
     fmt(
       [[
         if <1> then
@@ -85,39 +67,34 @@ return {
       {
         i(1),
         i(2),
-        d(3, endif, {})
+        d(3, endif, {}),
       }
     )
   ),
 
-  s("use",
+  s(
+    "req",
     fmt(
-      [[use <>]],
+      [[local <> = require("<>")]],
+      { f(function(import_name)
+        return split_path(import_name[1][1])
+      end, { 1 }), i(1) }
+    )
+  ),
+
+  s(
+    "mod",
+    fmt(
+      [[
+        local M = {}
+
+        <1>
+          
+        return M
+      ]],
       {
-        c(1, {
-          sn(1, fmt(
-            [[
-              { '<>' }
-            ]],
-            {
-              i(1)
-            }
-          )),
-          sn(1, fmt(
-            [[
-              { '<>',
-                config = function() require'plugin/<>' end
-              }
-            ]],
-            {
-              i(1),
-              f(function(name)
-                return split_path(name[1][1])
-              end, { 1 }),
-            }
-          ))
-        })
+        i(1),
       }
     )
-  )
+  ),
 }

@@ -46,12 +46,6 @@ return {
     },
 
     {
-      "<leader>sr",
-      [[<cmd>source $HOME/.dotfiles/nvim/lua/snippets.lua<CR>]],
-      desc = "[S]nippets - Reload",
-    },
-
-    {
       "<leader>se",
       require("snippets").edit_current_file_type,
       desc = "[S]nippets - [E]dit current filetype)",
@@ -86,6 +80,6 @@ return {
       },
     })
 
-    require("luasnip.loaders.from_lua").lazy_load({ paths = "~/.dotfiles/nvim/lua/snippets" })
+    require("luasnip.loaders.from_lua").lazy_load({ paths = "~/.config/nix/home/neovim/config/snippets" })
   end,
 }
