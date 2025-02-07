@@ -50,7 +50,7 @@ in
       {
         home.packages = with pkgs; [
           atac
-          awscli
+          awscli2
           bandwhich
           csvlens
           curlie
