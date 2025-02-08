@@ -74,6 +74,7 @@ in
       pkgs.terraform
       pkgs.terraform-ls
       pkgs.tflint
+      pkgs.tfsec
       pkgs.typescript
       pkgs.vim-language-server
       pkgs.yamlfmt
