@@ -3,6 +3,7 @@
 return {
   "catppuccin/nvim",
   name = "catppuccin-nvim",
+  priority = 1000,
   config = function()
     local catppuccin = require("catppuccin")
     vim.g.catppuccin_flavour = require("common").catppuccin_palette
@@ -63,7 +64,12 @@ return {
       },
     })
 
-    vim.cmd([[colorscheme catppuccin]])
-    vim.api.nvim_set_hl(0, "CursorColumn", { link = "CursorLine" })
+    -- Set up an autocmd to set the colorscheme after Neovim is loaded
+    vim.api.nvim_create_autocmd("VimEnter", {
+      callback = function()
+        vim.cmd.colorscheme("catppuccin")
+        vim.api.nvim_set_hl(0, "CursorColumn", { link = "CursorLine" })
+      end,
+    })
   end,
 }
