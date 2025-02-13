@@ -25,7 +25,6 @@ opt.lazyredraw = true -- Don't redraw for macros and commands that aren't manual
 opt.number = true -- Show line numbers
 opt.relativenumber = true -- Show relative line numbers
 opt.showmatch = true -- Briefly flash a matching bracket/parenthesis when cursor moves onto one
-opt.signcolumn = "auto:2" -- Automatically size the `signcolumn`, max being the number
 opt.mouse = "" -- Disable mouse
 
 -- Per-Project
@@ -90,3 +89,4 @@ opt.fillchars = {
 
 -- Statuscolumn
 opt.statuscolumn = [[%!v:lua.statuscolumn()]]
+opt.signcolumn = "no" -- Unset sign column since we build our own statuscolumn. Setting this adds unnecessary space to reserve for normal statuscolumn, which we don't render
