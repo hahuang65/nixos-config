@@ -195,10 +195,8 @@ in
         fugitive
         git-conflict-nvim
         gitsigns-nvim
-        gv-vim
         hover-nvim
         img-clip-nvim
-        indent-blankline-nvim
         jupytext-nvim
         lazy-nvim
         lsp_lines-nvim
@@ -206,6 +204,7 @@ in
         lspkind-nvim
         lualine-nvim
         luasnip
+        mini-icons
         molten-nvim
         neotest
         neotest-golang
@@ -223,7 +222,6 @@ in
         nvim-lint
         nvim-lspconfig
         nvim-nio
-        nvim-notify
         nvim-pqf
         nvim-treesitter.withAllGrammars
         nvim-treesitter-context
@@ -233,14 +231,12 @@ in
         oil-nvim
         otter-nvim
         plenary-nvim
-        popup-nvim
         pretty-fold-nvim
         quarto-nvim
         quick-scope
         refactoring-nvim
         render-markdown-nvim
-        telescope-fzf-native-nvim
-        telescope-nvim
+        snacks-nvim
         todo-comments-nvim
         treesj
         vim-cool

@@ -90,3 +90,6 @@ opt.fillchars = {
 -- Statuscolumn
 opt.statuscolumn = [[%!v:lua.statuscolumn()]]
 opt.signcolumn = "no" -- Unset sign column since we build our own statuscolumn. Setting this adds unnecessary space to reserve for normal statuscolumn, which we don't render
+
+-- Disable ftplugin mappings
+vim.g.no_plugin_maps = 1

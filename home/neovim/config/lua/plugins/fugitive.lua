@@ -23,7 +23,7 @@ return {
     {
       "<leader>g?",
       require("git").commits_for_lines,
-      desc = "Conflict Select (Right)",
+      desc = "Show commits for selected lines",
       mode = { "n", "v" },
     },
   },
