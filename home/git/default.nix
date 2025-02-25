@@ -100,14 +100,21 @@ in
           template = gitmessage;
           verbose = true;
         };
+        core = {
+          fsmonitor = true;
+          untrackedCache = true;
+        };
         diff = {
           algorithm = "histogram";
           colorMoved = "default";
           colorMovedWS = "allow-indentation-change";
           context = "10";
+          mnemonicPrefix = true;
+          renames = true;
           submodule = "log";
         };
         fetch = {
+          all = true;
           prune = true;
           prunetags = true;
         };
@@ -145,15 +152,17 @@ in
           autostash = true;
           autosquash = true;
           missingCommitsCheck = "error";
+          updateRefs = true;
         };
         rerere = {
+          autoupdate = true;
           enabled = true;
         };
         status = {
           submoduleSummary = true;
         };
         tag = {
-          sort = "taggerdate";
+          sort = "version:refname";
         };
       };
 
