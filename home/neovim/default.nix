@@ -58,6 +58,7 @@ in
       pkgs.nil
       pkgs.nixfmt-rfc-style
       pkgs.packer
+      pkgs.postgres-lsp
       pkgs.prettierd
       pkgs.rubocop
       pkgs.ruby-lsp

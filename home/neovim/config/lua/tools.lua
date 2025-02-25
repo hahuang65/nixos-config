@@ -9,6 +9,7 @@ return {
     "lua_ls",
     "marksman",
     "nil_ls",
+    "postgres_lsp",
     "ruby_lsp",
     "solargraph",
     "sqls",
