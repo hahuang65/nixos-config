@@ -3,12 +3,7 @@
 return {
   "tpope/vim-fugitive",
   keys = {
-    { "<leader>gb", require("git").change_branch, desc = "[G]it [b]ranch" },
-    { "<leader>gB", ":Git repo view --web<CR>", desc = "[G]it - Open in [b]rowser" },
-    { "<leader>gc", ":GV!<CR>", desc = "[G]it [c]ommits (Buffer)" },
-    { "<leader>gC", ":GV<CR>", desc = "[G]it [C]ommits (Project)" },
     { "<C-M-g>", require("git").toggle_fugitive, desc = "Toggle Fugitive" },
-    { "<leader>gl", ":Git log<CR>", desc = "[G]it [L]og" },
     { "<leader>gN", require("git").new_branch, desc = "[G]it [N]ew Branch" },
     { "<leader>gO", ":Git pr view --web<CR>", desc = "[G]it - [O]pen PR in browser" },
     { "<leader>gp", ":Git publish<CR>", desc = "[G]it [P]ublish" },
