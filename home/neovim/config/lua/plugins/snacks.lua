@@ -18,7 +18,19 @@ return {
       enabled = true,
       timeout = 3000,
     },
-    picker = { enabled = true },
+    picker = {
+      enabled = true,
+      win = {
+        preview = {
+          wo = {
+            cursorline = false,
+            cursorcolumn = false,
+            number = false,
+            relativenumber = false,
+          },
+        },
+      },
+    },
     quickfile = { enabled = true },
     scope = { enabled = true },
     words = { enabled = true },
