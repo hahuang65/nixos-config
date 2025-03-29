@@ -200,7 +200,6 @@ in
         img-clip-nvim
         jupytext-nvim
         lazy-nvim
-        lsp_lines-nvim
         lsp_signature-nvim
         lspkind-nvim
         lualine-nvim
