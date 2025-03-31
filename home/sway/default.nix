@@ -173,6 +173,9 @@ in
         };
 
         startup = [
+          # Sync wayland clipboards, so 1Password copying works
+          # https://wiki.archlinux.org/title/Clipboard#Tools
+          { command = "wl-paste --primary --watch wl-copy"; }
           { command = "1password --silent"; }
           {
             command = "swayidle -w timeout 900 '${lockWithGrace}' timeout 1000 'swaymsg \"output * power off\"' resume 'swaymsg \"output * power on \"' before-sleep '${lock}'";
