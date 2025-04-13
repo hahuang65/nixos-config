@@ -71,6 +71,8 @@ in
     security.polkit.enable = true;
     security.pam.services.swaylock = { };
 
+    services.gnome.gnome-keyring.enable = true;
+
     programs.sway.extraSessionCommands = ''
       export WLR_RENDERER=vulkan
     '';

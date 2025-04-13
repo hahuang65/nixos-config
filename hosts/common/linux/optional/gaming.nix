@@ -27,6 +27,7 @@ in
       protonup-qt
       wowup-cf
       chiaki-ng
+      xivlauncher
     ];
   };
 }

@@ -69,10 +69,11 @@ in
           };
 
           # Tree Style Tab
-          "treestyletab@piro.sakura.ne.jp" = {
-            install_url = "https://addons.mozilla.org/firefox/downloads/latest/tree_style_tab/latest.xpi";
-            installation_mode = "force_installed";
-          };
+          # Disabled in favor of native vertical tabs
+          # "treestyletab@piro.sakura.ne.jp" = {
+          #   install_url = "https://addons.mozilla.org/firefox/downloads/latest/tree_style_tab/latest.xpi";
+          #   installation_mode = "force_installed";
+          # };
 
           # Tridactyl
           "tridactyl.vim@cmcaine.co.uk" = {
@@ -127,6 +128,8 @@ in
             "general.smoothScroll" = lock-true;
             "browser.newtabpage.activity-stream.showSponsoredTopSites" = lock-false;
             "browser.startup.homepage" = "about:blank";
+            "sidebar.revamp" = lock-true;
+            "sidebar.verticalTabs" = lock-true;
             "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
             "toolkit.scrollbox.pagescroll.maxOverlapLines" = 50;
             "toolkit.scrollbox.pagescroll.maxOverlapPercent" = 67;
