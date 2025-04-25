@@ -30,6 +30,11 @@ in
       width = 600;
 
       extraConfig = ''
+        default-timeout=5000
+
+        [app-name=Thunderbird]
+        default-timeout=5000
+
         [urgency=low]
         default-timeout=5000
 
