@@ -95,7 +95,13 @@ in
 
     programs.neovim = {
       enable = true;
-      package = unstable.neovim-unwrapped;
+      # https://github.com/NixOS/nixpkgs/issues/402998
+      # TODO: remove workaround on when fixed.
+      package = unstable.neovim-unwrapped.overrideAttrs (old: {
+        meta = (old.meta or { }) // {
+          maintainers = old.maintainers or [ ];
+        };
+      });
 
       defaultEditor = true;
       viAlias = true;
