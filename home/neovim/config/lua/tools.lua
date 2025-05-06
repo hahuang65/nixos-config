@@ -45,11 +45,11 @@ return {
   linters = {
     -- shellcheck is included in bashls, we don't need to double lint
     -- bash = { "shellcheck" },
-    css = { "biome" },
+    css = { "biomejs" },
     docker = { "hadolint" },
     git = { "gitlint" },
     go = { "golangcilint" },
-    javascript = { "biome" },
+    javascript = { "biomejs" },
     json = { "jsonlint" },
     lua = { "selene" },
     markdown = { "markdownlint" },
@@ -59,7 +59,7 @@ return {
     sql = { "sqlfluff" },
     terraform = { "tflint", "tfsec" },
     tofu = { "tflint", "tfsec" },
-    typescript = { "biome" },
+    typescript = { "biomejs" },
     yaml = { "yamllint" },
   },
   debuggers = {
