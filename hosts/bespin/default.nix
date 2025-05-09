@@ -26,6 +26,7 @@
   };
 
   thunar.enable = true;
+  vpn.enable = true;
 
   # TRIM support
   fileSystems."/".options = [

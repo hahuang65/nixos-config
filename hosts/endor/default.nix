@@ -21,7 +21,11 @@
   podman.enable = true;
   printing.enable = true;
   pipewire.enable = true;
-  gaming.enable = true;
+  gaming = {
+    steam.enable = true;
+    ffxiv.enable = true;
+    ps5.enable = true;
+  };
 
   sway = {
     enable = true;
@@ -29,6 +33,7 @@
   };
 
   thunar.enable = true;
+  vpn.enable = true;
 
   # This option defines the first version of NixOS you have installed on this particular machine,
   # and is used to maintain compatibility with application data (e.g. databases) created on older NixOS versions.
