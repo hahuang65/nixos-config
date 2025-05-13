@@ -15,7 +15,7 @@ return {
     indent = { enabled = true },
     input = { enabled = true },
     notifier = {
-      enabled = true,
+      enabled = false, -- using fidget.nvim instead
       timeout = 3000,
     },
     picker = {
@@ -324,13 +324,6 @@ return {
         Snacks.rename.rename_file()
       end,
       desc = "Rename File",
-    },
-    {
-      "<leader>un",
-      function()
-        Snacks.notifier.hide()
-      end,
-      desc = "Dismiss All Notifications",
     },
     {
       "]]",
