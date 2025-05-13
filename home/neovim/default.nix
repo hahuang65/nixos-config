@@ -81,10 +81,10 @@ in
       pkgs.vim-language-server
       pkgs.yamlfmt
       pkgs.yamllint
+      pkgs.zls
 
       pkgs.nodePackages.jsonlint
       pkgs.python312Packages.debugpy
-      pkgs.python312Packages.jupytext
       pkgs.rubyPackages.htmlbeautifier
 
       unstable.basedpyright
@@ -197,15 +197,12 @@ in
         conform-nvim
         copilot-lua
         direnv-vim
-        dressing-nvim
         fidget-nvim
         fold-preview-nvim
         fugitive
         git-conflict-nvim
         gitsigns-nvim
         hover-nvim
-        img-clip-nvim
-        jupytext-nvim
         lazy-nvim
         lsp_signature-nvim
         lspkind-nvim

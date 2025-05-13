@@ -19,6 +19,7 @@ return {
     "ts_ls",
     "vimls",
     "vuels",
+    "zls",
   },
   formatters = {
     bash = { "shfmt", "shellcheck" },
@@ -38,6 +39,7 @@ return {
     tofu = { "tofu_fmt" },
     toml = { "taplo" },
     typescript = { "biome" },
+    zig = { "zigfmt" },
     vue = { "prettierd" },
     yaml = { "prettierd", "yamlfmt" },
     ["_"] = { "trim_whitespace", "trim_newlines", "squeeze_blanks" },

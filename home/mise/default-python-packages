@@ -4,7 +4,6 @@ debugpy
 goobook
 ipykernel
 jupyter_client
-jupytext
 neovim
 pipenv
 poetry
