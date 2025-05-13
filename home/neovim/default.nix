@@ -185,7 +185,6 @@ in
 
       plugins = with unstable.vimPlugins; [
         FixCursorHold-nvim
-        avante-nvim
         boole-nvim
         catppuccin-nvim
         cmp-buffer
@@ -193,9 +192,9 @@ in
         cmp-nvim-lua
         cmp-path
         cmp_luasnip
+        codecompanion-nvim
         comment-nvim
         conform-nvim
-        copilot-lua
         direnv-vim
         fidget-nvim
         fold-preview-nvim
@@ -248,6 +247,13 @@ in
         vim-rails
         vim-repeat
         vim-surround
+
+        (fromGitHub {
+          owner = "ravitemer";
+          repo = "codecompanion-history.nvim";
+          rev = "c96975f033b466efadd92547bd8f59440d132509";
+          hash = "sha256-R91g840icWzyRNPCbczw2A68/eralrb+ibiFifQZ2Jc=";
+        })
 
         (fromGitHub {
           owner = "nvim-zh";
