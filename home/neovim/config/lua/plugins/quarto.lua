@@ -36,9 +36,6 @@ return {
   dependencies = {
     {
       "jmbuhr/otter.nvim",
-      dependencies = {
-        { "neovim/nvim-lspconfig" },
-      },
       opts = {
         lsp = {
           hover = {
