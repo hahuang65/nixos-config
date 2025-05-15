@@ -11,7 +11,6 @@ return {
     "nil_ls",
     "postgres_lsp",
     "ruby_lsp",
-    "solargraph",
     "sqls",
     "svelte",
     "taplo",

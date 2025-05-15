@@ -67,7 +67,6 @@ in
       pkgs.selene
       pkgs.shellcheck
       pkgs.shfmt
-      pkgs.solargraph
       pkgs.sqlfluff
       pkgs.stylua
       pkgs.sqls

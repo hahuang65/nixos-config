@@ -1,8 +1,9 @@
 bundler
 neovim
-solargraph
 rubocop
 rubocop-rails
 rubocop-performance
 rubocop-rspec
 ruby-lsp
+ruby-lsp-rails
+ruby-lsp-rspec
