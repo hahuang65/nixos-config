@@ -36,7 +36,6 @@ in
   };
 
   config = mkIf config.neovim.enable {
-
     home.packages = [
       pkgs.autoflake
       pkgs.biome
