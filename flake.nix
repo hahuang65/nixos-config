@@ -24,6 +24,11 @@
       url = "git+ssh://git@github.com/hahuang65/nix-secrets.git?ref=main&shallow=1";
       flake = false;
     };
+
+    nix-citizen.url = "github:LovingMelody/nix-citizen";
+    # Optional - updates underlying without waiting for nix-citizen to update
+    nix-gaming.url = "github:fufexan/nix-gaming";
+    nix-citizen.inputs.nix-gaming.follows = "nix-gaming";
   };
 
   outputs =

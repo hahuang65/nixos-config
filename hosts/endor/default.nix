@@ -25,6 +25,7 @@
     steam.enable = true;
     ffxiv.enable = true;
     ps5.enable = true;
+    starcitizen.enable = true;
   };
 
   sway = {

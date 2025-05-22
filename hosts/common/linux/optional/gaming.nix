@@ -1,5 +1,6 @@
 {
   config,
+  inputs,
   lib,
   pkgs,
   ...
@@ -19,6 +20,9 @@ in
       };
       ps5 = {
         enable = mkEnableOption "Chiaki (PlayStation Remote Play)";
+      };
+      starcitizen = {
+        enable = mkEnableOption "Star Citizen";
       };
       wow = {
         enable = mkEnableOption "World of Warcraft";
@@ -59,6 +63,18 @@ in
     (mkIf config.gaming.ffxiv.enable {
       environment.systemPackages = with pkgs; [
         xivlauncher
+      ];
+    })
+
+    # Star Citizen configuration
+    (mkIf config.gaming.starcitizen.enable {
+      nix.settings = {
+        substituters = [ "https://nix-gaming.cachix.org" ];
+        trusted-public-keys = [ "nix-gaming.cachix.org-1:nbjlureqMbRAxR1gJ/f3hxemL9svXaZF/Ees8vCUUs4=" ];
+      };
+
+      environment.systemPackages = with pkgs; [
+        inputs.nix-citizen.packages.${system}.star-citizen
       ];
     })
   ];
