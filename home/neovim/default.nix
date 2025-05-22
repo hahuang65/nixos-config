@@ -184,13 +184,9 @@ in
 
       plugins = with unstable.vimPlugins; [
         FixCursorHold-nvim
+        blink-cmp
         boole-nvim
         catppuccin-nvim
-        cmp-buffer
-        cmp-nvim-lsp
-        cmp-nvim-lua
-        cmp-path
-        cmp_luasnip
         codecompanion-nvim
         comment-nvim
         conform-nvim
@@ -201,9 +197,8 @@ in
         git-conflict-nvim
         gitsigns-nvim
         hover-nvim
+        lazydev-nvim
         lazy-nvim
-        lsp_signature-nvim
-        lspkind-nvim
         lualine-nvim
         luasnip
         mini-icons
@@ -214,7 +209,6 @@ in
         neotest-rspec
         nvim-autopairs
         nvim-bqf
-        nvim-cmp
         nvim-dap
         nvim-dap-go
         nvim-dap-python
