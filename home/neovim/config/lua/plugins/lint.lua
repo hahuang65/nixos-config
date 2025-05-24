@@ -12,9 +12,9 @@ return {
       if require("util").cwd_has_file("poetry.lock") then
         vim.notify_once("Running `mypy` with `poetry`")
         cmd = "poetry"
-      elseif require("util").cwd_has_file("Pipfile") then
-        vim.notify_once("Running `mypy` with `pipenv`")
-        cmd = "pipenv"
+      elseif require("util").cwd_has_file("uv.lock") then
+        vim.notify_once("Running `mypy` with `uv`")
+        cmd = "uv"
       else
         vim.notify_once("Running `mypy` without a virtualenv")
       end
