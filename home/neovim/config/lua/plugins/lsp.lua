@@ -120,14 +120,13 @@ return {
           disableOrganizeImports = true, -- using ruff
           analysis = {
             ignore = { "*" }, --using ruff
-            -- TODO: Uncomment when ty is set up
-            -- typeCheckingMode = "off", -- using ty/mypy
-            -- inlayHints = {
-            --   variableTypes = false, -- conflicts with ty
-            --   callArgumentNames = false, -- conflicts with ty
-            --   functionReturnTypes = true,
-            --   genericTypes = false, -- conflicts with ty
-            -- },
+            typeCheckingMode = "off", -- using ty/mypy
+            inlayHints = {
+              variableTypes = false, -- conflicts with ty
+              callArgumentNames = false, -- conflicts with ty
+              functionReturnTypes = true,
+              genericTypes = false, -- conflicts with ty
+            },
           },
         },
       },
@@ -147,6 +146,65 @@ return {
       capabilities = capabilities,
       on_new_config = function(cfg)
         cfg.cmd = { vim.fn.expand(shims_dir .. "ruby-lsp") }
+      end,
+    })
+
+    -- Function to set up the ty language server
+    local function start_ty()
+      -- Find the root directory for the project
+      local root_files = {
+        "pyproject.toml",
+        "setup.py",
+        "setup.cfg",
+        "requirements.txt",
+        "Pipfile",
+        ".git",
+        "poetry.lock",
+      }
+
+      local root_dir = vim.fs.dirname(vim.fs.find(root_files, {
+        upward = true,
+        stop = vim.uv.os_homedir(),
+      })[1] or ".")
+
+      -- Determine the command based on whether poetry.lock exists
+      local cmd
+      if require("util").dir_has_file(root_dir, "poetry.lock") then
+        vim.notify_once("Running `ty` with `poetry`")
+        cmd = { "poetry", "run", "ty", "server" }
+      elseif require("util").dir_has_file(root_dir, "uv.lock") then
+        vim.notify_once("Running `ty` with `uv`")
+        cmd = { "uv", "run", "ty", "server" }
+      else
+        vim.notify_once("Running `ty` without a virtualenv")
+        cmd = { "ty", "server" }
+      end
+
+      -- Start the LSP server
+      vim.lsp.start({
+        name = "ty",
+        cmd = cmd,
+        root_dir = root_dir,
+        -- Include your existing capabilities
+        capabilities = capabilities,
+        -- Add any additional settings
+        settings = {
+          ty = {
+            experimental = {
+              completions = {
+                enable = true,
+              },
+            },
+          },
+        },
+      })
+    end
+
+    -- Set up autocommand to start the server when opening Python files
+    vim.api.nvim_create_autocmd("FileType", {
+      pattern = { "python" },
+      callback = function()
+        start_ty()
       end,
     })
   end,

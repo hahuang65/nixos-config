@@ -58,7 +58,7 @@ return {
     json = { "jsonlint" },
     lua = { "selene" },
     markdown = { "markdownlint" },
-    python = { "mypy_venv", "ruff" },
+    python = { "ruff" },
     ruby = { "rubocop" },
     sh = { "shellcheck" },
     sql = { "sqlfluff" },
