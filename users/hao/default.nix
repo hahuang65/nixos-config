@@ -90,7 +90,6 @@ in
           w3m
           wget
           wl-clipboard
-          xsv
           yank
           zathura
           zeal

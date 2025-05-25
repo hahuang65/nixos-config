@@ -25,27 +25,28 @@ in
     services.mako = {
       enable = true;
 
-      borderSize = 2;
-      height = 300;
-      width = 600;
+      settings = {
+        default-timeout = 5000;
+        border-size = 2;
+        height = 300;
+        width = 600;
 
-      extraConfig = ''
-        default-timeout=5000
+        "app-name=Thunderbird" = {
+          default-timeout = 5000;
+        };
 
-        [app-name=Thunderbird]
-        default-timeout=5000
+        "urgency=low" = {
+          default-timeout = 5000;
+        };
 
-        [urgency=low]
-        default-timeout=5000
+        "urgency=normal" = {
+          default-timeout = 5000;
+        };
 
-        [urgency=normal]
-        default-timeout=5000
-
-        [urgency=high]
-        default-timeout=15000
-        border-color=#${config.lib.stylix.colors.base09}
-        text-color=#${config.lib.stylix.colors.base08}
-      '';
+        "urgency=high" = {
+          default-timeout = 15000;
+        };
+      };
     };
   };
 }

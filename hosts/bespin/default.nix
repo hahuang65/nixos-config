@@ -16,12 +16,6 @@
   };
 
   location.enable = true;
-
-  ollama = {
-    enable = true;
-    models = [ "devstral" ];
-  };
-
   podman.enable = true;
   printing.enable = true;
   pipewire.enable = true;

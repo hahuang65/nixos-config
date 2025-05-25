@@ -6,7 +6,7 @@ return {
     "j-hui/fidget.nvim",
     "nvim-lua/plenary.nvim",
     "nvim-treesitter/nvim-treesitter",
-    { "ravitemer/codecompanion-history.nvim", name = "vimplugin-ravitemer-codecompanion-history.nvim" },
+    "ravitemer/codecompanion-history.nvim",
   },
   config = function()
     require("codecompanion").setup({

@@ -40,7 +40,9 @@ in
 
   stylix = {
     targets = {
-      # neovim.enable = false;
+      firefox = {
+        profileNames = [ "profile_0" ]; # Make sure this matches the profile name in firefox/default.nix
+      };
       waybar.enable = false;
     };
   };

@@ -75,6 +75,7 @@ in
       pkgs.tflint
       pkgs.tfsec
       pkgs.typescript
+      pkgs.ty
       pkgs.typescript-language-server
       pkgs.vim-language-server
       pkgs.yamlfmt
@@ -186,6 +187,7 @@ in
         blink-cmp
         boole-nvim
         catppuccin-nvim
+        codecompanion-history-nvim
         codecompanion-nvim
         comment-nvim
         conform-nvim
@@ -241,13 +243,6 @@ in
         vim-surround
 
         (fromGitHub {
-          owner = "ravitemer";
-          repo = "codecompanion-history.nvim";
-          rev = "c96975f033b466efadd92547bd8f59440d132509";
-          hash = "sha256-R91g840icWzyRNPCbczw2A68/eralrb+ibiFifQZ2Jc=";
-        })
-
-        (fromGitHub {
           owner = "nvim-zh";
           repo = "colorful-winsep.nvim";
           rev = "210f6532772d7d2fefdf1f39081b965be4a3b2ef";
@@ -301,20 +296,6 @@ in
           repo = "nvim-rooter.lua";
           rev = "36c597962c5f136d6230f53837ff14fcaf81eff7";
           hash = "sha256-3wnT3O9XvFTqClp/uXEyPySsqgWIDWoN0tnvaso8o50=";
-        })
-
-        (fromGitHub {
-          owner = "nvzone";
-          repo = "volt";
-          rev = "1a7d6b1dfb2f176715ccc9e838be32d044f8a734";
-          hash = "sha256-4KFGlFcaV+X98gK+VeR0spceDpy108wk19LYd/oUXc0=";
-        })
-
-        (fromGitHub {
-          owner = "nvzone";
-          repo = "typr";
-          rev = "249fd11305e9adf92762474691e00f5a32b12f6e";
-          hash = "sha256-IOjx8jyB3OIUa2zo5gp+yskPEFdIE4Z+b/cORa7g4N0=";
         })
       ];
     };
