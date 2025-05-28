@@ -19,6 +19,7 @@ let
   editor = "wezterm start -- bash -l -c $EDITOR";
   laptopMonitor = "eDP-1";
   launcher = "tofi-drun --drun-launch=true";
+  scriptLauncher = "tofi-srun";
   lock = "swaylock --daemonize --indicator --screenshots --clock --effect-greyscale --effect-pixelate 5";
   lockWithGrace = "${lock} --grace 15";
 in
@@ -104,6 +105,7 @@ in
           "${mod}+return" = "exec ${editor}";
           "${mod}+shift+return" = "exec ${term}";
           "${mod}+space" = "exec ${launcher}";
+          "${mod}+ctrl+space" = "exec ${scriptLauncher}";
           "${mod}+shift+space" = "exec ${lock}";
 
           "${mod}+s" = "exec ${lib.getExe scratchpad}";
