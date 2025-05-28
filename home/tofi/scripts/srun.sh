@@ -6,7 +6,7 @@ script="tofi-$(
     grep -v "tofi-drun" |
     grep -v "tofi-srun" |
     sed 's/tofi-//' |
-    tofi --prompt-text "Script: "
+    tofi --prompt-text "script: "
 )"
 
 if command -v "$script"; then

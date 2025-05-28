@@ -28,17 +28,21 @@ in
       settings = {
         width = "100%";
         height = "100%";
-        border-width = 0;
-        outline-width = 0;
         padding-left = "45%";
         padding-top = "35%";
+        border-width = 0;
+        outline-width = 0;
         result-spacing = 25;
         num-results = 8;
         font = config.stylix.fonts.monospace.name;
+        default-result-background = mkForce "#00000000";
+        input-background = mkForce "#00000000";
+        prompt-background = mkForce "#00000000";
         input-color = mkForce config.lib.stylix.colors.base05;
-        text-color = mkForce config.lib.stylix.colors.base03;
         selection-color = mkForce config.lib.stylix.colors.base09;
         selection-match-color = mkForce config.lib.stylix.colors.base08;
+        text-color = mkForce config.lib.stylix.colors.base03;
+        selection-background-padding = 10;
       };
     };
   };
