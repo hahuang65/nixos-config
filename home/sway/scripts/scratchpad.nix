@@ -28,18 +28,18 @@ pkgs.writeShellApplication {
     }
 
     position_scratchpad() {
-      swaymsg "[app_id=Scratchpad] move scratchpad"
+      swaymsg "[class=Scratchpad] move scratchpad"
       resize_scratchpad
     }
 
     resize_scratchpad() {
-      swaymsg "[app_id=Scratchpad] resize set 2560 1440"
-      swaymsg "[app_id=Scratchpad] move absolute position center"
+      swaymsg "[class=Scratchpad] resize set 2560 1440"
+      swaymsg "[class=Scratchpad] move absolute position center"
     }
 
     focus_scratchpad() {
       resize_scratchpad
-      swaymsg "[app_id=Scratchpad] scratchpad show"
+      swaymsg "[class=Scratchpad] scratchpad show"
     }
 
     toggle_scratchpad
