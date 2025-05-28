@@ -26,7 +26,7 @@ in
       };
     };
 
-    hardware.pulseaudio = {
+    services.pulseaudio = {
       enable = false; # We're using PipeWire
       package = pkgs.pulseaudioFull;
       configFile = pkgs.writeText "default.pa" ''

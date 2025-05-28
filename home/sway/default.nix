@@ -18,7 +18,7 @@ let
   term = "wezterm";
   editor = "wezterm start -- bash -l -c $EDITOR";
   laptopMonitor = "eDP-1";
-  launcher = "pkill fuzzel || fuzzel";
+  launcher = "tofi-drun --drun-launch=true";
   lock = "swaylock --daemonize --indicator --screenshots --clock --effect-greyscale --effect-pixelate 5";
   lockWithGrace = "${lock} --grace 15";
 in

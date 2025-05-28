@@ -17,7 +17,6 @@ in
   ferdium.enable = mkDefault true;
   firefox.enable = mkDefault true;
   foot.enable = mkDefault true;
-  fuzzel.enable = mkDefault true;
   fzf.enable = mkDefault true;
   git.enable = mkDefault true;
   gtkTheme.enable = mkDefault true;
@@ -35,6 +34,7 @@ in
   senpai.enable = mkDefault false;
   spotify.enable = mkDefault true;
   sway.enable = mkDefault true;
+  tofi.enable = mkDefault true;
   thunderbird.enable = mkDefault true;
   wezterm.enable = mkDefault true;
 

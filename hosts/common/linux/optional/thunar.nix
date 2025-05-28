@@ -16,8 +16,12 @@ in
   };
 
   config = mkIf config.thunar.enable {
+    environment.systemPackages = with pkgs; [
+      kdePackages.ark
+    ];
+
     programs = {
-      file-roller.enable = true;
+      xfconf.enable = true; # Saves settings, explicitly enabled since we're not running xfce
       thunar = {
         enable = true;
         plugins = with pkgs.xfce; [
@@ -27,7 +31,9 @@ in
       };
     };
 
-    # For integration with removable drives etc.
-    services.gvfs.enable = true;
+    services = {
+      gvfs.enable = true; # For integration with removable drives etc.
+      tumbler.enable = true; # Image thumbnails
+    };
   };
 }

@@ -98,6 +98,32 @@ in
           };
         };
       };
+
+      opacity = {
+        application = mkOption {
+          type = types.float;
+          description = "Opacity for applications to use";
+          default = 1.0;
+        };
+
+        desktop = mkOption {
+          type = types.float;
+          description = "Opacity for WM (desktop chrome) to use";
+          default = 1.0;
+        };
+
+        popups = mkOption {
+          type = types.float;
+          description = "Opacity for notifications and pop-ups to use";
+          default = 0.7;
+        };
+
+        terminal = mkOption {
+          type = types.float;
+          description = "Opacity for terminal emulators to use";
+          default = 1.0;
+        };
+      };
     };
   };
 
@@ -113,6 +139,13 @@ in
         name = config.style.cursor.name;
         package = config.style.cursor.package;
         size = config.style.cursor.size;
+      };
+
+      opacity = {
+        applications = config.style.opacity.applications;
+        desktop = config.style.opacity.desktop;
+        popups = config.style.opacity.popups;
+        terminal = config.style.opacity.terminal;
       };
 
       fonts = {
