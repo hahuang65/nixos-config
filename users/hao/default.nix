@@ -78,6 +78,7 @@ in
           prettyping
           procs
           pueue
+          pv
           ripgrep
           rsync
           slack
