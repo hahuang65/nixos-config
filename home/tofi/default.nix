@@ -19,6 +19,7 @@ in
   config = mkIf (stdenv.isLinux && config.tofi.enable) {
     home.packages = [
       (import ./scripts/kill.nix { inherit pkgs; })
+      (import ./scripts/nix-search.nix { inherit pkgs; })
       (import ./scripts/power.nix { inherit pkgs; })
       (import ./scripts/srun.nix { inherit pkgs; })
     ];
