@@ -88,17 +88,7 @@ return {
     local capabilities = vim.lsp.protocol.make_client_capabilities()
     capabilities = require("blink.cmp").get_lsp_capabilities(capabilities)
 
-    for _, lsp in ipairs(require("tools").language_servers) do
-      local custom = { "gopls", "pyrefly", "ruby_lsp", "ty" }
-      if not require("util").has_value(custom, lsp) then
-        require("lspconfig")[lsp].setup({
-          capabilities = capabilities,
-        })
-      end
-    end
-
-    require("lspconfig").gopls.setup({
-      capabilities = capabilities,
+    vim.lsp.config("gopls", {
       settings = {
         gopls = {
           ["ui.inlayhint.hints"] = {
@@ -112,6 +102,17 @@ return {
         },
       },
     })
+
+    vim.lsp.config("vuels", {})
+
+    for _, lsp in ipairs(require("tools").language_servers) do
+      local custom = { "pyrefly", "ruby_lsp", "ty" }
+      if not require("util").has_value(custom, lsp) then
+        require("lspconfig")[lsp].setup({
+          capabilities = capabilities,
+        })
+      end
+    end
 
     require("lspconfig").ruby_lsp.setup({
       capabilities = capabilities,
