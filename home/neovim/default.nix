@@ -234,6 +234,7 @@ in
         refactoring-nvim
         render-markdown-nvim
         snacks-nvim
+        smear-cursor-nvim
         todo-comments-nvim
         treesj
         vim-cool
