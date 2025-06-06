@@ -16,6 +16,9 @@ in
   };
 
   config = mkIf config.bluetooth.enable {
+    # https://discourse.nixos.org/t/bluetooth-troubles/38940/17
+    hardware.enableAllFirmware = true;
+
     hardware.bluetooth = {
       enable = true;
       powerOnBoot = true;
