@@ -75,7 +75,6 @@ in
       pkgs.tflint
       pkgs.tfsec
       pkgs.typescript
-      pkgs.ty
       pkgs.typescript-language-server
       pkgs.vim-language-server
       pkgs.yamlfmt
