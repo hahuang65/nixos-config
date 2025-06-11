@@ -1,5 +1,6 @@
 {
   config,
+  configLib,
   lib,
   osConfig,
   pkgs,
@@ -9,6 +10,9 @@
 let
   inherit (lib) mkEnableOption mkIf;
   configDir = "${config.xdg.configHome}/nvim";
+
+  pyrefly = pkgs.callPackage (configLib.fromRoot "pkgs/pyrefly") { };
+
   fromGitHub =
     {
       owner,
@@ -87,9 +91,10 @@ in
 
       unstable.bash-language-server
       unstable.fixjson
-      unstable.pyrefly
       unstable.svelte-language-server
       unstable.vue-language-server
+
+      pyrefly # Just until nixpkgs bundles it
     ];
 
     programs.neovim = {
