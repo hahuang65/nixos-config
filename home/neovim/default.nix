@@ -89,6 +89,7 @@ in
       pkgs.python312Packages.debugpy
       pkgs.rubyPackages.htmlbeautifier
 
+      unstable.basedpyright
       unstable.bash-language-server
       unstable.fixjson
       unstable.svelte-language-server

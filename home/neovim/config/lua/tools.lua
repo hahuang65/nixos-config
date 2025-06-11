@@ -1,5 +1,6 @@
 return {
   language_servers = {
+    "basedpyright",
     "bashls",
     "biome",
     "dockerls",
@@ -10,7 +11,7 @@ return {
     "marksman",
     "nil_ls",
     "postgres_lsp",
-    "pyrefly",
+    -- "pyrefly",
     "rubocop",
     "ruby_lsp",
     "ruff",
@@ -59,7 +60,8 @@ return {
     json = { "jsonlint" },
     lua = { "selene" },
     markdown = { "markdownlint" },
-    python = { "ruff" },
+    -- Using the ruff LSP for this
+    -- python = { "ruff" },
     ruby = { "rubocop" },
     sh = { "shellcheck" },
     sql = { "sqlfluff" },

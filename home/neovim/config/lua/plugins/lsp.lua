@@ -109,7 +109,7 @@ return {
 
     local tools = require("tools")
     for _, lsp in ipairs(tools.language_servers) do
-      local custom = { "pyrefly", "ruby_lsp", "ty" }
+      local custom = { "basedpyright", "pyrefly", "ruby_lsp", "ty" }
       if not util.has_value(custom, lsp) then
         require("lspconfig")[lsp].setup({
           capabilities = capabilities,
@@ -173,6 +173,13 @@ return {
     vim.api.nvim_create_autocmd("FileType", {
       pattern = { "python" },
       callback = function()
+        start_pytool("basedpyright", { "basedpyright-langserver", "--stdio" }, {
+          disableOrganizeImports = true, -- using ruff
+          analysis = {
+            ignore = { "*" }, -- using ruff
+          },
+        })
+        start_pytool("pyrefly", { "pyrefly", "lsp" }, {})
         start_pytool("ty", { "ty", "server" }, {
           experimental = {
             completions = {
@@ -180,8 +187,6 @@ return {
             },
           },
         })
-
-        start_pytool("pyrefly", { "pyrefly", "lsp" }, {})
       end,
     })
   end,
