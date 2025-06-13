@@ -200,11 +200,7 @@ return {
       utils.ruby_file,
     }
 
-    require("dap-python").resolve_python = function()
-      local venv_dir = vim.fn.system({ "poetry", "env", "info", "--path" }):gsub("\n", "")
-      return venv_dir .. "/bin/python"
-    end
-    require("dap-python").setup(shims_dir .. "python")
+    require("dap-python").setup("uv")
     require("dap-python").test_runner = "pytest"
 
     require("dap").configurations.python = {
