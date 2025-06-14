@@ -20,7 +20,7 @@
   location.enable = true;
 
   ollama = {
-    enable = true;
+    enable = false;
     models = [ "devstral" ];
   };
 
