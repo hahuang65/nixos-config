@@ -37,8 +37,10 @@ in
     # Useful other development tools
     environment.systemPackages = with pkgs; [
       dive # look into docker image layers
-      podman-tui # status of containers in the terminal
       podman-compose # start group of containers for dev
+      podman-tui # status of containers in the terminal
+      qemu_full # needed for podman machine building/running
+      virtiofsd # needed to run podman machines
     ];
   };
 }
