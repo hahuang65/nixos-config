@@ -78,11 +78,19 @@ in
 
       extraConfig = {
         url = {
-          "git@github.com:" = {
+          "git@github.com:hahuang65/" = {
             pushInsteadOf = "https://github.com/";
             insteadOf = "gh:";
           };
-          "git@git.sr.ht:" = {
+          "git@github.com:summit-partners/" = {
+            pushInsteadOf = "https://github.com/";
+            insteadOf = "a5:";
+          };
+          "git@github.com:bitsmithy/" = {
+            pushInsteadOf = "https://github.com/";
+            insteadOf = "bs:";
+          };
+          "git@git.sr.ht:~hwrd/" = {
             pushInsteadOf = "https://git.sr.ht/";
             insteadOf = "srht:";
           };
