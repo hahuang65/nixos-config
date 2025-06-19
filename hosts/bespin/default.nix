@@ -16,7 +16,12 @@
   };
 
   location.enable = true;
-  podman.enable = true;
+
+  podman = {
+    enable = true;
+    users = [ config.users.users.hao.name ];
+  };
+
   printing.enable = true;
   pipewire.enable = true;
 

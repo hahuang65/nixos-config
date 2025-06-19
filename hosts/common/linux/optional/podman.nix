@@ -9,12 +9,19 @@ let
   inherit (lib)
     mkEnableOption
     mkIf
+    mkOption
+    types
     ;
 in
 {
   options = {
     podman = {
       enable = mkEnableOption "docker";
+
+      users = mkOption {
+        type = types.listOf types.str;
+        description = "Usernames allowed to use docker without sudo";
+      };
     };
 
   };
@@ -42,5 +49,7 @@ in
       qemu_full # needed for podman machine building/running
       virtiofsd # needed to run podman machines
     ];
+
+    users.groups.podman.members = config.podman.users;
   };
 }
