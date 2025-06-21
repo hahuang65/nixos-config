@@ -117,6 +117,15 @@ return {
       adapters = {
         require("neotest-python")({
           dap = { justMyCode = false },
+          args = function()
+            local handle = io.popen("python3 -c 'import pytest_benchmark' 2>/dev/null")
+            local result = handle:close()
+            if result then
+              return { "--benchmark-skip" }
+            else
+              return {}
+            end
+          end,
         }),
         require("neotest-golang"),
         require("neotest-rspec"),
