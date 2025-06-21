@@ -125,7 +125,11 @@ return {
     })
 
     -- Function to set up the Python tools, using the appropriate virtualenv manager
-    local function start_pytool(name, cmd, settings)
+    local function start_pytool(name, cmd, settings, config)
+      -- Default to empty tables if nil
+      config = config or {}
+      settings = settings or {}
+
       if util.has_value(tools.language_servers, name) then
         -- Find the root directory for the project
         local root_files = {
@@ -154,18 +158,22 @@ return {
           vim.notify_once("Running `" .. name .. "` without a virtualenv")
         end
 
-        -- Start the LSP server
-        vim.lsp.start({
+        vim.lsp.config(name, config)
+        local start_opts = {
           name = name,
           cmd = cmd,
           root_dir = root_dir,
           -- Include your existing capabilities
           capabilities = capabilities,
-          -- Add any additional settings
-          settings = {
-            [name] = settings,
-          },
-        })
+        }
+
+        -- Only add settings if not empty
+        if not vim.tbl_isempty(settings) then
+          start_opts.settings = { [name] = settings }
+        end
+
+        -- Start the LSP server
+        vim.lsp.start(start_opts)
       end
     end
 
@@ -184,6 +192,12 @@ return {
           experimental = {
             completions = {
               enable = true,
+            },
+          },
+        }, {
+          init_options = {
+            settings = {
+              ["python.ty.disableLanguageServices"] = true,
             },
           },
         })

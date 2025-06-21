@@ -20,7 +20,7 @@ return {
     "taplo",
     "terraformls",
     "tflint",
-    -- "ty",
+    "ty",
     "ts_ls",
     "vimls",
     "vuels",

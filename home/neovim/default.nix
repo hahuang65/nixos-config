@@ -93,6 +93,7 @@ in
       unstable.bash-language-server
       unstable.fixjson
       unstable.svelte-language-server
+      unstable.ty
       unstable.vue-language-server
 
       pyrefly # Just until nixpkgs bundles it
