@@ -197,6 +197,7 @@ in
         codecompanion-nvim
         comment-nvim
         conform-nvim
+        diagflow-nvim
         direnv-vim
         fidget-nvim
         fold-preview-nvim
