@@ -126,9 +126,8 @@ return {
     })
 
     -- Function to set up the Python tools, using the appropriate virtualenv manager
-    local function start_pytool(name, cmd, settings, config)
-      -- Default to empty tables if nil
-      config = config or {}
+    local function start_pytool(name, cmd, settings)
+      -- Default to empty table if nil
       settings = settings or {}
 
       if util.has_value(tools.language_servers, name) then
@@ -159,7 +158,6 @@ return {
           vim.notify_once("Running `" .. name .. "` without a virtualenv")
         end
 
-        vim.lsp.config(name, config)
         local start_opts = {
           name = name,
           cmd = cmd,
@@ -189,19 +187,6 @@ return {
           },
         })
         start_pytool("pyrefly", { "pyrefly", "lsp" }, {})
-        start_pytool("ty", { "ty", "server" }, {
-          experimental = {
-            completions = {
-              enable = true,
-            },
-          },
-        }, {
-          init_options = {
-            settings = {
-              ["python.ty.disableLanguageServices"] = true,
-            },
-          },
-        })
       end,
     })
   end,
