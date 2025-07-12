@@ -130,6 +130,15 @@ return {
       -- Default to empty table if nil
       settings = settings or {}
 
+      local function uv_script_python()
+        local script = vim.api.nvim_buf_get_name(0)
+        local result = vim.system({ "uv", "python", "find", "--script", script }, { text = true }):wait()
+
+        if result.code == 0 then
+          return vim.fn.trim(result.stdout)
+        end
+      end
+
       if util.has_value(tools.language_servers, name) then
         -- Find the root directory for the project
         local root_files = {
@@ -145,10 +154,15 @@ return {
         local root_dir = vim.fs.dirname(vim.fs.find(root_files, {
           upward = true,
           stop = vim.uv.os_homedir(),
-        })[1] or ".")
+        })[1])
 
-        -- Determine the command based on whether poetry.lock exists
-        if require("util").dir_has_file(root_dir, "poetry.lock") then
+        local python = uv_script_python()
+        if python then
+          -- https://www.reddit.com/r/neovim/comments/1lbcjin/pythonuv_script_inline_dependency_with_neovim_lsp/
+          vim.notify_once("Running `" .. name .. "` as uv script")
+          settings.python = vim.tbl_deep_extend("force", settings.python or {}, { pythonPath = python })
+        -- Detect the Python package manager being used, if any
+        elseif require("util").dir_has_file(root_dir, "poetry.lock") then
           vim.notify_once("Running `" .. name .. "` with `poetry`")
           cmd = vim.list_extend({ "poetry", "run" }, cmd)
         elseif require("util").dir_has_file(root_dir, "uv.lock") then
@@ -164,12 +178,8 @@ return {
           root_dir = root_dir,
           -- Include your existing capabilities
           capabilities = capabilities,
+          settings = settings,
         }
-
-        -- Only add settings if not empty
-        if not vim.tbl_isempty(settings) then
-          start_opts.settings = { [name] = settings }
-        end
 
         -- Start the LSP server
         vim.lsp.start(start_opts)
@@ -181,12 +191,25 @@ return {
       pattern = { "python" },
       callback = function()
         start_pytool("basedpyright", { "basedpyright-langserver", "--stdio" }, {
-          disableOrganizeImports = true, -- using ruff
-          analysis = {
-            ignore = { "*" }, -- using ruff
+          basedpyright = {
+            disableOrganizeImports = true, -- using ruff
+            analysis = {
+              ignore = { "*" }, -- using ruff
+            },
           },
         })
+
         start_pytool("pyrefly", { "pyrefly", "lsp" }, {})
+
+        start_pytool("ty", { "ty", "server" }, {
+          ty = {
+            experimental = {
+              completions = {
+                enable = true,
+              },
+            },
+          },
+        })
       end,
     })
   end,
