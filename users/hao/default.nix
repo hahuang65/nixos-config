@@ -54,6 +54,7 @@ in
           bandwhich
           csvlens
           curlie
+          doggo
           erdtree
           fd
           ferdium

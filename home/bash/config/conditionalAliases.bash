@@ -27,8 +27,8 @@ if hash delta 2>/dev/null; then
   }
 fi
 
-if hash dog 2>/dev/null; then
-  alias dig="dog"
+if hash doggo 2>/dev/null; then
+  alias dig="doggo"
 fi
 
 if hash htop 2>/dev/null; then
