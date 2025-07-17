@@ -35,6 +35,7 @@
     steam.enable = true;
     ffxiv.enable = true;
     ps5.enable = true;
+    wow.enable = true;
   };
 
   sway = {
