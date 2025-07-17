@@ -45,6 +45,7 @@ in
       pkgs.biome
       pkgs.delve
       pkgs.dockerfile-language-server-nodejs
+      pkgs.fish-lsp
       pkgs.gci
       pkgs.gitlint
       pkgs.gofumpt
