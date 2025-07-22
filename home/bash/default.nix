@@ -97,6 +97,7 @@ in
 
       sessionVariables = {
         ANTHROPIC_API_KEY = "$(cat ${config.sops.secrets."anthropic/apikey".path})";
+        GOPATH = "$HOME/.go";
       };
     };
   };
