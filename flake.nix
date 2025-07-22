@@ -16,7 +16,6 @@
 
     stylix = {
       url = "github:danth/stylix/release-25.05";
-      inputs.home-manager.follows = "home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
