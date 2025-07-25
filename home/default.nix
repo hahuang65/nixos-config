@@ -11,7 +11,7 @@ in
 
   bash.enable = mkDefault true;
   bat.enable = mkDefault true;
-  blesh.enable = mkDefault true;
+  blesh.enable = mkDefault false;
   fonts.enable = mkDefault true;
   darkman.enable = mkDefault true;
   direnv.enable = mkDefault true;
