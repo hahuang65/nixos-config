@@ -93,6 +93,7 @@ in
       pkgs.typescript
       pkgs.typescript-language-server
       pkgs.vim-language-server
+      pkgs.vscode-langservers-extracted
       pkgs.yamlfmt
       pkgs.yamllint
       pkgs.zls
