@@ -1,6 +1,5 @@
 return {
   language_servers = {
-    "basedpyright",
     "bashls",
     "biome",
     "dockerls",
@@ -12,7 +11,6 @@ return {
     "marksman",
     "nil_ls",
     "postgres_lsp",
-    -- "pyrefly",
     "rubocop",
     "ruby_lsp",
     "ruff",
@@ -21,7 +19,7 @@ return {
     "taplo",
     "terraformls",
     "tflint",
-    -- "ty",
+    "ty",
     "ts_ls",
     "vimls",
     "vuels",

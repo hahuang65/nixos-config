@@ -1,6 +1,5 @@
 {
   config,
-  configLib,
   lib,
   osConfig,
   pkgs,
@@ -10,8 +9,6 @@
 let
   inherit (lib) mkEnableOption mkIf;
   configDir = "${config.xdg.configHome}/nvim";
-
-  pyrefly = pkgs.callPackage (configLib.fromRoot "pkgs/pyrefly") { };
 
   fromCrate =
     {
@@ -104,14 +101,11 @@ in
       pkgs.python312Packages.debugpy
       pkgs.rubyPackages.htmlbeautifier
 
-      unstable.basedpyright
       unstable.bash-language-server
       unstable.fixjson
       unstable.svelte-language-server
       unstable.ty
       unstable.vue-language-server
-
-      pyrefly # Just until nixpkgs bundles it
 
       (fromCrate {
         pname = "emmylua_ls";

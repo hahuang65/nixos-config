@@ -216,10 +216,13 @@ return {
 
         start_pytool("ty", { "ty", "server" }, {
           ty = {
+            diagnosticMode = "workspace",
+            inlayHints = {
+              variableTypes = true,
+              callArgumentNames = true,
+            },
             experimental = {
-              completions = {
-                enable = true,
-              },
+              rename = true,
             },
           },
         })
