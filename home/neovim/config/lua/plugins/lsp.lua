@@ -91,6 +91,19 @@ return {
     local capabilities = vim.lsp.protocol.make_client_capabilities()
     capabilities = require("blink.cmp").get_lsp_capabilities(capabilities)
 
+    vim.lsp.config("emmylua_ls", {
+      cmd = { "emmylua_ls" },
+      filetypes = { "lua" },
+      root_markers = {
+        ".luarc.json",
+        ".emmyrc.json",
+        ".luacheckrc",
+        ".git",
+      },
+      workspace_required = false,
+    })
+    vim.lsp.enable("emmylua_ls")
+
     vim.lsp.config("gopls", {
       settings = {
         gopls = {
@@ -110,7 +123,7 @@ return {
 
     local tools = require("tools")
     for _, lsp in ipairs(tools.language_servers) do
-      local custom = { "basedpyright", "pyrefly", "ruby_lsp", "ty" }
+      local custom = { "basedpyright", "emmylua_ls", "pyrefly", "ruby_lsp", "ty" }
       if not util.has_value(custom, lsp) then
         require("lspconfig")[lsp].setup({
           capabilities = capabilities,

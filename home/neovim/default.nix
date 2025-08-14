@@ -13,6 +13,21 @@ let
 
   pyrefly = pkgs.callPackage (configLib.fromRoot "pkgs/pyrefly") { };
 
+  fromCrate =
+    {
+      pname,
+      version,
+      hash,
+      cargoHash,
+    }:
+    pkgs.rustPlatform.buildRustPackage {
+      inherit pname version;
+      src = pkgs.fetchCrate {
+        inherit pname version hash;
+      };
+      cargoHash = cargoHash;
+    };
+
   fromGitHub =
     {
       owner,
@@ -55,7 +70,6 @@ in
       pkgs.hadolint
       pkgs.jq
       pkgs.lua5_1
-      pkgs.lua-language-server
       pkgs.markdownlint-cli
       pkgs.marksman
       pkgs.mypy
@@ -98,6 +112,13 @@ in
       unstable.vue-language-server
 
       pyrefly # Just until nixpkgs bundles it
+
+      (fromCrate {
+        pname = "emmylua_ls";
+        version = "0.11.0";
+        hash = "sha256-BwTf1cCOa66M6To7ynxd0p70xi7YGgu+/bUr68GAFoE=";
+        cargoHash = "sha256-btsrvOic17zdOF024MZgfaQ6U98U9M/h8DqiNRLALKQ=";
+      })
     ];
 
     programs.neovim = {
