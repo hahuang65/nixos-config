@@ -9,4 +9,3 @@ pipenv
 poetry
 pre-commit
 pynvim
-plex-mpv-shim

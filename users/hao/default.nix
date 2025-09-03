@@ -73,7 +73,8 @@ in
           pgcli
           pick
           plexamp
-          plex-media-player
+          plex-desktop
+          plex-mpv-shim
           portal
           pre-commit
           prettyping

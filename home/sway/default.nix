@@ -68,9 +68,9 @@ in
           ];
           "3" = [
             { app_id = "mpv"; }
+            { app_id = "tv.plex.Plex"; }
             { app_id = "spotify"; }
             { class = "Spotify"; }
-            { class = "plexmediaplayer"; }
             { class = "Plexamp"; }
           ];
         };
