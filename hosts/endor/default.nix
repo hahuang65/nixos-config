@@ -1,14 +1,15 @@
 { config, configLib, ... }:
 
 {
-  imports =
-    [ ./hardware-configuration.nix ]
-    ++ (map configLib.fromRoot [
-      "hosts/common/linux/core"
-      "hosts/common/linux/optional"
+  imports = [
+    ./hardware-configuration.nix
+  ]
+  ++ (map configLib.fromRoot [
+    "hosts/common/linux/core"
+    "hosts/common/linux/optional"
 
-      "users/hao"
-    ]);
+    "users/hao"
+  ]);
 
   _1password = {
     enable = true;
@@ -37,6 +38,8 @@
     ps5.enable = true;
     wow.enable = true;
   };
+
+  streamDeck.enable = true;
 
   sway = {
     enable = true;
