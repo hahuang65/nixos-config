@@ -11,7 +11,6 @@ return {
     "marksman",
     "nil_ls",
     "postgres_lsp",
-    "rubocop",
     "ruby_lsp",
     "ruff",
     "sqls",
