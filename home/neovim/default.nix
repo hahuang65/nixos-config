@@ -31,6 +31,7 @@ let
       repo,
       rev,
       hash,
+      skipModuleTests ? [ ],
     }:
     # TODO: Can we make this less onerous to add/update?
     pkgs.vimUtils.buildVimPlugin {
@@ -42,6 +43,7 @@ let
         rev = rev;
         hash = hash;
       };
+      nvimSkipModules = skipModuleTests;
     };
 in
 {
@@ -57,6 +59,7 @@ in
       pkgs.biome
       pkgs.delve
       pkgs.dockerfile-language-server-nodejs
+      pkgs.elinks
       pkgs.fish-lsp
       pkgs.gci
       pkgs.gitlint
@@ -265,6 +268,14 @@ in
         vim-rails
         vim-repeat
         vim-surround
+
+        (fromGitHub {
+          owner = "emmanueltouzery";
+          repo = "apidocs.nvim";
+          rev = "5025cb686c806541705407ac5554d8814e5e5243";
+          hash = "sha256-6jHo0KYPIIy7LdHMl16cowT1H3modjxg5caiPISgXHE=";
+          skipModuleTests = [ "apidocs.snacks" ]; # For some reason, this fails the test
+        })
 
         (fromGitHub {
           owner = "nvim-zh";
