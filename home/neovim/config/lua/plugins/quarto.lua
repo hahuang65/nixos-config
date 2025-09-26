@@ -4,6 +4,7 @@ return {
   ft = { "quarto", "markdown" },
   config = function()
     require("quarto").setup({
+      closePreviewOnExit = true,
       lspFeatures = {
         languages = { "python", "bash", "lua", "html", "go", "ruby" },
         chunks = "all",
@@ -36,17 +37,7 @@ return {
   dependencies = {
     {
       "jmbuhr/otter.nvim",
-      opts = {
-        lsp = {
-          hover = {
-            border = require("signs").border,
-          },
-        },
-        buffers = {
-          set_filetype = true,
-        },
-        handle_leading_whitespace = true,
-      },
+      opts = {},
     },
   },
 }
