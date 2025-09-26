@@ -213,8 +213,6 @@ in
         blink-cmp
         boole-nvim
         catppuccin-nvim
-        codecompanion-history-nvim
-        codecompanion-nvim
         comment-nvim
         conform-nvim
         diagflow-nvim
