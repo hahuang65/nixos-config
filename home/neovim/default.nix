@@ -280,14 +280,14 @@ in
         (fromGitHub {
           owner = "nvim-zh";
           repo = "colorful-winsep.nvim";
-          rev = "210f6532772d7d2fefdf1f39081b965be4a3b2ef";
+          rev = "1d5d1e33a4e1b8d692a63bf400e837e9b294d239";
           hash = "sha256-KbR2cEeYLkknD/FrKy113yxRaGu3fGGB3G4mnVcxQkE=";
         })
 
         (fromGitHub {
           owner = "suketa";
           repo = "nvim-dap-ruby";
-          rev = "4176405d186a93ebec38a6344df124b1689cfcfd";
+          rev = "ba36f9905ca9c6d89e5af5467a52fceeb2bbbf6d";
           hash = "sha256-v1DfEnvm43FOEeJDxOzMIc1oIw9wTFQz6odw5zcgIv8=";
         })
 
@@ -301,35 +301,35 @@ in
         (fromGitHub {
           owner = "willothy";
           repo = "wezterm.nvim";
-          rev = "f73bba23ab4becd146fa2d0a3a16a84b987eeaca";
+          rev = "032c33b621b96cc7228955b4352b48141c482098";
           hash = "sha256-FeM5cep6bKCfAS/zGAkTls4qODtRhipQojy3OWu1hjY=";
         })
 
         (fromGitHub {
           owner = "mhanberg";
           repo = "output-panel.nvim";
-          rev = "65bb44a5d5dbd40f3793a8c591b65a0c5f260bd9";
+          rev = "85a205595f1b3904d701ce98aad4df5abbff420b";
           hash = "sha256-Gm03u8PidPQ/cNkl6K5rynZiux12lqgv0E5RXItw8nI=";
         })
 
         (fromGitHub {
           owner = "rachartier";
           repo = "tiny-devicons-auto-colors.nvim";
-          rev = "a39fa4c92268832f6034306793b8acbfec2a7549";
+          rev = "51f548421f8a74680eff27d283c9d5ea6e8d0074";
           hash = "sha256-Ndkbvxn/x7+fxEYD7JIygqUiItuhoY+4+DaL/pJGKdc=";
         })
 
         (fromGitHub {
           owner = "yorickpeterse";
           repo = "nvim-window";
-          rev = "81f29840ac3aaeea6fc2153edfabebd00d692476";
+          rev = "a8d965f158cff222713a3b3ab341445d331e6e3a";
           hash = "sha256-5tNX7H+qPfyYot+QQb4EcDcrI1oNQx+YnhxmCi2D4n4=";
         })
 
         (fromGitHub {
           owner = "notjedi";
           repo = "nvim-rooter.lua";
-          rev = "36c597962c5f136d6230f53837ff14fcaf81eff7";
+          rev = "7689d05e8ab95acb4b24785253d913c0aae18be9";
           hash = "sha256-3wnT3O9XvFTqClp/uXEyPySsqgWIDWoN0tnvaso8o50=";
         })
       ];
