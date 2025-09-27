@@ -57,6 +57,7 @@ in
     home.packages = [
       pkgs.autoflake
       pkgs.biome
+      pkgs.claude-code
       pkgs.delve
       pkgs.dockerfile-language-server-nodejs
       pkgs.elinks
@@ -213,6 +214,7 @@ in
         blink-cmp
         boole-nvim
         catppuccin-nvim
+        claudecode-nvim
         comment-nvim
         conform-nvim
         diagflow-nvim
