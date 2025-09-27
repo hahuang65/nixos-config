@@ -123,20 +123,13 @@ return {
 
     local tools = require("tools")
     for _, lsp in ipairs(tools.language_servers) do
-      local custom = { "basedpyright", "emmylua_ls", "pyrefly", "ruby_lsp", "ty" }
+      local custom = { "basedpyright", "emmylua_ls", "pyrefly", "ty" }
       if not util.has_value(custom, lsp) then
         require("lspconfig")[lsp].setup({
           capabilities = capabilities,
         })
       end
     end
-
-    require("lspconfig").ruby_lsp.setup({
-      capabilities = capabilities,
-      on_new_config = function(cfg)
-        cfg.cmd = { vim.fn.expand(shims_dir .. "ruby-lsp") }
-      end,
-    })
 
     -- Function to set up the Python tools, using the appropriate virtualenv manager
     local function start_pytool(name, cmd, settings)
