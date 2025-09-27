@@ -233,6 +233,7 @@ in
         molten-nvim
         neotest
         neotest-golang
+        neotest-minitest
         neotest-python
         neotest-rspec
         nvim-autopairs

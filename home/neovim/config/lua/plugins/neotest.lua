@@ -10,6 +10,7 @@ return {
     "nvim-neotest/neotest-python",
     "fredrikaverpil/neotest-golang",
     "olimorris/neotest-rspec",
+    "zidhuss/neotest-minitest",
   },
   keys = {
     {
@@ -129,6 +130,14 @@ return {
         }),
         require("neotest-golang"),
         require("neotest-rspec"),
+        require("neotest-minitest")({
+          test_cmd = function()
+            return vim.tbl_flatten({
+              "bin/rails",
+              "test",
+            })
+          end,
+        }),
       },
     })
   end,
