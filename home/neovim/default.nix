@@ -55,6 +55,7 @@ in
 
   config = mkIf config.neovim.enable {
     home.packages = [
+      pkgs.amp-cli
       pkgs.autoflake
       pkgs.biome
       pkgs.claude-code
@@ -269,6 +270,13 @@ in
         vim-rails
         vim-repeat
         vim-surround
+
+        (fromGitHub {
+          owner = "sourcegraph";
+          repo = "amp.nvim";
+          rev = "ceeed031e70966492a01a33774b48652ba3f1043";
+          hash = "sha256-ZfMdGt6G8vG0BAIdsxhaH/x0dd0Zwopw9Ob5qZZFzdg=";
+        })
 
         (fromGitHub {
           owner = "emmanueltouzery";
