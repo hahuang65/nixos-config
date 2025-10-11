@@ -36,7 +36,7 @@ return { -- Available in all filetypes
   ),
 
   s(
-    "!envrc",
+    "!nix",
     fmt(
       [[
 if [ -f /etc/NIXOS ]; then
@@ -103,6 +103,37 @@ pkgs.mkShell {
 
     if ! command -v rails >/dev/null 2>&1; then
       gem install rails
+    fi
+
+    if  [ ! -f "config/application.rb" ]; then
+      rails new . -m <(cat <<'EOF'
+        gem_group :development do
+          gem 'ruby-lsp'
+        end
+
+        gem_group :development, :test do
+          gem "rubocop-minitest", require: false
+          gem "rubocop-performance", require: false
+        end
+
+        append_to_file '.gitignore', <<~TXT
+
+        /.gem
+        TXT
+
+        append_to_file '.rubocop.yml', <<~YAML
+
+        plugins:
+          - rubocop-minitest
+          - rubocop-performance
+        YAML
+
+        after_bundle do
+          git :init
+          git add: "."
+          git commit: %Q{ -m 'Initial commit, Rails-generated project' }
+        end
+    EOF)
     fi
 
     if [ ! -d "$GEM_HOME/gems" ]; then
