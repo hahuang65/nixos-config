@@ -79,18 +79,22 @@ pkgs.mkShell {
   pkgs ? import <nixpkgs> { },
 }:
 
+let
+  rubyEnv = pkgs.ruby.withPackages (rp: [
+    pkgs.bundler
+  ]);
+in
 pkgs.mkShell {
-  packages = with pkgs; [
-    ruby_3_4
-    gcc
-    gnumake
-    pkg-config
-    zlib
-    openssl
-    libyaml
-    readline
+  buildInputs = [
+    rubyEnv
+    pkgs.gcc
+    pkgs.gnumake
+    pkgs.pkg-config
+    pkgs.zlib
+    pkgs.openssl
+    pkgs.libyaml
+    pkgs.readline
   ];
-
   shellHook = ''
     export GEM_HOME=$(pwd)/.gem
     export PATH="$GEM_HOME/bin:$PATH"

@@ -92,6 +92,10 @@ local function camel_case(word)
 end
 
 local function dir_has_file(dir, file)
+  if not dir then
+    return false
+  end
+
   -- Construct the full path to the file
   local file_path = vim.fs.joinpath(dir, file)
 

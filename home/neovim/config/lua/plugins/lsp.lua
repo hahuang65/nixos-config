@@ -9,10 +9,6 @@ return {
   config = function()
     local util = require("util")
 
-    -- Add shims to the $PATH, if they're not already there
-    local shims_dir = require("common").shims_dir
-    vim.env.PATH = vim.fn.expand(shims_dir) .. ":" .. vim.env.PATH
-
     vim.diagnostic.config({
       update_in_insert = false,
       severity_sort = true,
@@ -123,13 +119,59 @@ return {
 
     local tools = require("tools")
     for _, lsp in ipairs(tools.language_servers) do
-      local custom = { "basedpyright", "emmylua_ls", "pyrefly", "ty" }
+      local custom = { "basedpyright", "emmylua_ls", "pyrefly", "ruby_lsp", "ty" }
       if not util.has_value(custom, lsp) then
         require("lspconfig")[lsp].setup({
           capabilities = capabilities,
         })
       end
     end
+
+    -- Function to set up the Ruby LSP, using bundler when appropriate
+    local function start_ruby_lsp(name, cmd, settings)
+      -- Default to empty table if nil
+      settings = settings or {}
+
+      if util.has_value(tools.language_servers, name) then
+        -- Find the root directory for the project
+        local root_files = {
+          "Gemfile",
+          ".git",
+        }
+
+        local root_dir = vim.fs.dirname(vim.fs.find(root_files, {
+          upward = true,
+          stop = vim.uv.os_homedir(),
+        })[1])
+
+        if require("util").dir_has_file(root_dir, "Gemfile.lock") then
+          vim.notify_once("Running `" .. name .. "` with `bundler`")
+          cmd = vim.list_extend({ "bundle", "exec" }, cmd)
+        else
+          vim.notify_once("Running `" .. name .. "` without a virtualenv")
+        end
+
+        local start_opts = {
+          name = name,
+          cmd = cmd,
+          root_dir = root_dir,
+          -- Include your existing capabilities
+          capabilities = capabilities,
+          settings = settings,
+        }
+
+        -- Start the LSP server
+        vim.lsp.start(start_opts)
+      end
+    end
+
+    -- Set up autocommand to start the server when opening Ruby files
+    vim.api.nvim_create_autocmd("FileType", {
+      pattern = { "ruby" },
+      callback = function()
+        start_ruby_lsp("ruby_lsp", { "ruby-lsp" }, {})
+      end,
+    })
 
     -- Function to set up the Python tools, using the appropriate virtualenv manager
     local function start_pytool(name, cmd, settings)
