@@ -27,21 +27,26 @@ let
 
   fromGitHub =
     {
-      owner,
       repo,
       rev,
       hash,
       skipModuleTests ? [ ],
     }:
-    # TODO: Can we make this less onerous to add/update?
+    let
+      repoParts = lib.splitString "/" repo;
+      owner = lib.elemAt repoParts 0;
+      repoName = lib.elemAt repoParts 1;
+    in
     pkgs.vimUtils.buildVimPlugin {
-      name = "${pkgs.lib.strings.sanitizeDerivationName owner}/${pkgs.lib.strings.sanitizeDerivationName repo}";
+      name = "${pkgs.lib.strings.sanitizeDerivationName owner}/${pkgs.lib.strings.sanitizeDerivationName repoName}";
       src = pkgs.fetchFromGitHub {
         # Use `scripts/github-info` to populate
+        inherit
+          rev
+          hash
+          ;
         owner = owner;
-        repo = repo;
-        rev = rev;
-        hash = hash;
+        repo = repoName;
       };
       nvimSkipModules = skipModuleTests;
     };
@@ -272,72 +277,62 @@ in
         vim-surround
 
         (fromGitHub {
-          owner = "sourcegraph";
-          repo = "amp.nvim";
-          rev = "ceeed031e70966492a01a33774b48652ba3f1043";
-          hash = "sha256-ZfMdGt6G8vG0BAIdsxhaH/x0dd0Zwopw9Ob5qZZFzdg=";
+          repo = "sourcegraph/amp.nvim";
+          rev = "ccce82a82897b788d748e59cf09d958c3bfdd7e6";
+          hash = "17d1w93ihxpz8m06z7ab47s57669pq2qpj6ah7sdv9nik00incps";
         })
 
         (fromGitHub {
-          owner = "emmanueltouzery";
-          repo = "apidocs.nvim";
-          rev = "5025cb686c806541705407ac5554d8814e5e5243";
-          hash = "sha256-6jHo0KYPIIy7LdHMl16cowT1H3modjxg5caiPISgXHE=";
+          repo = "emmanueltouzery/apidocs.nvim";
+          rev = "6f34023f9a14dda5fa1f06d8ffe53e689324d2d2";
+          hash = "0nhnsa7iz5kfdb9592vdf5g65zac6b6q012zkknr285vy3dxfsnv";
           skipModuleTests = [ "apidocs.snacks" ]; # For some reason, this fails the test
         })
 
         (fromGitHub {
-          owner = "nvim-zh";
-          repo = "colorful-winsep.nvim";
-          rev = "1d5d1e33a4e1b8d692a63bf400e837e9b294d239";
-          hash = "sha256-KbR2cEeYLkknD/FrKy113yxRaGu3fGGB3G4mnVcxQkE=";
+          repo = "nvim-zh/colorful-winsep.nvim";
+          rev = "e555611c8f39918e30d033a97ea1a5af457ce75e";
+          hash = "0f5nzwzh5svy868by19r7yg67g87npdclcza74r6fj3a94r3zm04";
         })
 
         (fromGitHub {
-          owner = "suketa";
-          repo = "nvim-dap-ruby";
+          repo = "suketa/nvim-dap-ruby";
           rev = "ba36f9905ca9c6d89e5af5467a52fceeb2bbbf6d";
           hash = "sha256-v1DfEnvm43FOEeJDxOzMIc1oIw9wTFQz6odw5zcgIv8=";
         })
 
         (fromGitHub {
-          owner = "kana";
-          repo = "vim-fakeclip";
+          repo = "kana/vim-fakeclip";
           rev = "59858dabdb55787d7f047c4ab26b45f11ebb533b";
           hash = "sha256-CKQeuUb/MCCDWSKklmpImam8Aek/PvH29XDrw3aILss=";
         })
 
         (fromGitHub {
-          owner = "willothy";
-          repo = "wezterm.nvim";
+          repo = "willothy/wezterm.nvim";
           rev = "032c33b621b96cc7228955b4352b48141c482098";
           hash = "sha256-FeM5cep6bKCfAS/zGAkTls4qODtRhipQojy3OWu1hjY=";
         })
 
         (fromGitHub {
-          owner = "mhanberg";
-          repo = "output-panel.nvim";
-          rev = "85a205595f1b3904d701ce98aad4df5abbff420b";
-          hash = "sha256-Gm03u8PidPQ/cNkl6K5rynZiux12lqgv0E5RXItw8nI=";
+          repo = "mhanberg/output-panel.nvim";
+          rev = "634f735d6a2a9a63b5849ab61f944f7a1a8b3780";
+          hash = "0p6qr4by2fhhsnqv39v4msnwbmj7jfi35gklf7a69mq9x84wrr1z";
         })
 
         (fromGitHub {
-          owner = "rachartier";
-          repo = "tiny-devicons-auto-colors.nvim";
+          repo = "rachartier/tiny-devicons-auto-colors.nvim";
           rev = "51f548421f8a74680eff27d283c9d5ea6e8d0074";
           hash = "sha256-Ndkbvxn/x7+fxEYD7JIygqUiItuhoY+4+DaL/pJGKdc=";
         })
 
         (fromGitHub {
-          owner = "yorickpeterse";
-          repo = "nvim-window";
+          repo = "yorickpeterse/nvim-window";
           rev = "a8d965f158cff222713a3b3ab341445d331e6e3a";
           hash = "sha256-5tNX7H+qPfyYot+QQb4EcDcrI1oNQx+YnhxmCi2D4n4=";
         })
 
         (fromGitHub {
-          owner = "notjedi";
-          repo = "nvim-rooter.lua";
+          repo = "notjedi/nvim-rooter.lua";
           rev = "7689d05e8ab95acb4b24785253d913c0aae18be9";
           hash = "sha256-3wnT3O9XvFTqClp/uXEyPySsqgWIDWoN0tnvaso8o50=";
         })
