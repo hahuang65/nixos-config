@@ -3,6 +3,11 @@
 # Common GitHub functions for Neovim package management
 
 setup_github_auth() {
+  if [[ -n "$GITHUB_TOKEN" ]]; then
+    AUTH_ARGS=("-H" "Authorization: token $GITHUB_TOKEN")
+    return
+  fi
+
   GITHUB_TOKEN=""
   if command -v gh >/dev/null && gh auth status >/dev/null 2>&1; then
     GITHUB_TOKEN=$(gh auth token 2>/dev/null || echo "")
@@ -52,10 +57,10 @@ calculate_hash() {
     temp_file="$temp_dir/archive.tar.gz"
     extract_dir="$temp_dir/extracted"
 
-    if curl -s -L "${AUTH_ARGS[@]}" -o "$temp_file" "$tarball_url" && \
-       mkdir -p "$extract_dir" && \
-       tar -xzf "$temp_file" -C "$extract_dir" --strip-components=1 && \
-       raw_hash=$(nix-hash --type sha256 --base32 "$extract_dir" 2>/dev/null); then
+    if curl -s -L "${AUTH_ARGS[@]}" -o "$temp_file" "$tarball_url" &&
+      mkdir -p "$extract_dir" &&
+      tar -xzf "$temp_file" -C "$extract_dir" --strip-components=1 &&
+      raw_hash=$(nix-hash --type sha256 --base32 "$extract_dir" 2>/dev/null); then
       hash=$(nix hash to-sri --type sha256 "$raw_hash" 2>/dev/null || echo "sha256-$raw_hash")
       rm -rf "$temp_dir"
     else
@@ -78,3 +83,4 @@ calculate_hash() {
     return 1
   fi
 }
+
