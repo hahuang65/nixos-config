@@ -215,128 +215,75 @@ in
           pyperclip
         ];
 
-      plugins = with unstable.vimPlugins; [
-        FixCursorHold-nvim
-        blink-cmp
-        boole-nvim
-        catppuccin-nvim
-        claudecode-nvim
-        comment-nvim
-        conform-nvim
-        diagflow-nvim
-        direnv-vim
-        fidget-nvim
-        fold-preview-nvim
-        fugitive
-        git-conflict-nvim
-        gitsigns-nvim
-        hover-nvim
-        lazydev-nvim
-        lazy-nvim
-        lualine-nvim
-        luasnip
-        mini-icons
-        molten-nvim
-        neotest
-        neotest-golang
-        neotest-minitest
-        neotest-python
-        neotest-rspec
-        nvim-autopairs
-        nvim-bqf
-        nvim-dap
-        nvim-dap-go
-        nvim-dap-python
-        nvim-dap-ui
-        nvim-dap-virtual-text
-        nvim-hlslens
-        nvim-lint
-        nvim-lspconfig
-        nvim-nio
-        nvim-pqf
-        nvim-treesitter.withAllGrammars
-        nvim-treesitter-context
-        nvim-treesitter-endwise
-        nvim-treesitter-textobjects
-        nvim-web-devicons
-        oil-nvim
-        otter-nvim
-        plenary-nvim
-        pretty-fold-nvim
-        quarto-nvim
-        quick-scope
-        refactoring-nvim
-        render-markdown-nvim
-        snacks-nvim
-        todo-comments-nvim
-        treesj
-        vim-cool
-        vim-just
-        vim-rails
-        vim-repeat
-        vim-surround
+      plugins =
+        with unstable.vimPlugins;
+        [
+          FixCursorHold-nvim
+          blink-cmp
+          boole-nvim
+          catppuccin-nvim
+          claudecode-nvim
+          comment-nvim
+          conform-nvim
+          diagflow-nvim
+          direnv-vim
+          fidget-nvim
+          fold-preview-nvim
+          fugitive
+          git-conflict-nvim
+          gitsigns-nvim
+          hover-nvim
+          lazydev-nvim
+          lazy-nvim
+          lualine-nvim
+          luasnip
+          mini-icons
+          molten-nvim
+          neotest
+          neotest-golang
+          neotest-minitest
+          neotest-python
+          neotest-rspec
+          nvim-autopairs
+          nvim-bqf
+          nvim-dap
+          nvim-dap-go
+          nvim-dap-python
+          nvim-dap-ui
+          nvim-dap-virtual-text
+          nvim-hlslens
+          nvim-lint
+          nvim-lspconfig
+          nvim-nio
+          nvim-pqf
+          nvim-treesitter.withAllGrammars
+          nvim-treesitter-context
+          nvim-treesitter-endwise
+          nvim-treesitter-textobjects
+          nvim-web-devicons
+          oil-nvim
+          otter-nvim
+          plenary-nvim
+          pretty-fold-nvim
+          quarto-nvim
+          quick-scope
+          refactoring-nvim
+          render-markdown-nvim
+          snacks-nvim
+          todo-comments-nvim
+          treesj
+          vim-cool
+          vim-just
+          vim-rails
+          vim-repeat
+          vim-surround
 
-        (fromGitHub {
-          repo = "sourcegraph/amp.nvim";
-          rev = "ccce82a82897b788d748e59cf09d958c3bfdd7e6";
-          hash = "17d1w93ihxpz8m06z7ab47s57669pq2qpj6ah7sdv9nik00incps";
-        })
-
-        (fromGitHub {
-          repo = "emmanueltouzery/apidocs.nvim";
-          rev = "6f34023f9a14dda5fa1f06d8ffe53e689324d2d2";
-          hash = "0nhnsa7iz5kfdb9592vdf5g65zac6b6q012zkknr285vy3dxfsnv";
-          skipModuleTests = [ "apidocs.snacks" ]; # For some reason, this fails the test
-        })
-
-        (fromGitHub {
-          repo = "nvim-zh/colorful-winsep.nvim";
-          rev = "e555611c8f39918e30d033a97ea1a5af457ce75e";
-          hash = "0f5nzwzh5svy868by19r7yg67g87npdclcza74r6fj3a94r3zm04";
-        })
-
-        (fromGitHub {
-          repo = "suketa/nvim-dap-ruby";
-          rev = "ba36f9905ca9c6d89e5af5467a52fceeb2bbbf6d";
-          hash = "sha256-v1DfEnvm43FOEeJDxOzMIc1oIw9wTFQz6odw5zcgIv8=";
-        })
-
-        (fromGitHub {
-          repo = "kana/vim-fakeclip";
-          rev = "59858dabdb55787d7f047c4ab26b45f11ebb533b";
-          hash = "sha256-CKQeuUb/MCCDWSKklmpImam8Aek/PvH29XDrw3aILss=";
-        })
-
-        (fromGitHub {
-          repo = "willothy/wezterm.nvim";
-          rev = "032c33b621b96cc7228955b4352b48141c482098";
-          hash = "sha256-FeM5cep6bKCfAS/zGAkTls4qODtRhipQojy3OWu1hjY=";
-        })
-
-        (fromGitHub {
-          repo = "mhanberg/output-panel.nvim";
-          rev = "634f735d6a2a9a63b5849ab61f944f7a1a8b3780";
-          hash = "0p6qr4by2fhhsnqv39v4msnwbmj7jfi35gklf7a69mq9x84wrr1z";
-        })
-
-        (fromGitHub {
-          repo = "rachartier/tiny-devicons-auto-colors.nvim";
-          rev = "51f548421f8a74680eff27d283c9d5ea6e8d0074";
-          hash = "sha256-Ndkbvxn/x7+fxEYD7JIygqUiItuhoY+4+DaL/pJGKdc=";
-        })
-
-        (fromGitHub {
-          repo = "yorickpeterse/nvim-window";
-          rev = "a8d965f158cff222713a3b3ab341445d331e6e3a";
-          hash = "sha256-5tNX7H+qPfyYot+QQb4EcDcrI1oNQx+YnhxmCi2D4n4=";
-        })
-
-        (fromGitHub {
-          repo = "notjedi/nvim-rooter.lua";
-          rev = "7689d05e8ab95acb4b24785253d913c0aae18be9";
-          hash = "sha256-3wnT3O9XvFTqClp/uXEyPySsqgWIDWoN0tnvaso8o50=";
-        })
-      ];
+        ]
+        ++ (map (name: import (./github-packages + "/${name}") { inherit fromGitHub; }) (
+          builtins.filter (name: lib.hasSuffix ".nix" name) (
+            builtins.attrNames (builtins.readDir ./github-packages)
+          )
+        ));
     };
 
     home.file = {
