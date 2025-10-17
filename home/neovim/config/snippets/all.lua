@@ -133,7 +133,8 @@ pkgs.mkShell {
           git add: "."
           git commit: %Q{ -m 'Initial commit, Rails-generated project' }
         end
-    EOF)
+    EOF
+    )
     fi
 
     if [ ! -d "$GEM_HOME/gems" ]; then
