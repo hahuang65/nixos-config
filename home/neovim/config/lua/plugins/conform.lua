@@ -88,6 +88,29 @@ return {
       stdin = false,
     }
 
+    -- Use bundle exec in Rails projects
+    local my_util = require("util")
+    require("conform").formatters.rubocop = {
+      inherit = false,
+      command = function()
+        local root_dir = my_util.find_project_root({ "Gemfile" })
+        if my_util.dir_has_file(root_dir, "Gemfile.lock") then
+          return "bundle"
+        end
+        return "rubocop"
+      end,
+      args = function()
+        local base_args = { "--server", "-a", "-f", "quiet", "--stderr", "--stdin", "$FILENAME" }
+
+        local root_dir = my_util.find_project_root({ "Gemfile" })
+        if my_util.dir_has_file(root_dir, "Gemfile.lock") then
+          return vim.list_extend({ "exec", "rubocop" }, base_args)
+        end
+        return base_args
+      end,
+      stdin = true,
+    }
+
     require("conform").setup(opts)
 
     vim.keymap.set("n", "<leader>TF", function()

@@ -37,7 +37,7 @@ return {
     markdown = { "markdownlint", "prettierd" },
     nix = { "nixfmt" },
     python = { "ruff_fix", "ruff_format", "ruff_organize_imports" },
-    ruby = { "rubyfmt" },
+    ruby = { "rubocop" }, -- rubyfmt does not respect Rubocop rules
     sh = { "shfmt", "shellcheck" },
     terraform = { "terraform_fmt" },
     tofu = { "tofu_fmt" },

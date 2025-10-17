@@ -121,9 +121,7 @@ return {
     for _, lsp in ipairs(tools.language_servers) do
       local custom = { "basedpyright", "emmylua_ls", "pyrefly", "ruby_lsp", "ty" }
       if not util.has_value(custom, lsp) then
-        require("lspconfig")[lsp].setup({
-          capabilities = capabilities,
-        })
+        vim.lsp.config(lsp, { capabilities = capabilities })
       end
     end
 
@@ -133,18 +131,9 @@ return {
       settings = settings or {}
 
       if util.has_value(tools.language_servers, name) then
-        -- Find the root directory for the project
-        local root_files = {
-          "Gemfile",
-          ".git",
-        }
+        local root_dir = util.find_project_root({ "Gemfile" })
 
-        local root_dir = vim.fs.dirname(vim.fs.find(root_files, {
-          upward = true,
-          stop = vim.uv.os_homedir(),
-        })[1])
-
-        if require("util").dir_has_file(root_dir, "Gemfile.lock") then
+        if util.dir_has_file(root_dir, "Gemfile.lock") then
           vim.notify_once("Running `" .. name .. "` with `bundler`")
           cmd = vim.list_extend({ "bundle", "exec" }, cmd)
         else
@@ -188,21 +177,14 @@ return {
       end
 
       if util.has_value(tools.language_servers, name) then
-        -- Find the root directory for the project
-        local root_files = {
+        local root_dir = util.find_project_root({
           "pyproject.toml",
           "setup.py",
           "setup.cfg",
           "requirements.txt",
           "Pipfile",
-          ".git",
           "poetry.lock",
-        }
-
-        local root_dir = vim.fs.dirname(vim.fs.find(root_files, {
-          upward = true,
-          stop = vim.uv.os_homedir(),
-        })[1])
+        })
 
         local python = uv_script_python()
         if python then
@@ -210,10 +192,10 @@ return {
           vim.notify_once("Running `" .. name .. "` as uv script")
           settings.python = vim.tbl_deep_extend("force", settings.python or {}, { pythonPath = python })
         -- Detect the Python package manager being used, if any
-        elseif require("util").dir_has_file(root_dir, "poetry.lock") then
+        elseif util.dir_has_file(root_dir, "poetry.lock") then
           vim.notify_once("Running `" .. name .. "` with `poetry`")
           cmd = vim.list_extend({ "poetry", "run" }, cmd)
-        elseif require("util").dir_has_file(root_dir, "uv.lock") then
+        elseif util.dir_has_file(root_dir, "uv.lock") then
           vim.notify_once("Running `" .. name .. "` with `uv`")
           cmd = vim.list_extend({ "uv", "run" }, cmd)
         else

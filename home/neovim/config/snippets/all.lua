@@ -109,6 +109,7 @@ pkgs.mkShell {
       rails new . -m <(cat <<'EOF'
         gem_group :development do
           gem 'ruby-lsp'
+          gem "rubocop", require: false
         end
 
         gem_group :development, :test do
