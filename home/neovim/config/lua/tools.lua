@@ -37,7 +37,7 @@ return {
     markdown = { "markdownlint", "prettierd" },
     nix = { "nixfmt" },
     python = { "ruff_fix", "ruff_format", "ruff_organize_imports" },
-    ruby = { "rubocop" }, -- rubyfmt does not respect Rubocop rules
+    ruby = { "rubyfmt" },
     sh = { "shfmt", "shellcheck" },
     terraform = { "terraform_fmt" },
     tofu = { "tofu_fmt" },
@@ -51,6 +51,7 @@ return {
   linters = {
     -- shellcheck is included in bashls, we don't need to double lint
     -- bash = { "shellcheck" },
+
     css = { "biomejs" },
     docker = { "hadolint" },
     git = { "gitlint" },
@@ -59,9 +60,13 @@ return {
     json = { "jsonlint" },
     lua = { "selene" },
     markdown = { "markdownlint" },
+
     -- Using the ruff LSP for this
     -- python = { "ruff" },
-    ruby = { "rubocop" },
+
+    -- ruby_lsp includes rubocop
+    -- ruby = { "rubocop" },
+
     sh = { "shellcheck" },
     sql = { "sqlfluff" },
     terraform = { "tflint", "tfsec" },

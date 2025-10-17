@@ -87,6 +87,7 @@ in
       pkgs.prettierd
       pkgs.rubocop
       pkgs.ruby-lsp
+      pkgs.rubyfmt
       pkgs.ruff
       pkgs.selene
       pkgs.shellcheck
