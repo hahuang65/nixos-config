@@ -15,4 +15,25 @@
       recursive = true;
     };
   };
+
+  perSystem = { pkgs, lib, ... }: {
+    packages.nvim = let
+      neovimConfig = pkgs.neovimUtils.makeNeovimConfig {
+        withNodeJs = true;
+        withPython3 = true;
+        extraPython3Packages = ps: [ ps.pynvim ];
+        extraLuaPackages = ps: [ ps.jsregexp ];
+      };
+    in pkgs.symlinkJoin {
+      name = "nvim";
+      paths = [ pkgs.neovim ];
+      nativeBuildInputs = [ pkgs.makeWrapper ];
+      postBuild = ''
+        wrapProgram $out/bin/nvim \
+          --prefix PATH : "${lib.makeBinPath (with pkgs; [ gcc gnumake tree-sitter nodePackages.neovim ])}" \
+          --add-flags "-u ${./editor}/init.lua" \
+          --set NVIM_APPNAME "nvim"
+      '';
+    };
+  };
 }

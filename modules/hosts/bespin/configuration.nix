@@ -10,6 +10,10 @@
     networking.hostName = "bespin";
     system.stateVersion = "25.05";
 
+    home-manager.users.hao = {
+      custom.senpai.enable = true;
+    };
+
     # Laptop power management (tlp conflicts with power-profiles-daemon from shared nixos module)
     services.power-profiles-daemon.enable = false;
     services.thermald.enable = true;

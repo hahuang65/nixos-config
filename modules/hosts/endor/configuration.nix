@@ -10,5 +10,9 @@
 
     networking.hostName = "endor";
     system.stateVersion = "25.05";
+
+    home-manager.users.hao = {
+      custom.senpai.enable = true;
+    };
   };
 }
