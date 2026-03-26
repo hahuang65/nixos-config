@@ -11,7 +11,7 @@
     };
 
     xdg.configFile."nvim" = {
-      source = ./editor;
+      source = ./neovim;
       recursive = true;
     };
   };
@@ -31,7 +31,7 @@
       postBuild = ''
         wrapProgram $out/bin/nvim \
           --prefix PATH : "${lib.makeBinPath (with pkgs; [ gcc gnumake tree-sitter nodePackages.neovim ])}" \
-          --add-flags "-u ${./editor}/init.lua" \
+          --add-flags "-u ${./neovim}/init.lua" \
           --set NVIM_APPNAME "nvim"
       '';
     };

@@ -5,7 +5,7 @@
     ];
 
     xdg.configFile."wezterm" = {
-      source = ./terminal;
+      source = ./wezterm;
       recursive = true;
     };
   };
@@ -17,7 +17,7 @@
       nativeBuildInputs = [ pkgs.makeWrapper ];
       postBuild = ''
         wrapProgram $out/bin/wezterm \
-          --set WEZTERM_CONFIG_DIR "${./terminal}"
+          --set WEZTERM_CONFIG_DIR "${./wezterm}"
       '';
     };
   };
