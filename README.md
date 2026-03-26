@@ -44,6 +44,66 @@ The system works without secrets — you can deploy first and set up secrets lat
 
 4. Set up secrets when ready (see [Secrets](#secrets) below).
 
+## Customizing for Your System
+
+### Timezone and Locale
+
+Edit `modules/systems/nixos.nix`:
+
+```nix
+time.timeZone = "America/Chicago";        # Change to your timezone
+i18n.defaultLocale = "en_US.UTF-8";       # Change to your locale
+console.keyMap = "us";                     # Change to your keyboard layout
+```
+
+Find your timezone with `timedatectl list-timezones` and available keymaps with `localectl list-keymaps`.
+
+### Changing the User
+
+The user account is defined in `modules/users/hao.nix`. To change it:
+
+1. Rename the file (e.g., `modules/users/alice.nix`).
+2. Update the username and groups inside:
+
+    ```nix
+    flake.nixosModules.user-alice = { pkgs, ... }: {
+      users.users.alice = {
+        isNormalUser = true;
+        extraGroups = [ "wheel" "networkmanager" "video" "audio" ];
+        shell = pkgs.bash;
+      };
+    };
+    ```
+
+3. Update `modules/home.nix` to reference the new user module and home-manager user:
+
+    ```nix
+    flake.nixosModules.home = { pkgs, ... }: {
+      imports = [ self.nixosModules.user-alice ];
+      home-manager.users.alice = { ... }: { ... };
+    };
+    ```
+
+4. Update any host configs that reference the user (e.g., `services.getty.autologinUser` in `modules/hosts/vm/configuration.nix`).
+
+### Adding a New Host
+
+1. Create a new directory under `modules/hosts/<hostname>/`.
+2. Add three files following the pattern of existing hosts:
+   - `default.nix` — registers the `nixosConfigurations.<hostname>` output
+   - `configuration.nix` — imports `desktop`, `home`, and any host-specific modules
+   - `hardware.nix` — paste output of `nixos-generate-config --show-hardware-config`
+3. Deploy with `sudo nixos-rebuild switch --flake .#<hostname>`.
+
+### CPU Microcode
+
+Set the correct microcode for your CPU in your host's `hardware.nix`:
+
+```nix
+hardware.cpu.amd.updateMicrocode = true;    # For AMD
+hardware.cpu.intel.updateMicrocode = true;   # For Intel
+```
+
 ## Testing in a VM
 
 Build and boot a QEMU VM without touching your current system:

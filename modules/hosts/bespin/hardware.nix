@@ -4,5 +4,7 @@
     boot.loader.systemd-boot.enable = true;
     boot.loader.efi.canTouchEfiVariables = true;
     fileSystems."/" = { device = "/dev/sda1"; fsType = "ext4"; };
+
+    hardware.cpu.intel.updateMicrocode = true;
   };
 }
