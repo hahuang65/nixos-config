@@ -61,12 +61,14 @@ From a local clone:
 
     nix run .#nvim         # Neovim with full config
     nix run .#wezterm      # WezTerm terminal
+    nix run .#foot         # Foot terminal (Linux only)
     nix run .#niri         # Niri desktop (compositor + Noctalia shell)
 
 Directly from GitHub (no clone needed):
 
     nix run github:hahuang65/nixos-config#nvim
     nix run github:hahuang65/nixos-config#wezterm
+    nix run github:hahuang65/nixos-config#foot
     nix run github:hahuang65/nixos-config#niri
 
 ## Architecture
@@ -75,36 +77,46 @@ Every `.nix` file under `modules/` is a [flake-parts](https://flake.parts/) modu
 
 ```
 modules/
-├── systems/           # Platform-level shared config
-│   ├── nixos.nix      # Shared NixOS settings
-│   ├── darwin.nix     # Shared nix-darwin settings
-│   ├── desktop.nix    # Graphical session (niri, noctalia, fonts, printing)
-│   └── supported.nix  # Supported system architectures
+├── systems/              # Platform-level shared config
+│   ├── nixos.nix         # Shared NixOS settings
+│   ├── darwin.nix        # Shared nix-darwin settings
+│   ├── desktop.nix       # Graphical session (niri, noctalia, fonts, printing)
+│   ├── nix-settings.nix  # Shared Nix daemon config
+│   └── supported.nix     # Supported system architectures
 │
-├── features/          # Feature modules (one file per concern)
-│   ├── niri.nix       # Compositor + keybindings
-│   ├── noctalia.nix   # Desktop shell
-│   ├── editor.nix     # Neovim + config
-│   ├── shell.nix      # Bash + config
-│   ├── git.nix        # Git + delta
-│   ├── terminal.nix   # WezTerm + config
-│   ├── scripts.nix    # Utility scripts
-│   ├── packages.nix   # CLI tools and desktop apps
-│   ├── languages.nix  # Go, Python, Ruby, Node
-│   ├── secrets.nix    # sops-nix wiring
-│   └── ...            # bat, direnv, foot, ssh, etc.
+├── features/             # Feature modules (one file per concern)
+│   ├── niri.nix          # Compositor + keybindings (nix run .#niri)
+│   ├── noctalia.nix      # Desktop shell
+│   ├── neovim.nix        # Neovim + config (nix run .#nvim)
+│   ├── wezterm.nix       # WezTerm terminal (nix run .#wezterm)
+│   ├── foot.nix          # Foot terminal (nix run .#foot)
+│   ├── shell.nix         # Bash + config
+│   ├── git.nix           # Git + delta
+│   ├── scripts.nix       # Utility scripts
+│   ├── packages.nix      # CLI tools and desktop apps
+│   ├── languages.nix     # Go, Python, Ruby, Node
+│   ├── secrets.nix       # sops-nix wiring
+│   ├── onepassword.nix   # 1Password CLI + GUI
+│   ├── bluetooth.nix     # Bluetooth + blueberry
+│   ├── podman.nix        # Container runtime
+│   ├── printing.nix      # CUPS printing
+│   ├── aerc.nix          # Email client (opt-in, requires secrets)
+│   ├── senpai.nix        # IRC client (opt-in, requires secrets)
+│   ├── aerospace.nix     # macOS tiling WM
+│   ├── sway.nix          # Legacy compositor (fallback)
+│   └── ...               # bat, direnv, fonts, inputrc, ssh
 │
-├── hosts/             # Per-machine configuration
-│   ├── endor/         # Desktop
-│   ├── bespin/        # Laptop
-│   ├── macos/         # macOS
-│   └── vm/            # QEMU test VM
+├── hosts/                # Per-machine configuration
+│   ├── endor/            # Desktop (bluetooth, podman)
+│   ├── bespin/           # Laptop (power management, podman)
+│   ├── macos/            # macOS
+│   └── vm/               # QEMU test VM
 │
-├── users/             # User account definitions
+├── users/                # User account definitions
 │   └── hao.nix
 │
-├── home.nix           # Home-manager + user wiring
-└── home-modules.nix   # Custom flake-parts option for homeModules
+├── home.nix              # Home-manager + user + 1Password wiring
+└── home-modules.nix      # Custom flake-parts options for homeModules/darwinModules
 ```
 
 Config files stay in their native formats (`.lua`, `.bash`, `.toml`, `.ini`) alongside their `.nix` modules. Nix does minimal wiring — no config is inlined in Nix strings.
