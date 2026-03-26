@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+set -e
+set -u
+set -o pipefail
+
+source "$HOME/.dotfiles/scripts/shared/lib/common"
+
+require_executable "tar"
+require_executable "pv"
+
+# Check if arguments are provided
+if [ $# -eq 0 ]; then
+  echo "Usage: mktar <file_or_folder> [file_or_folder...]"
+  exit 1
+fi
+
+# Validate all inputs exist
+for item in "$@"; do
+  if [ ! -e "$item" ]; then
+    echo "Error: '$item' does not exist"
+    exit 1
+  fi
+done
+
+# Determine archive name
+if [ $# -eq 1 ]; then
+  # Single input: generate archive name from it
+  archive_name=$(basename "$1" | tr '[:upper:]' '[:lower:]' | tr -cs '[:alnum:]' '_' | sed 's/_*$//')
+  archive_name="${archive_name}.tar.gz"
+else
+  # Multiple inputs: prompt for archive name
+  echo "Multiple files/folders provided. Enter archive name (without .tar.gz extension):"
+  read -r archive_name
+  if [ -z "$archive_name" ]; then
+    echo "Error: Archive name cannot be empty"
+    exit 1
+  fi
+  archive_name="${archive_name}.tar.gz"
+fi
+
+# Set up cleanup trap for interruption
+cleanup() {
+  if [ -f "$archive_name" ]; then
+    echo -e "\nInterrupted. Removing partial archive: $archive_name"
+    rm -f "$archive_name"
+  fi
+  exit 1
+}
+trap cleanup INT TERM
+
+# Calculate total size for progress bar
+total_size=$(du -scb "$@" | tail -1 | awk '{print $1}')
+
+tar -cf - "$@" -P | pv -s "$total_size" | gzip >"$archive_name"

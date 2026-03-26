@@ -1,0 +1,99 @@
+#!/usr/bin/env bash
+
+PIDFILE=/tmp/openvpn.pid
+LOGFILE=/tmp/openvpn.log
+
+usage() {
+  echo -n "$(basename "$0") [OPTIONS] <arguments>
+A script to easily connect/disconnect from VPN
+
+  Options:
+     -c, --connect <name>     Connect to the specified VPN
+     -d, --disconnect         Disconnect from the currently connected VPN
+     -h, --help               Display this help and exit
+     -l, --logs               Show the logs for the currently connected VPN
+     -n, --name               Name of the currently connected VPN
+
+  Arguments:
+     <name>                   Name of the VPN to connect to. These are read from .ovpn files in ~/.vpn
+"
+}
+
+connect() {
+  if [ -n "$1" ]; then
+    if [ -f "$HOME/.vpn/$1.ovpn" ]; then
+      (cd $HOME/.vpn && sudo --background openvpn --config "$1.ovpn" --cert "$1.crt" --key "$1.key" --writepid "$PIDFILE" --log "$LOGFILE")
+    else
+      echo "$1 does not exist as a VPN configuration"
+    fi
+  else
+    usage
+  fi
+}
+
+disconnect() {
+  if [ -f "$PIDFILE" ]; then
+    pid=$(cat $PIDFILE)
+    echo "Killing process $pid"
+    sudo kill "$pid"
+    sudo rm "$LOGFILE"
+    # $PIDFILE will remove itself
+  else
+    echo "$PIDFILE does not exist, please check $LOGFILE for more info"
+  fi
+}
+
+name() {
+  connection=$(ps aux | grep --invert-match "grep" | grep --only-matching "\w*\.ovpn" | sort --unique | cut --fields 1 --delimiter '.')
+  echo $connection
+}
+
+logs() {
+  if [ -f "$LOGFILE" ]; then
+    sudo tail -f "$LOGFILE"
+  else
+    echo "$LOGFILE does not exist"
+  fi
+}
+
+while :; do
+  flag=${1:-}
+  argument=${2:-}
+
+  case "$flag" in
+  -c | --connect)
+    disconnect >/dev/null
+    connect "$argument"
+    break
+    ;;
+  -d | --disconnect)
+    disconnect
+    break
+    ;;
+  -h | -\? | --help)
+    usage
+    exit
+    ;;
+  -l | --logs)
+    logs
+    break
+    ;;
+  -n | --name)
+    name
+    break
+    ;;
+  --) # Demarcates end of all options.
+    shift
+    break
+    ;;
+  -?*) # Handle any unknown options.
+    printf 'WARN: Unknown option (ignored): %s\n' "$1" >&2
+    ;;
+  *) # End of all options if nothing matches
+    usage
+    break
+    ;;
+  esac
+
+  shift
+done

@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+# This script should never be run standalone. It should always be executed thru the `dots` script
+
+pushd ~/.dotfiles >/dev/null || exit
+git add .
+modified=$(git diff --staged --name-only | sed '$!s/$/, /' | tr -d '\n')
+
+if [ "${#modified[@]}" -eq "1" ] && [ "${modified[0]}" == "" ]; then
+	echo "No changes to commit."
+else
+	git commit -m "Update $modified"
+fi
+
+if git state | grep -q "[[]ahead [0-9]*[]]"; then
+	git publish
+fi
+
+popd >/dev/null || exit

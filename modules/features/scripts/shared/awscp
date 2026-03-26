@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+export TYPE="scp" # For `usage` in `aws-connect.sh`, must be set before sourcing file
+source "$HOME/.dotfiles/scripts/shared/lib/aws-connect.sh"
+
+parse_instance() {
+  X=$(echo "$@" | grep -oEi '\S+:\S+')
+  IFS='@' read -ra ADDR <<<"$X"
+  if [ "${#ADDR[@]}" -eq 1 ]; then
+    USER="$DEFAULT_USER"
+    DEST="${ADDR[0]}"
+  elif [ "${#ADDR[@]}" -eq 2 ]; then
+    USER="${ADDR[0]}"
+    DEST="${ADDR[1]}"
+  fi
+
+  IFS=':' read -ra REMOTE <<<"$DEST"
+  if [ "${#REMOTE[@]}" -eq 1 ]; then
+    echo >&2 "Remote destination must have a host and path"
+    exit 1
+  elif [ "${#REMOTE[@]}" -eq 2 ]; then
+    INSTANCE_NAME="${REMOTE[0]}"
+  fi
+
+  instance_id_from_name
+}
+
+main() {
+  parse_instance "$@"
+
+  cleanup_old_keys
+  generate_tmp_key
+  push_tmp_key "$INSTANCE_ID" "$USER"
+
+  SSH_OPTS+=("${@/$INSTANCE_NAME/$USER@$INSTANCE_ID}")
+  scp "${SSH_OPTS[@]}"
+}
+main "$@"

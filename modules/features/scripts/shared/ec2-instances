@@ -1,0 +1,111 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+IFS=$'\n\t'
+
+error() {
+  printf '%s\n' "$1" 1>&2
+  exit 1
+}
+
+has_executable() {
+  if ! command -v "$1" &> /dev/null; then
+    error "ERROR: $1 is required for this script"
+  fi
+}
+
+has_executable "aws"
+has_executable "jq"
+
+AWS_REGION=${AWS_REGION:-us-east-1}
+
+VALID_FORMATS=(
+  json
+  plain
+)
+
+# `aws` requires a region set to work, even for listing regions
+mapfile -t VALID_REGIONS < <(AWS_REGION="$AWS_REGION" aws ec2 describe-regions | jq --raw-output '.Regions | sort_by(.RegionName)[].RegionName')
+
+region="$AWS_REGION"
+format="plain"
+
+usage() {
+  echo -n "$(basename "$0") [--format <format>] [--region <region>] <filters>
+
+A script to query http://ec2.shop for EC2 instances.
+
+  Options:
+    -f, --format    Format for output, default: $format
+    -r, --region    Region of AWS to query for instances, default: $region (your \$AWS_REGION)
+    -h, --help      Display this help and exit
+
+  Parameters:
+    filters         Directly maps to the filters URL param as described in http://ec2.shop
+"
+}
+
+list_contains() {
+  local match="$1"
+  shift
+  local list=("$@")
+
+  for elem in "${list[@]}"; do
+    [[ "$match" == "$elem" ]] && return 0
+  done
+
+  return 1
+}
+
+while :; do
+  flag=${1:-}
+  arg=${2:-}
+
+  case "$flag" in
+    -h|-\?|--help)
+      usage
+      exit
+      ;;
+    -f|--format)
+      if list_contains "$arg" "${VALID_FORMATS[@]}"; then
+        format="$arg"
+        shift
+      else
+        error "ERROR: \"--format\" must be one of \n${VALID_FORMATS[*]}"
+      fi
+      ;;
+    -r|--region)
+      if list_contains "$arg" "${VALID_REGIONS[@]}"; then
+        region="$arg"
+        shift
+      else
+        (IFS=,; error "ERROR: \"--region\" must be one of ${VALID_REGIONS[*]}.")
+      fi
+      ;;
+    --) # Demarcates end of all options.
+      shift
+      break
+      ;;
+    -?*) # Handle any unknown options.
+      printf 'WARN: Unknown option (ignored): %s\n' "$1" >&2
+      ;;
+    *) # End of all options if nothing matches
+      break
+  esac
+
+  shift
+done
+
+main() {
+  filters="$*"
+
+  response=$(curl --silent "https://ec2.shop?region=$region&filter=$filters" --header "accept: $format")
+
+  if [[ "$format" == "json" ]]; then
+    echo "$response" | jq '.'
+  else
+    echo "$response"
+  fi
+}
+
+main "$@"

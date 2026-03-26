@@ -1,0 +1,105 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+IFS=$'\n\t'
+
+# Check if running on Linux
+case $(uname) in
+Linux) ;;
+*)
+  echo "Error: This script only works on Linux" >&2
+  exit 1
+  ;;
+esac
+
+# Check if gum is installed
+if ! command -v gum &> /dev/null; then
+  echo "Error: gum is not installed. Please install gum first." >&2
+  exit 1
+fi
+
+# Set XDG_DATA_HOME with fallback to default
+XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
+TARGET_DIR="$XDG_DATA_HOME/applications"
+
+# Create target directory if it doesn't exist
+mkdir -p "$TARGET_DIR"
+
+# Get list of all .desktop files in system directories
+all_desktop_files=()
+for search_dir in /usr/share/applications /usr/local/share/applications /var/lib/flatpak/exports/share/applications; do
+  if [ -d "$search_dir" ]; then
+    while IFS= read -r file; do
+      all_desktop_files+=("$file")
+    done < <(find "$search_dir" -maxdepth 1 -name "*.desktop" \( -type f -o -type l \))
+  fi
+done
+
+# Filter out files that are already hidden (exist in TARGET_DIR with NoDisplay=true)
+unhidden_files=()
+for file in "${all_desktop_files[@]}"; do
+  basename_file=$(basename "$file")
+  target_file="$TARGET_DIR/$basename_file"
+
+  # Check if file exists in target directory and has NoDisplay=true
+  if [ -f "$target_file" ] && grep -q "^NoDisplay=true" "$target_file"; then
+    continue
+  fi
+
+  unhidden_files+=("$basename_file")
+done
+
+# Check if there are any unhidden files
+if [ ${#unhidden_files[@]} -eq 0 ]; then
+  echo "No unhidden applications found."
+  exit 0
+fi
+
+# Use gum to select files to hide
+echo "Select applications to hide (Space to select, Enter to confirm):"
+selected_files=$(printf '%s\n' "${unhidden_files[@]}" | sort | gum choose --no-limit)
+
+# Check if any files were selected
+if [ -z "$selected_files" ]; then
+  echo "No applications selected."
+  exit 0
+fi
+
+# Process each selected file
+while IFS= read -r desktop_file; do
+  # Find the source file
+  source_file=""
+  for search_dir in /usr/share/applications /usr/local/share/applications /var/lib/flatpak/exports/share/applications; do
+    if [ -f "$search_dir/$desktop_file" ] || [ -L "$search_dir/$desktop_file" ]; then
+      source_file="$search_dir/$desktop_file"
+      break
+    fi
+  done
+
+  if [ -z "$source_file" ]; then
+    echo "Warning: Could not find $desktop_file" >&2
+    continue
+  fi
+
+  target_file="$TARGET_DIR/$desktop_file"
+
+  # Copy the file
+  cp "$source_file" "$target_file"
+  echo "Copied: $source_file -> $target_file"
+
+  # Check if NoDisplay already exists in the file
+  if grep -q "^NoDisplay=" "$target_file"; then
+    # Replace existing NoDisplay line
+    sed -i 's/^NoDisplay=.*/NoDisplay=true/' "$target_file"
+    echo "Updated NoDisplay=true in $target_file"
+  else
+    # Add NoDisplay=true after the [Desktop Entry] section
+    sed -i '/^\[Desktop Entry\]/a NoDisplay=true' "$target_file"
+    echo "Added NoDisplay=true to $target_file"
+  fi
+
+  echo "Successfully hidden: $desktop_file"
+  echo ""
+done <<< "$selected_files"
+
+echo "Done! The application(s) should now be hidden from your application menu."

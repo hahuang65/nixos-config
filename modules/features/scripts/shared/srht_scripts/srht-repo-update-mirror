@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+
+usage() {
+  echo -n "$(basename "$0" | tr -s '-' ' ')
+
+A script to update the mirroring script for
+git.sr.ht codebases to Github.
+
+  Options:
+    -h, --help          Display this help and exit
+"
+}
+
+while :; do
+  flag=${1:-}
+
+  case "$flag" in
+  -h | -\? | --help)
+    usage
+    exit
+    ;;
+  --) # Demarcates end of all options.
+    shift
+    break
+    ;;
+  -?*) # Handle any unknown options.
+    printf 'WARN: Unknown option (ignored): %s\n' "$1" >&2
+    ;;
+  *) # End of all options if nothing matches
+    break ;;
+  esac
+
+  shift
+done
+
+main() {
+  if test -f .builds/mirror.yml; then
+    echo "Updating Sourcehut build manifest for mirroring repository to Github"
+    cp --recursive ~/.dotfiles/git/template/srht/build/mirror.yml .builds/mirror.yml
+    git add .builds/mirror.yml
+    git commit --message "Update sr.ht build manifest for mirroring to Github"
+  else
+    echo "This repository does not have a mirror script to update. Aborting."
+  fi
+}
+
+main "$@"

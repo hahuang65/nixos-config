@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+IFS=$'\n\t'
+
+error() {
+  printf '%s\n' "$1" 1>&2
+  exit 1
+}
+
+require_executable() {
+  if ! command -v "$1" &>/dev/null; then
+    error "ERROR: $1 is required for this script"
+  fi
+}
+
+pushd() {
+  command pushd "$@" >/dev/null
+}
+
+popd() {
+  command popd "$@" >/dev/null
+}

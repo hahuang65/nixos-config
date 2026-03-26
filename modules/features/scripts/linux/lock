@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+swaylock --daemonize --indicator --screenshots --clock --effect-greyscale --effect-pixelate 5 --grace 10

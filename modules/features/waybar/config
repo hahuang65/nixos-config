@@ -1,0 +1,113 @@
+{
+  "modules-left": ["sway/workspaces", "sway/mode"],
+  // "modules-left": ["wlr/workspaces"], // For hyprland
+  "modules-center": ["custom/clock", "clock#calendar", "custom/weather"],
+  "modules-right": ["custom/media", "idle_inhibitor", "custom/volume", "custom/microphone", "backlight", "custom/network", "battery"],
+  // "wlr/workspaces": { // For hyprland
+  "sway/workspaces": { // For sway
+      // "sort-by-number": true, // For hyprland
+      // "on-click": "activate", // For hyprland
+      "disable-scroll": true, // For sway
+      "all-outputs": true,
+      "format": "{icon} {name}",
+      "format-icons": {
+          "1:web": "󰈹",
+          "2:chat": "",
+          "3:media": "",
+          "4:game": "",
+          "5:code": "",
+      }
+  },
+  "backlight": {
+      "format": "{icon} {percent}%",
+      "format-icons": ["󰃝", "󰃞", "󰃟", "󰃠"]
+  },
+  "battery": {
+      "states": {
+          "good": 80,
+          "warning": 40,
+          "critical": 20
+      },
+      "format": "{icon} {capacity}%",
+      "format-charging": " {capacity}%",
+      "format-icons": ["", "", "", "", ""]
+  },
+  "custom/clock": {
+      "format": "{}",
+      "return-type": "json",
+      "interval": 30,
+      "exec": "$HOME/.config/waybar/scripts/clock.sh",
+      "tooltip": true
+  },
+  "clock#calendar": {
+      "format": " {:%a %Y/%m/%d}",
+      "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
+  },
+  "cpu": {
+      "format": "{usage}% ",
+      "tooltip": false
+  },
+  "memory": {
+      "format": "󰍛 {}%"
+  },
+  "custom/network": {
+      "format": "{}",
+      "return-type": "json",
+      "interval": 5,
+      "exec": "$HOME/.config/waybar/scripts/network.sh",
+      "tooltip": true
+  },
+  "temperature": {
+      "critical-threshold": 70,
+      "format-critical": "{icon} {temperatureC}°C",
+      "format": "{icon} {temperatureC}°C",
+      "format-icons": [""]
+  },
+  "custom/volume": {
+      "format": "{}",
+      "return-type": "json",
+      "exec": "$HOME/.config/waybar/scripts/volume.sh",
+      "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
+      "on-click-right": "$HOME/.config/waybar/scripts/audio-cycle.sh sink",
+      "on-scroll-up": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 1%+",
+      "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 1%-",
+      "tooltip": true
+  },
+  "custom/microphone": {
+      "format": "{}",
+      "return-type": "json",
+      "exec": "$HOME/.config/waybar/scripts/microphone.sh",
+      "on-click": "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle",
+      "on-click-right": "$HOME/.config/waybar/scripts/audio-cycle.sh source",
+      "on-scroll-up": "wpctl set-volume @DEFAULT_AUDIO_SOURCE@ 1%+",
+      "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SOURCE@ 1%-",
+      "tooltip": true
+  },
+  "idle_inhibitor": {
+      "format": "{icon}",
+      "format-icons": {
+          "activated": "󰅶",
+          "deactivated": "󰛊"
+      }
+  },
+  "custom/weather": {
+      "format": "{}",
+      "return-type": "json",
+      "interval": 600,
+      "exec": "$HOME/.config/waybar/scripts/weather.sh",
+      "tooltip": true
+  },
+  "custom/media": {
+      "format": "{icon} {}",
+      "return-type": "json",
+      "format-icons": {
+          "spotify": "",
+          "ncspot": "",
+          "default": ""
+      },
+      "escape": true,
+      "on-click": "playerctl play-pause",
+      // Requires `pip install PyGObject` and `pacman -S gobject-introspection'
+      "exec": "$HOME/.config/waybar/scripts/mediaplayer.py 2> /dev/null"
+  }
+}

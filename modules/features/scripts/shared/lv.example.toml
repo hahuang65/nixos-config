@@ -1,0 +1,29 @@
+# lv — lnav wrapper config
+# See: lv --help
+
+[hosts]
+# web1 = "deploy@10.0.1.10"
+# web2 = "deploy@10.0.1.11"
+# db1  = "admin@10.0.2.20"
+
+[groups]
+# webservers = "web1, web2"
+# all        = "web1, web2, db1"
+
+[paths]
+# app          = "/var/log/myapp/production.log"
+# nginx        = "/var/log/nginx/access.log"
+# nginx.error  = "/var/log/nginx/error.log"
+# myapp.rails  = "/data/log/production.log"
+# myapp.puma   = "/app/log/puma.log"
+#
+# Glob patterns expand to all matching files.
+# Use --latest to open only the most recent match:
+#   lv --latest deploy-log
+# deploy-log   = "/var/log/deploy/deploy_*.log"
+
+# [filters]
+# Sed expressions applied to matching [paths] entries.
+# Useful for stripping noise from log lines (e.g., tracing metadata).
+# The key must match a [paths] entry name.
+# myapp.rails  = "s/\[dd\.[^]]*\] //g"

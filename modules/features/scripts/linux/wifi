@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+if [ $# -eq 0 ] || [ "$1" == "-l" ] || [ "$1" == "--list" ]; then
+  iwctl station wlan0 scan 2>&1 > /dev/null
+  iwctl station wlan0 get-networks
+else
+  echo "Connecting to $@"
+  iwctl station wlan0 disconnect && iwctl station wlan0 connect "$*"
+fi

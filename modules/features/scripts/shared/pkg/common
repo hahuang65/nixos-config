@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+# Common functions for pkg command - sourced by OS-specific pkg scripts
+
+set -euo pipefail
+IFS=$'\n\t'
+
+function help {
+  echo "Available commands:"
+  pushd "${PKG_SCRIPTS_DIR}" >/dev/null
+  REGEX="pkg-(.*)"
+  for i in pkg-*; do
+    if [[ ${i} =~ ${REGEX} ]]; then
+      command=${BASH_REMATCH[1]}
+      echo "${command}"
+    fi
+  done
+
+  echo
+  echo "Run command as follows: pkg <command> (e.g. pkg ${command})."
+  exit 1
+}
+
+function main {
+  if [ $# -eq 0 ]; then
+    help
+  fi
+
+  if [[ -x "${PKG_SCRIPTS_DIR}/pkg-${1}" ]]; then
+    pushd "${HOME}/.dotfiles/bootstrap/" >/dev/null
+    PKG_DIR="${PKG_SCRIPTS_DIR}" "${PKG_SCRIPTS_DIR}/pkg-${1}" "${@:2:$#}"
+    popd >/dev/null
+  else
+    help
+  fi
+}

@@ -1,0 +1,11 @@
+bundler
+neovim
+rails
+rubocop
+rubocop-factory_bot
+rubocop-minitest
+rubocop-performance
+rubocop-rails
+rubocop-rspec
+rubocop-rspec_rails
+ruby-lsp

@@ -1,0 +1,107 @@
+#!/usr/bin/env bash
+
+source "$HOME/.dotfiles/scripts/shared/lib/common"
+
+license=""
+license_src=""
+year=$(date +"%Y")
+year_field=""
+copyright_owners_field=""
+
+usage() {
+  echo -n "$(basename "$0" | tr -s '-' ' ') <license>
+
+A script to add a license to a Git repository.
+
+  Options:
+    -h, --help      Display this help and exit
+
+  Parameters:
+    license         The type of license to assign. Options are GPLv3, LGPLv3, MIT, Apache2
+                    See https://man.sr.ht/license.md for more information
+"
+}
+
+while :; do
+  flag=${1:-}
+
+  case "$flag" in
+  -h | -\? | --help)
+    usage
+    exit
+    ;;
+  --) # Demarcates end of all options.
+    shift
+    break
+    ;;
+  -?*) # Handle any unknown options.
+    printf 'WARN: Unknown option (ignored): %s\n' "$1" >&2
+    ;;
+  *) # End of all options if nothing matches
+    break ;;
+  esac
+
+  shift
+done
+
+commit_license() {
+  curl --silent "$1" >|LICENSE
+
+  if [ -n "$year_field" ]; then
+    # perl cuz BSD sed is non-conforming
+    perl -i -pe"s/$year_field/$year/" LICENSE
+  fi
+
+  if [ -n "$copyright_owners_field" ]; then
+    copyright_name=$(git config user.name)
+    # perl cuz BSD sed is non-conforming
+    perl -i -pe"s/$copyright_owners_field/$copyright_name/" LICENSE
+  fi
+
+  git add LICENSE
+  echo ""
+  git commit -m "Add LICENSE" -- LICENSE
+  echo ""
+}
+
+main() {
+  if [ $# -eq 0 ]; then
+    usage
+    exit 1
+  fi
+
+  license="${1}"
+
+  if [ -z "$license" ]; then
+    error "No license specified."
+  fi
+
+  case "${license,,}" in
+  gplv3)
+    license_src="https://www.gnu.org/licenses/gpl-3.0.txt"
+    printf "GPLv3 selected. Full license @ "
+    ;;
+  lgplv3)
+    license_src="https://www.gnu.org/licenses/lgpl-3.0.txt"
+    printf "LGPLv3 selected. Full license @ "
+    ;;
+  mit)
+    license_src="https://spdx.org/licenses/MIT.txt"
+    year_field="<year>"
+    copyright_owners_field="<copyright holders>"
+    printf "MIT selected. Full license @ "
+    ;;
+  apache2)
+    license_src="https://www.apache.org/licenses/LICENSE-2.0.txt"
+    printf "Apache 2.0 selected. Full license @ "
+    ;;
+  *)
+    error "'$license' is not a valid license choice."
+    ;;
+  esac
+
+  printf "%s\n" "$license_src"
+  commit_license $license_src
+}
+
+main "$@"

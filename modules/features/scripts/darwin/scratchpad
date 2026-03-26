@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+
+launch_scratchpad() {
+  ~/.scripts/term bash -c "(printf '\e]2;%s\a' SCRATCHPAD); exec bash -l"
+  sleep 1
+  aerospace focus --window-id "$(scratchpad_id)"
+  aerospace layout floating
+  sleep 1
+  aerospace resize width 2560
+  aerospace resize height 1440
+}
+
+scratchpad_id() {
+  aerospace list-windows --all | grep SCRATCHPAD | awk -F '|' '{print $1}' | xargs
+}
+
+scratchpad_focused() {
+  if [ "$(aerospace list-windows --focused --format "%{window-id}")" == "$(scratchpad_id)" ]; then
+    true
+  else
+    false
+  fi
+}
+
+unfocus_scratchpad() {
+  aerospace move-node-to-workspace 5
+}
+
+focus_scratchpad() {
+  if [ -z "$(scratchpad_id)" ]; then
+    launch_scratchpad
+  fi
+
+  CURRENT_WORKSPACE=$(aerospace list-workspaces --focused | xargs)
+  aerospace focus --window-id "$(scratchpad_id)"
+  aerospace move-node-to-workspace "$CURRENT_WORKSPACE"
+  aerospace workspace "$CURRENT_WORKSPACE"
+}
+
+if scratchpad_focused; then
+  unfocus_scratchpad
+else
+  focus_scratchpad
+fi

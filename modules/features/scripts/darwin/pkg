@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+IFS=$'\n\t'
+
+export PKG_SCRIPTS_DIR="$HOME/.dotfiles/scripts/darwin/pkg_scripts"
+export HOMEBREW_BUNDLE_FILE="$HOME/.dotfiles/bootstrap/Brewfile"
+
+case $(uname) in
+Darwin) ;;
+*)
+  echo "Unsupported OS. Exiting..."
+  return 1
+  ;;
+esac
+
+# Source common functions
+source "$HOME/.dotfiles/scripts/shared/pkg/common"
+
+main "$@"
+

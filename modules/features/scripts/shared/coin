@@ -1,0 +1,1099 @@
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.12"
+# dependencies = [
+#     "rapidfuzz",
+#     "rich",
+#     "textual",
+# ]
+# ///
+"""CSV tool that applies various formulas to CSV data."""
+
+import argparse
+import csv
+import io
+import os
+import subprocess
+import sys
+from collections.abc import Callable
+from dataclasses import dataclass, field
+from datetime import datetime
+from typing import Self
+
+from rapidfuzz import fuzz
+from rich.console import Console
+from rich.table import Table
+from textual.app import App, ComposeResult
+from textual.containers import Vertical, VerticalScroll
+from textual.screen import Screen
+from textual.suggester import Suggester, SuggestFromList
+from textual.widgets import (
+    Button,
+    Checkbox,
+    Footer,
+    Header,
+    Input,
+    Label,
+    OptionList,
+    Static,
+)
+
+
+class SuggestInput(Input):
+    """Input that accepts suggestions with Tab.
+
+    If suggestion is in format "MatchedName (CanonicalName)", extracts
+    and uses just the canonical name.
+    """
+
+    BINDINGS: list[tuple[str, str, str]] = [
+        ("tab", "accept_suggestion", "Accept suggestion"),
+    ]
+
+    def action_accept_suggestion(self) -> None:
+        if self._suggestion:
+            suggestion = self._suggestion
+            # Extract canonical name from "MatchedName (CanonicalName)" format
+            if " (" in suggestion and suggestion.endswith(")"):
+                suggestion = suggestion.split(" (")[1][:-1]
+            self.value = suggestion
+            self.cursor_position = len(self.value)
+
+
+console = Console()
+
+NAME_COL = "Name"
+AKA_COL = "AKA"
+DATE_COL = "Date"
+FUND_COL = "Fund"
+AMT_COL = "Amount"
+FOLLOW_ON_COL = "Follow On?"
+DIST_DATE_COL = "Distribution Date"
+DIST_TYPE_COL = "Distribution Type"
+
+
+class NameRegistry:
+    """Union-find structure to group company names/aliases globally."""
+
+    def __init__(self, txns: list["Transaction"]):
+        self._parent: dict[str, str] = {}
+        self._txns_by_name: dict[str, list["Transaction"]] = {}
+        self._primary_names: set[str] = set()
+
+        for t in txns:
+            # Track primary names (from the Name column)
+            self._primary_names.add(t.names[0])
+
+            for name in t.names:
+                self._txns_by_name.setdefault(name, []).append(t)
+                if name not in self._parent:
+                    self._parent[name] = name
+
+            # Union all names in this transaction together
+            first = t.names[0]
+            for name in t.names[1:]:
+                self._union(first, name)
+
+    def _find(self, name: str) -> str:
+        if self._parent[name] != name:
+            self._parent[name] = self._find(self._parent[name])
+        return self._parent[name]
+
+    def _union(self, a: str, b: str) -> None:
+        ra, rb = self._find(a), self._find(b)
+        if ra != rb:
+            self._parent[rb] = ra
+
+    def get_all_names(self, name: str) -> set[str]:
+        """Get all names/aliases for the company that includes this name."""
+        if name not in self._parent:
+            return set()
+        root = self._find(name)
+        return {n for n in self._parent if self._find(n) == root}
+
+    def get_transactions(self, name: str) -> list["Transaction"]:
+        """Get all transactions for the company that includes this name."""
+        all_names = self.get_all_names(name)
+        seen: set[int] = set()
+        result: list["Transaction"] = []
+        for n in all_names:
+            for t in self._txns_by_name.get(n, []):
+                if id(t) not in seen:
+                    seen.add(id(t))
+                    result.append(t)
+        return result
+
+    def get_canonical_name(self, name: str) -> str:
+        """Get the canonical name (from Name column) for a company."""
+        all_names = self.get_all_names(name)
+        if not all_names:
+            return name
+        # Find the primary name (from Name column) in this group
+        primary_in_group = all_names & self._primary_names
+        if primary_in_group:
+            # If multiple primary names, return the first alphabetically
+            return min(primary_in_group)
+        return name
+
+    def fuzzy_match(
+        self, query: str, threshold: int = 60
+    ) -> tuple[str, str, int] | None:
+        """Find the best fuzzy match for a query.
+
+        Returns (matched_name, canonical_name, score) or None if no match above threshold.
+        Tries prefix match first (score 100), then falls back to fuzzy match.
+        """
+        results = self.fuzzy_match_all(query, threshold)
+        return results[0] if results else None
+
+    def fuzzy_match_all(
+        self, query: str, threshold: int = 60
+    ) -> list[tuple[str, str, int]]:
+        """Find all fuzzy matches for a query, grouped by company.
+
+        Returns list of (matched_name, canonical_name, score) sorted by score descending.
+        Only includes companies with score >= threshold.
+        """
+        if not query:
+            return []
+
+        query_lower = query.lower()
+        seen_roots: set[str] = set()
+        results: list[tuple[str, str, int]] = []
+
+        for name in self._parent:
+            root = self._find(name)
+            if root in seen_roots:
+                continue
+
+            # Find best matching name across all names in this company
+            all_names = self.get_all_names(name)
+            best_name = None
+            best_score = 0
+            for n in all_names:
+                if n.lower().startswith(query_lower):
+                    best_name = n
+                    best_score = 100
+                    break
+                score = fuzz.partial_ratio(query_lower, n.lower())
+                if score > best_score:
+                    best_name = n
+                    best_score = score
+
+            if best_score >= threshold and best_name:
+                seen_roots.add(root)
+                canonical = self.get_canonical_name(name)
+                results.append((best_name, canonical, best_score))
+
+        results.sort(key=lambda x: x[2], reverse=True)
+        return results
+
+
+class NameSuggester(Suggester):
+    """Suggester that uses fuzzy matching to find canonical company names.
+
+    Returns suggestions in format "MatchedName (CanonicalName)" or just
+    "MatchedName" if they're the same.
+    """
+
+    def __init__(self, registry: NameRegistry, threshold: int = 50):
+        super().__init__(use_cache=False, case_sensitive=False)
+        self._registry = registry
+        self._threshold = threshold
+
+    async def get_suggestion(self, value: str) -> str | None:
+        if not self._registry:
+            return None
+
+        match = self._registry.fuzzy_match(value, self._threshold)
+        if not match:
+            return None
+
+        matched_name, canonical, _ = match
+        if matched_name == canonical:
+            return matched_name
+        return f"{matched_name} ({canonical})"
+
+
+class Transaction:
+    @staticmethod
+    def _parse_date(value) -> datetime:
+        for fmt in ("%m/%d/%Y", "%m/%d/%y"):
+            try:
+                return datetime.strptime(value, fmt).date()
+            except ValueError:
+                continue
+        raise ValueError(f"Unable to parse date: {value!r}")
+
+    @staticmethod
+    def _parse_amount(value: str) -> float:
+        value = value.strip()
+        negative = value.startswith("-") or (
+            value.startswith("(") and value.endswith(")")
+        )
+        value = (
+            value.replace("$", "")
+            .replace(",", "")
+            .replace("(", "")
+            .replace(")", "")
+            .replace("-", "")
+        )
+        amount = float(value) if value else 0.0
+        return -amount if negative else amount
+
+    def __init__(self, row):
+        self.names: list[str] = [row[NAME_COL].strip()] + [
+            v.strip() for v in row[AKA_COL].split(",") if v.strip()
+        ]
+        self.date: datetime = self._parse_date(row[DATE_COL])
+        self.fund: str = row[FUND_COL]
+        self.amount: float = self._parse_amount(row[AMT_COL])
+        self.follow_on: datetime = row[FOLLOW_ON_COL].strip().upper() == "TRUE"
+        self.dist_date: datetime | None = (
+            self._parse_date(row[DIST_DATE_COL]) if row[DIST_DATE_COL].strip() else None
+        )
+        self.dist_type: str = (
+            row[DIST_TYPE_COL].strip() if row[DIST_TYPE_COL].strip() else ""
+        )
+
+    @staticmethod
+    def _is_ssh_path(filepath: str) -> bool:
+        return ":" in filepath
+
+    @classmethod
+    def from_csv(cls, filepath) -> list[Self]:
+        try:
+            if cls._is_ssh_path(filepath):
+                host, remote_path = filepath.split(":", 1)
+                result = subprocess.run(
+                    ["ssh", host, "cat", remote_path],
+                    capture_output=True,
+                    text=True,
+                )
+                if result.returncode != 0:
+                    console.print(f"[red]Error:[/red] {result.stderr.strip()}")
+                    sys.exit(1)
+                content = result.stdout
+                if content.startswith("\ufeff"):
+                    content = content[1:]
+            else:
+                with open(filepath, "r", encoding="utf-8-sig") as f:
+                    content = f.read()
+        except FileNotFoundError:
+            console.print(f"[red]Error:[/red] file not found: {filepath}")
+            sys.exit(1)
+        except OSError as e:
+            console.print(f"[red]Error:[/red] failed to open file: {e}")
+            sys.exit(1)
+        reader = csv.DictReader(io.StringIO(content))
+        rows = list(reader)
+        if not rows:
+            console.print("[red]Error:[/red] CSV file is empty or has no data rows.")
+            sys.exit(1)
+        return [cls(row) for row in rows]
+
+
+@dataclass
+class Formula:
+    flag: str
+    description: str
+    fn: Callable[..., Table]
+    extra_args: list[str] = field(default_factory=list)
+    optional_args: dict[str, dict] = field(default_factory=dict)
+
+
+FORMULAS: list[Formula] = [
+    Formula(
+        flag="search",
+        description="Fuzzy search transactions by name",
+        fn=lambda txns, query: _fuzzy_search_name(txns, query),
+        extra_args=["query"],
+    ),
+    Formula(
+        flag="funds",
+        description="Invested, distributed, and net by fund",
+        fn=lambda txns: _build_summary_table(
+            txns, lambda t: t.fund, "Fund", "Fund Summary"
+        ),
+    ),
+    Formula(
+        flag="company",
+        description="Invested, distributed, and net for a company",
+        fn=lambda txns, name: _build_company_summary(txns, name),
+        extra_args=["name"],
+    ),
+    Formula(
+        flag="companies",
+        description="Invested, distributed, and net for all companies",
+        fn=lambda txns, order_by=None: _build_companies_summary(txns, order_by),
+        optional_args={
+            "--order-by": {
+                "choices": ["name", "count", "invested", "distributed", "net", "return"],
+                "default": None,
+                "help": "Column to order by (default: name)",
+            }
+        },
+    ),
+    Formula(
+        flag="ledger",
+        description="Transaction ledger for a company",
+        fn=lambda txns, name: _build_ledger(txns, name),
+        extra_args=["name"],
+    ),
+]
+
+
+def _format_currency(amount: float) -> str:
+    if amount < 0:
+        return f"-${abs(amount):,.2f}"
+    return f"${amount:,.2f}"
+
+
+def _build_summary_table(
+    txns: list[Transaction],
+    key: Callable[[Transaction], str],
+    key_label: str,
+    title: str,
+    show_total: bool = True,
+) -> Table:
+    summary: dict[str, dict[str, float]] = {}
+    for t in txns:
+        k = key(t)
+        if k:
+            if k not in summary:
+                summary[k] = {
+                    "invested": 0.0,
+                    "distributed": 0.0,
+                    "net": 0.0,
+                    "count": 0,
+                }
+            summary[k]["net"] += t.amount
+            summary[k]["count"] += 1
+            if t.amount < 0:
+                summary[k]["invested"] += t.amount
+            else:
+                summary[k]["distributed"] += t.amount
+    table = Table(title=title)
+    table.add_column(key_label, style="cyan")
+    table.add_column("Transactions", justify="right")
+    table.add_column("Invested", justify="right", style="red")
+    table.add_column("Distributed", justify="right", style="green")
+    table.add_column("Net", justify="right", style="yellow")
+    table.add_column("Return %", justify="right", style="magenta")
+    total_count = 0
+    total_invested = 0.0
+    total_distributed = 0.0
+    total_net = 0.0
+    for k in sorted(summary):
+        s = summary[k]
+        ratio = (
+            (s["distributed"] / abs(s["invested"]) * 100) if s["invested"] != 0 else 0.0
+        )
+        table.add_row(
+            k,
+            str(int(s["count"])),
+            _format_currency(s["invested"]),
+            _format_currency(s["distributed"]),
+            _format_currency(s["net"]),
+            f"{ratio:.1f}%",
+        )
+        total_count += int(s["count"])
+        total_invested += s["invested"]
+        total_distributed += s["distributed"]
+        total_net += s["net"]
+    if show_total:
+        total_ratio = (
+            (total_distributed / abs(total_invested) * 100)
+            if total_invested != 0
+            else 0.0
+        )
+        table.add_row(
+            "Total",
+            str(total_count),
+            _format_currency(total_invested),
+            _format_currency(total_distributed),
+            _format_currency(total_net),
+            f"{total_ratio:.1f}%",
+            style="bold",
+        )
+    return table
+
+
+def _fuzzy_match_company(
+    txns: list[Transaction], query: str, registry: NameRegistry | None = None
+) -> tuple[list[Transaction], str, set[str]] | None:
+    """Find transactions for the best fuzzy-matched company.
+
+    Returns (matching_txns, canonical_name, all_names) or None if no match.
+    """
+    if registry is None:
+        registry = NameRegistry(txns)
+
+    match = registry.fuzzy_match(query)
+    if not match:
+        return None
+
+    matched_name, canonical, _ = match
+    all_names = registry.get_all_names(matched_name)
+    transactions = registry.get_transactions(matched_name)
+    return transactions, canonical, all_names
+
+
+def _build_company_summary(txns: list[Transaction], name: str) -> Table:
+    result = _fuzzy_match_company(txns, name)
+    if not result:
+        table = Table(title="Error")
+        table.add_column("Message", style="red")
+        table.add_row(f"No transactions found for company: {name}")
+        return table
+    matching, canonical, all_names = result
+    table = _build_summary_table(
+        matching, lambda t: t.fund, "Fund", f"Summary for {canonical}"
+    )
+    other_names = all_names - {canonical}
+    if other_names:
+        table.caption = f"AKA: {', '.join(sorted(other_names))}"
+    return table
+
+
+def _build_companies_summary(
+    txns: list[Transaction], order_by: str | None = None
+) -> Table:
+    registry = NameRegistry(txns)
+    seen_roots: set[str] = set()
+    summary: dict[str, dict[str, float]] = {}
+
+    for t in txns:
+        root = registry._find(t.names[0])
+        if root not in seen_roots:
+            seen_roots.add(root)
+            canonical = registry.get_canonical_name(t.names[0])
+            summary[canonical] = {
+                "invested": 0.0,
+                "distributed": 0.0,
+                "net": 0.0,
+                "count": 0,
+            }
+
+        canonical = registry.get_canonical_name(t.names[0])
+        summary[canonical]["net"] += t.amount
+        summary[canonical]["count"] += 1
+        if t.amount < 0:
+            summary[canonical]["invested"] += t.amount
+        else:
+            summary[canonical]["distributed"] += t.amount
+
+    # Calculate return ratios for sorting
+    def get_return(k: str) -> float:
+        s = summary[k]
+        return (s["distributed"] / abs(s["invested"]) * 100) if s["invested"] != 0 else 0.0
+
+    # Determine sort key and order
+    if order_by == "count":
+        sorted_keys = sorted(summary, key=lambda k: summary[k]["count"], reverse=True)
+    elif order_by == "invested":
+        sorted_keys = sorted(summary, key=lambda k: summary[k]["invested"])
+    elif order_by == "distributed":
+        sorted_keys = sorted(summary, key=lambda k: summary[k]["distributed"], reverse=True)
+    elif order_by == "net":
+        sorted_keys = sorted(summary, key=lambda k: summary[k]["net"], reverse=True)
+    elif order_by == "return":
+        sorted_keys = sorted(summary, key=get_return, reverse=True)
+    else:
+        sorted_keys = sorted(summary)  # Default: alphabetical by name
+
+    table = Table(title="All Companies Summary")
+    table.add_column("Company", style="cyan")
+    table.add_column("Transactions", justify="right")
+    table.add_column("Invested", justify="right", style="red")
+    table.add_column("Distributed", justify="right", style="green")
+    table.add_column("Net", justify="right", style="yellow")
+    table.add_column("Return %", justify="right", style="magenta")
+
+    for k in sorted_keys:
+        s = summary[k]
+        ratio = get_return(k)
+        table.add_row(
+            k,
+            str(int(s["count"])),
+            _format_currency(s["invested"]),
+            _format_currency(s["distributed"]),
+            _format_currency(s["net"]),
+            f"{ratio:.1f}%",
+        )
+    return table
+
+
+def _build_ledger(txns: list[Transaction], name: str) -> Table:
+    result = _fuzzy_match_company(txns, name)
+    if not result:
+        table = Table(title="Error")
+        table.add_column("Message", style="red")
+        table.add_row(f"No transactions found for company: {name}")
+        return table
+    matching, canonical, all_names = result
+    other_names = all_names - {canonical}
+    table = Table(title=f"Ledger for {canonical}")
+    table.add_column("Date", style="cyan")
+    table.add_column("Amount", justify="right")
+    table.add_column("Follow On", justify="center")
+    table.add_column("Fund", style="yellow")
+    invested = 0.0
+    distributed = 0.0
+    for t in sorted(matching, key=lambda t: t.date):
+        amount_style = "red" if t.amount < 0 else "green"
+        table.add_row(
+            str(t.date),
+            f"[{amount_style}]{_format_currency(t.amount)}[/{amount_style}]",
+            "Yes" if t.follow_on else "No",
+            t.fund,
+        )
+        if t.amount < 0:
+            invested += t.amount
+        else:
+            distributed += t.amount
+    net = invested + distributed
+    ratio = (distributed / abs(invested) * 100) if invested != 0 else 0.0
+    table.add_row("", "", "", "", style="dim")
+    table.add_row(
+        "Invested", f"[red]{_format_currency(invested)}[/red]", "", "", style="bold"
+    )
+    table.add_row(
+        "Distributed",
+        f"[green]{_format_currency(distributed)}[/green]",
+        "",
+        "",
+        style="bold",
+    )
+    table.add_row("Net", _format_currency(net), "", "", style="bold")
+    table.add_row("Return %", f"{ratio:.1f}%", "", "", style="bold")
+    if other_names:
+        table.caption = f"AKA: {', '.join(sorted(other_names))}"
+    return table
+
+
+def _fuzzy_search_name(txns: list[Transaction], query: str) -> Table:
+    registry = NameRegistry(txns)
+    matches = registry.fuzzy_match_all(query, threshold=80)
+
+    table = Table(title=f"Search results for '{query}'")
+    table.add_column("Names", style="cyan")
+    table.add_column("Funds", style="yellow")
+    table.add_column("Score", justify="right", style="green")
+
+    for _, canonical, score in matches:
+        all_names = registry.get_all_names(canonical)
+        all_txns = registry.get_transactions(canonical)
+        all_funds = {t.fund for t in all_txns}
+        table.add_row(
+            ", ".join(sorted(all_names)),
+            ", ".join(sorted(all_funds)),
+            str(score),
+        )
+    return table
+
+
+def _append_transaction(filepath: str, data: dict[str, str]) -> None:
+    """Append a new transaction row to the CSV file."""
+    row = {
+        NAME_COL: data.get("name", ""),
+        AKA_COL: data.get("aka", ""),
+        DATE_COL: data.get("date", ""),
+        FUND_COL: data.get("fund", ""),
+        AMT_COL: data.get("amount", ""),
+        FOLLOW_ON_COL: data.get("follow_on", "FALSE"),
+        DIST_DATE_COL: data.get("dist_date", ""),
+        DIST_TYPE_COL: data.get("dist_type", ""),
+    }
+
+    # Write row to a string
+    output = io.StringIO()
+    writer = csv.DictWriter(output, fieldnames=row.keys())
+    writer.writerow(row)
+    row_str = output.getvalue()
+
+    if Transaction._is_ssh_path(filepath):
+        host, remote_path = filepath.split(":", 1)
+        result = subprocess.run(
+            ["ssh", host, f"cat >> {remote_path}"],
+            input=row_str,
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode != 0:
+            raise OSError(result.stderr.strip())
+    else:
+        with open(filepath, "a", encoding="utf-8", newline="") as f:
+            f.write(row_str)
+
+
+class AddTransactionScreen(Screen):
+    CSS = """
+    AddTransactionScreen {
+        align: center middle;
+    }
+    #form-container {
+        width: 60;
+        height: auto;
+        padding: 1 2;
+        border: solid green;
+    }
+    .field-label {
+        margin-top: 1;
+    }
+    Input {
+        margin-bottom: 1;
+    }
+    #buttons {
+        margin-top: 1;
+        height: auto;
+    }
+    Button {
+        margin-right: 1;
+    }
+    """
+
+    BINDINGS: list[tuple[str, str, str]] = [
+        ("escape", "cancel", "Cancel"),
+        ("up", "focus_prev", "Previous field"),
+        ("down", "focus_next", "Next field"),
+    ]
+
+    FIELD_IDS: list[str] = [
+        "name", "aka", "date", "fund", "amount", "follow_on", "dist_date", "dist_type",
+        "save", "cancel",
+    ]
+
+    def __init__(
+        self,
+        filepath: str,
+        registry: NameRegistry | None = None,
+        funds: list[str] | None = None,
+    ):
+        super().__init__()
+        self.filepath = filepath
+        self._name_suggester = NameSuggester(registry) if registry else None
+        self._fund_suggester = SuggestFromList(
+            list(funds) if funds else [], case_sensitive=False
+        )
+        self._today = datetime.now().strftime("%m/%d/%Y")
+
+    def compose(self) -> ComposeResult:
+        with Vertical(id="form-container"):
+            yield Label("Add New Transaction", id="title")
+            yield Label("Name *", classes="field-label")
+            yield SuggestInput(
+                placeholder="Company name", id="name", suggester=self._name_suggester
+            )
+            yield Label("AKA", classes="field-label")
+            yield Input(placeholder="Aliases (comma-separated)", id="aka")
+            yield Label("Date *", classes="field-label")
+            yield Input(value=self._today, placeholder="MM/DD/YYYY", id="date")
+            yield Label("Fund *", classes="field-label")
+            yield SuggestInput(
+                placeholder="Fund name", id="fund", suggester=self._fund_suggester
+            )
+            yield Label("Amount *", classes="field-label")
+            yield Input(placeholder="$1,000.00 or -$1,000.00", id="amount")
+            yield Checkbox("Follow On", id="follow_on")
+            yield Label("Distribution Date", classes="field-label")
+            yield Input(placeholder="MM/DD/YYYY (optional)", id="dist_date")
+            yield Label("Distribution Type", classes="field-label")
+            yield Input(placeholder="Optional", id="dist_type")
+            with Vertical(id="buttons"):
+                yield Button("Save", variant="primary", id="save")
+                yield Button("Cancel", variant="default", id="cancel")
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        if event.button.id == "save":
+            self._save()
+        else:
+            self.app.pop_screen()
+
+    def action_cancel(self) -> None:
+        self.app.pop_screen()
+
+    def _save(self) -> None:
+        name = self.query_one("#name", Input).value.strip()
+        date = self.query_one("#date", Input).value.strip()
+        fund = self.query_one("#fund", Input).value.strip()
+        amount = self.query_one("#amount", Input).value.strip()
+
+        if not all([name, date, fund, amount]):
+            self.notify("Please fill in all required fields (*)", severity="error")
+            return
+
+        data = {
+            "name": name,
+            "aka": self.query_one("#aka", Input).value.strip(),
+            "date": date,
+            "fund": fund,
+            "amount": amount,
+            "follow_on": "TRUE"
+            if self.query_one("#follow_on", Checkbox).value
+            else "FALSE",
+            "dist_date": self.query_one("#dist_date", Input).value.strip(),
+            "dist_type": self.query_one("#dist_type", Input).value.strip(),
+        }
+
+        try:
+            _append_transaction(self.filepath, data)
+            self.notify(f"Transaction added for {name}")
+            self.app.pop_screen()
+        except OSError as e:
+            self.notify(f"Failed to save: {e}", severity="error")
+
+    def _get_current_field_index(self) -> int:
+        focused = self.app.focused
+        if focused:
+            for i, field_id in enumerate(self.FIELD_IDS):
+                if focused.id == field_id:
+                    return i
+        return -1
+
+    def action_focus_prev(self) -> None:
+        idx = self._get_current_field_index()
+        if idx > 0:
+            self.query_one(f"#{self.FIELD_IDS[idx - 1]}").focus()
+
+    def action_focus_next(self) -> None:
+        idx = self._get_current_field_index()
+        if idx < len(self.FIELD_IDS) - 1:
+            self.query_one(f"#{self.FIELD_IDS[idx + 1]}").focus()
+
+
+class AddTransactionApp(App):
+    """Standalone app for adding a transaction."""
+
+    CSS = AddTransactionScreen.CSS
+
+    BINDINGS = [
+        ("escape", "quit", "Cancel"),
+        ("up", "focus_prev", "Previous field"),
+        ("down", "focus_next", "Next field"),
+    ]
+
+    FIELD_IDS = AddTransactionScreen.FIELD_IDS
+
+    def __init__(self, filepath: str):
+        super().__init__()
+        self.filepath = filepath
+        self._name_registry: NameRegistry | None = None
+        self._funds: list[str] = []
+        try:
+            txns = Transaction.from_csv(filepath)
+            self._name_registry = NameRegistry(txns)
+            self._funds = sorted({t.fund for t in txns})
+        except SystemExit:
+            pass  # File doesn't exist or is empty, no suggestions
+        self._name_suggester = NameSuggester(self._name_registry) if self._name_registry else None
+        self._fund_suggester = SuggestFromList(
+            list(self._funds) if self._funds else [], case_sensitive=False
+        )
+        self._today = datetime.now().strftime("%m/%d/%Y")
+
+    def compose(self) -> ComposeResult:
+        with Vertical(id="form-container"):
+            yield Label("Add New Transaction", id="title")
+            yield Label("Name *", classes="field-label")
+            yield SuggestInput(placeholder="Company name", id="name", suggester=self._name_suggester)
+            yield Label("AKA", classes="field-label")
+            yield Input(placeholder="Aliases (comma-separated)", id="aka")
+            yield Label("Date *", classes="field-label")
+            yield Input(value=self._today, placeholder="MM/DD/YYYY", id="date")
+            yield Label("Fund *", classes="field-label")
+            yield SuggestInput(placeholder="Fund name", id="fund", suggester=self._fund_suggester)
+            yield Label("Amount *", classes="field-label")
+            yield Input(placeholder="$1,000.00 or -$1,000.00", id="amount")
+            yield Checkbox("Follow On", id="follow_on")
+            yield Label("Distribution Date", classes="field-label")
+            yield Input(placeholder="MM/DD/YYYY (optional)", id="dist_date")
+            yield Label("Distribution Type", classes="field-label")
+            yield Input(placeholder="Optional", id="dist_type")
+            with Vertical(id="buttons"):
+                yield Button("Save", variant="primary", id="save")
+                yield Button("Cancel", variant="default", id="cancel")
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        if event.button.id == "save":
+            self._save()
+        else:
+            self.exit()
+
+    def _save(self) -> None:
+        name = self.query_one("#name", Input).value.strip()
+        date = self.query_one("#date", Input).value.strip()
+        fund = self.query_one("#fund", Input).value.strip()
+        amount = self.query_one("#amount", Input).value.strip()
+
+        if not all([name, date, fund, amount]):
+            self.notify("Please fill in all required fields (*)", severity="error")
+            return
+
+        data = {
+            "name": name,
+            "aka": self.query_one("#aka", Input).value.strip(),
+            "date": date,
+            "fund": fund,
+            "amount": amount,
+            "follow_on": "TRUE" if self.query_one("#follow_on", Checkbox).value else "FALSE",
+            "dist_date": self.query_one("#dist_date", Input).value.strip(),
+            "dist_type": self.query_one("#dist_type", Input).value.strip(),
+        }
+
+        try:
+            _append_transaction(self.filepath, data)
+            self.notify(f"Transaction added for {name}")
+            self.exit()
+        except OSError as e:
+            self.notify(f"Failed to save: {e}", severity="error")
+
+    def _get_current_field_index(self) -> int:
+        focused = self.focused
+        if focused:
+            for i, field_id in enumerate(self.FIELD_IDS):
+                if focused.id == field_id:
+                    return i
+        return -1
+
+    def action_focus_prev(self) -> None:
+        idx = self._get_current_field_index()
+        if idx > 0:
+            self.query_one(f"#{self.FIELD_IDS[idx - 1]}").focus()
+
+    def action_focus_next(self) -> None:
+        idx = self._get_current_field_index()
+        if idx < len(self.FIELD_IDS) - 1:
+            self.query_one(f"#{self.FIELD_IDS[idx + 1]}").focus()
+
+
+class CoinApp(App):
+    CSS = """
+    OptionList {
+        height: auto;
+        max-height: 50%;
+    }
+    #sort-options {
+        display: none;
+        margin-top: 1;
+        max-height: 30%;
+    }
+    #sort-options.visible {
+        display: block;
+    }
+    #result-scroll {
+        margin-top: 1;
+    }
+    """
+
+    BINDINGS: list[tuple[str, str, str]] = [
+        ("a", "add_transaction", "Add"),
+        ("q", "quit", "Quit"),
+        ("s", "show_sort", "Sort"),
+        ("escape", "cancel_sort", "Cancel"),
+        ("ctrl+d", "scroll_down", "Scroll Down"),
+        ("ctrl+u", "scroll_up", "Scroll Up"),
+    ]
+
+    class _HelpFormatter(argparse.HelpFormatter):
+        def _format_action(self, action):
+            if isinstance(action, argparse._SubParsersAction):
+                parts: list[str] = []
+                for choice_action in action._get_subactions():
+                    parts.append(self._format_action(choice_action))
+                return "".join(parts)
+            return super()._format_action(action)
+
+    def __init__(self, txns: list[Transaction], filepath: str):
+        super().__init__()
+        self.txns = txns
+        self.filepath = filepath
+        self._pending_formula: Formula | None = None
+        self._current_formula: Formula | None = None
+        self._current_optional_args: dict[str, str | None] = {}
+        self._name_registry = NameRegistry(txns)
+        self._name_suggester = NameSuggester(self._name_registry)
+
+    def compose(self) -> ComposeResult:
+        yield Header(show_clock=True)
+        yield OptionList(
+            "Add Transaction",
+            *[f.description for f in FORMULAS],
+            id="formulas",
+        )
+        yield SuggestInput(
+            placeholder="Enter search query...",
+            id="query-input",
+            suggester=self._name_suggester,
+        )
+        yield OptionList(id="sort-options")
+        yield VerticalScroll(Static(id="result"), id="result-scroll")
+        yield Footer()
+
+    def on_mount(self) -> None:
+        self.query_one("#query-input", SuggestInput).display = False
+
+    def _get_sort_choices(self, formula: Formula) -> list[str] | None:
+        """Get sort choices from a formula's optional_args if available."""
+        for arg_opts in formula.optional_args.values():
+            if "choices" in arg_opts:
+                return arg_opts["choices"]
+        return None
+
+    def _show_sort_options(self, formula: Formula) -> None:
+        """Display the sort options for a formula."""
+        choices = self._get_sort_choices(formula)
+        if not choices:
+            return
+        sort_list = self.query_one("#sort-options", OptionList)
+        sort_list.clear_options()
+        sort_list.add_options([f"Sort by: {c}" for c in choices])
+        sort_list.add_class("visible")
+        sort_list.focus()
+
+    def _hide_sort_options(self) -> None:
+        """Hide the sort options list."""
+        sort_list = self.query_one("#sort-options", OptionList)
+        sort_list.remove_class("visible")
+
+    def _run_formula_with_sort(self, formula: Formula, sort_value: str | None) -> None:
+        """Run a formula with the given sort value."""
+        optional: dict[str, str | None] = {}
+        for arg_name in formula.optional_args:
+            key = arg_name.lstrip("-").replace("-", "_")
+            optional[key] = sort_value
+        result: Table = formula.fn(self.txns, **optional)
+        self.query_one("#result", Static).update(result)
+        self._current_formula = formula
+        self._current_optional_args = optional
+
+    def on_option_list_option_selected(self, event: OptionList.OptionSelected) -> None:
+        option_list_id = event.option_list.id
+
+        if option_list_id == "sort-options":
+            # Handle sort option selection
+            if self._pending_formula:
+                choices = self._get_sort_choices(self._pending_formula)
+                if choices and event.option_index < len(choices):
+                    sort_value = choices[event.option_index]
+                    self._run_formula_with_sort(self._pending_formula, sort_value)
+                self._pending_formula = None
+            self._hide_sort_options()
+            return
+
+        # Handle main formula list selection
+        if event.option_index == 0:
+            self.action_add_transaction()
+            return
+
+        formula: Formula = FORMULAS[event.option_index - 1]
+        if formula.extra_args:
+            self._pending_formula = formula
+            query_input = self.query_one("#query-input", SuggestInput)
+            query_input.display = True
+            query_input.focus()
+        elif formula.optional_args:
+            self._pending_formula = formula
+            self._show_sort_options(formula)
+        else:
+            result: Table = formula.fn(self.txns)
+            self.query_one("#result", Static).update(result)
+            self._current_formula = formula
+            self._current_optional_args = {}
+
+    def action_show_sort(self) -> None:
+        """Show sort options for the current formula if it supports sorting."""
+        if self._current_formula and self._current_formula.optional_args:
+            self._pending_formula = self._current_formula
+            self._show_sort_options(self._current_formula)
+
+    def action_cancel_sort(self) -> None:
+        """Hide sort options if visible."""
+        sort_list = self.query_one("#sort-options", OptionList)
+        if sort_list.has_class("visible"):
+            self._hide_sort_options()
+            self._pending_formula = None
+
+    def action_add_transaction(self) -> None:
+        funds = sorted({t.fund for t in self.txns})
+        self.push_screen(
+            AddTransactionScreen(self.filepath, self._name_registry, funds)
+        )
+
+    def on_input_submitted(self, event: Input.Submitted) -> None:
+        if self._pending_formula:
+            result: Table = self._pending_formula.fn(self.txns, event.value)
+            self.query_one("#result", Static).update(result)
+            self._pending_formula = None
+            query_input = self.query_one("#query-input", SuggestInput)
+            query_input.display = False
+            query_input.value = ""
+
+    def action_scroll_down(self) -> None:
+        scroll = self.query_one("#result-scroll", VerticalScroll)
+        scroll.scroll_page_down()
+
+    def action_scroll_up(self) -> None:
+        scroll = self.query_one("#result-scroll", VerticalScroll)
+        scroll.scroll_page_up()
+
+    @classmethod
+    def _build_parser(cls):
+        parser = argparse.ArgumentParser(
+            description="Inspect and query coinvestment data",
+            usage="coin [-h] [-f FILE] {command}",
+            epilog="If no command is given, launches interactive TUI mode. "
+            "File can also be set via COINFILE environment variable.",
+            formatter_class=cls._HelpFormatter,
+        )
+        parser.add_argument(
+            "-f",
+            "--file",
+            default=os.environ.get("COINFILE"),
+            help="Path to the CSV file, can be local or SSH path (default: $COINFILE)",
+        )
+        subparsers = parser.add_subparsers(dest="command", title="commands")
+
+        subparsers.add_parser("add", help="Add a new transaction")
+
+        for formula in FORMULAS:
+            sub = subparsers.add_parser(formula.flag, help=formula.description)
+            for arg in formula.extra_args:
+                sub.add_argument(arg)
+            for arg_name, arg_opts in formula.optional_args.items():
+                sub.add_argument(arg_name, **arg_opts)
+
+        return parser
+
+    @classmethod
+    def execute(cls):
+        args: argparse.Namespace = cls._build_parser().parse_args()
+
+        if not args.file:
+            console.print(
+                "[red]Error:[/red] no file specified. Use -f/--file or set COINFILE."
+            )
+            sys.exit(1)
+
+        if args.command == "add":
+            AddTransactionApp(args.file).run()
+            return
+
+        txns = Transaction.from_csv(args.file)
+
+        if args.command:
+            formula: Formula = next(f for f in FORMULAS if f.flag == args.command)
+            extra: list[str] = [getattr(args, a) for a in formula.extra_args]
+            # Extract optional args (convert --order-by to order_by)
+            optional: dict[str, str | None] = {
+                arg_name.lstrip("-").replace("-", "_"): getattr(args, arg_name.lstrip("-").replace("-", "_"), None)
+                for arg_name in formula.optional_args
+            }
+            result: Table = formula.fn(txns, *extra, **optional)
+            console.print(result)
+        else:
+            cls(txns, args.file).run()
+
+
+if __name__ == "__main__":
+    CoinApp.execute()

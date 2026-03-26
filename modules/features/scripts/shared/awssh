@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+export TYPE="ssh" # For `usage` in `aws-connect.sh`, must be set before sourcing file
+source "$HOME/.dotfiles/scripts/shared/lib/aws-connect.sh"
+
+main() {
+  if [ "$#" -eq 0 ]; then
+    choose_instance
+  else
+    parse_instance "$@"
+  fi
+
+  cleanup_old_keys
+  generate_tmp_key
+  push_tmp_key "$INSTANCE_ID" "$USER"
+
+  SSH_OPTS+=("$USER@$INSTANCE_ID")
+  ssh "${SSH_OPTS[@]}"
+}
+main "$@"

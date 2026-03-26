@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+~/.scripts/term bash -l -c nvim
+# neovide --frame buttonless

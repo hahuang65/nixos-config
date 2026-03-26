@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+
+source "$HOME"/.dotfiles/scripts/shared/lib/common
+
+save=true
+
+usage() {
+  echo -n "$(basename "$0" | tr -s '-' ' ') <language>
+
+A script to download gitignore files from https://gitignore.io
+
+  Options:
+    -h, --help          Display this help and exit
+    -n, --nosave        Do not save the resulting file to ./.gitignore
+
+  Parameters:
+    language            Name of the repository to create
+"
+}
+
+while :; do
+  flag=${1:-}
+  arg=${2:-}
+
+  case "$flag" in
+  -h | -\? | --help)
+    usage
+    exit
+    ;;
+  -n | --nosave)
+    save=false
+    ;;
+  --) # Demarcates end of all options.
+    shift
+    break
+    ;;
+  -?*) # Handle any unknown options.
+    printf 'WARN: Unknown option (ignored): %s\n' "$1" >&2
+    ;;
+  *) # End of all options if nothing matches
+    break ;;
+  esac
+
+  shift
+done
+
+main() {
+  if [ "$#" -lt 1 ]; then
+    error "Must specify a language to grab a gitignore file"
+  fi
+
+  ignore=$(curl --silent --location "https://www.toptal.com/developers/gitignore/api/${1}")
+
+  if [ "$save" = true ]; then
+    set -o noclobber
+    echo "${ignore}" >./.gitignore
+    echo "Saved to ./.gitignore"
+  else
+    echo "${ignore}"
+  fi
+}
+
+main "$@"

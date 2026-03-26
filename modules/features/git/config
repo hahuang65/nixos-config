@@ -1,0 +1,138 @@
+# vim: ft=gitconfig
+
+[include]
+  path = ~/.gitconfig.secret
+[url "git@github.com:"]
+	pushInsteadOf = "https://github.com/hahuang65"
+  insteadOf = "gh:"
+[url "git@github.com:bitsmithy/"]
+	pushInsteadOf = "https://github.com/bitsmithy"
+  insteadOf = "bs:"
+[url "git@git.sr.ht:"]
+	pushInsteadOf = "https://git.sr.ht/"
+  insteadOf = "srht:"
+[init]
+	defaultBranch = main
+[core]
+  excludesfile = ~/.gitignore_global
+  editor = nvim
+  fsmonitor = true
+  pager = delta
+  untrackedCache = true
+[branch]
+  sort = -committerdate
+[color]
+  ui = auto
+[commit]
+  template = ~/.gitmessage
+  verbose = true
+[delta "colorscheme"]
+  commit-style                  = raw
+  commit-decorations-style      = blue ol
+  file-style                    = omit
+  hunk-header-style             = file line-number
+  hunk-header-decoration-style  = blue box
+  hunk-header-file-style        = red
+  hunk-header-line-number-style = red
+  minus-style                   = bold red
+  minus-non-emph-style          = red
+  minus-emph-style              = bold black red
+  minus-empty-line-marker-style = normal red
+  zero-style                    = normal
+  plus-style                    = bold green
+  plus-non-emph-style           = green
+  plus-emph-style               = bold black green
+  plus-empty-line-marker-style  = normal green
+  whitespace-error-style        = reverse purple
+  true-color                    = always
+  line-numbers-zero-style       = dim normal
+  line-numbers-minus-style      = red
+  line-numbers-plus-style       = green
+  line-numbers-left-style       = blue
+  line-numbers-right-style      = blue
+[delta "interactive"]
+  features = colorscheme
+  keep-plus-minus-markers = false
+[delta]
+  features = colorscheme
+  navigate = true
+  side-by-side = true
+[diff]
+  algorithm = histogram
+  colorMoved = default
+  colorMovedWS = allow-indentation-change
+  context = 10
+  mnemonicPrefix = true
+  renames = true
+  submodule = log
+[fetch]
+  all = true
+  prune = true
+  prunetags = true
+[filter "lfs"]
+  clean = git-lfs clean %f
+  smudge = git-lfs smudge %f
+  required = true
+[help]
+  autocorrect = prompt
+[interactive]
+  diffFilter = delta --color-only --features=interactive
+[log]
+  date = iso
+[pager]
+  blame  = delta
+  diff   = delta
+  reflog = delta
+  show   = delta
+[merge]
+  conflictstyle = zdiff3
+[pull]
+  rebase = true
+[push]
+  autoSetupRemote = true
+  default = current
+  followtags = true
+[rebase]
+  autostash = true
+  autosquash = true
+  missingCommitsCheck = error
+  updateRefs = true
+[rerere]
+  autoupdate = true
+  enabled = true
+[status]
+  submoduleSummary = true
+[tag]
+  sort = version:refname
+[alias]
+  aliases = "!f() { LINE=$(grep --line-number alias ~/.gitconfig | head --lines=1 |cut --fields=1 --delimiter=:); tail --lines=+"$LINE" ~/.gitconfig; }; f"
+  amend = commit --amend
+  branches = branch --list
+  branch-name = rev-parse --abbrev-ref HEAD
+  branch-name-or-commit = "!f() { git symbolic-ref --short -q HEAD || git rev-parse --short HEAD; }; f"
+  change = "!f() { git switch hh/"${1}" 2> /dev/null || git switch "${1}"; }; f"
+  changes = "!f() { git log --no-merges --pretty=tformat:\"%h %ad %<(22,trunc)%an | %s%d\" --date=short --perl-regexp $(git merge-base ${1-main} HEAD)..HEAD; }; f"
+  cleanup = "!f() { CURRENT_BRANCH=$(git branch-name); git switch $(git trunk-branch) > /dev/null 2>&1 && git branch -vv | awk '/: gone]/{print $1}' | xargs --no-run-if-empty --max-args=1 git branch --delete --force; git switch "$CURRENT_BRANCH" > /dev/null 2>&1; }; f"
+  conflicts = diff --name-only --diff-filter=U
+  dash = !gh dash
+  issue = !gh issue
+  new = "!f() { git switch --no-track --create hh/"${1}" $(git trunk-branch); }; f"
+  patch = !git --no-pager diff --no-color
+  pr = !gh pr
+  prep = !git add --intent-to-add . && git add --patch && git diff --cached --stat
+  prompt = "!f() { git rev-parse && echo \"[ $(git branch-name-or-commit)] \"; }; f"
+  publish = !git push --set-upstream origin $(git branch-name)
+  retrunk = !git fetch origin $(git trunk-branch) && git rebase --autostash origin/$(git trunk-branch)
+  rename = "!f() { git unpublish && git branch --move hh/${1} && git publish; }; f"
+  repo = !gh repo
+  review = "!f() { git log --no-merges --author=h.huang65@gmail.com --author=hao@hwrd.me --since="${1}"; }; f"
+  shove = push --force-with-lease
+  state = status --short --branch --untracked-files
+  sync = "!f() { git fetch --all --prune && git pull --rebase --autostash && git submodule update --init --recursive && git cleanup; }; f"
+  trunk = "!f() { git switch $(git trunk-branch); }; f"
+  trunk-branch = "!f() { git branch --remote | grep 'origin/HEAD' | awk -F' -> ' '{print $2}' | sed 's/origin\\///'; }; f"
+  unpublish = !git push origin :$(git branch-name)
+  untag = "!f() { git tag --delete "${1}" && git push origin :refs/tags/"${1}"; }; f"
+  unwip = "!f() { git log --format=%s -n 1 | grep WIP > /dev/null && git reset HEAD^; echo "Now on `git log -n 1 --format='%Cred%h%Creset - %s %Cgreen(%cr) %C(bold blue)<%an>%Creset'`"; }; f"
+  which = "!f() { git aliases | grep "${1}"; }; f"
+  wip = !git add --all && git commit --no-verify --message "WIP"

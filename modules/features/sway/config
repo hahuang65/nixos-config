@@ -1,0 +1,252 @@
+# https://wiki.archlinux.org/title/Sway#Configuration
+# Required for drop-in files
+include /etc/sway/config.d/*
+
+# Catppuccin Mocha
+set $rosewater #f5e0dc
+set $flamingo  #f2cdcd
+set $pink      #f5c2e7
+set $mauve     #cba6f7
+set $red       #f38ba8
+set $maroon    #eba0ac
+set $peach     #fab387
+set $green     #a6e3a1
+set $teal      #94e2d5
+set $sky       #89dceb
+set $sapphire  #74c7ec
+set $blue      #89b4fa
+set $lavender  #b4befe
+set $text      #cdd6f4
+set $subtext1  #bac2de
+set $subtext0  #a6adc8
+set $overlay2  #9399b2
+set $overlay1  #7f849c
+set $overlay0  #6c7086
+set $surface2  #585b70
+set $surface1  #45475a
+set $surface0  #313244
+set $base      #1e1e2e
+set $mantle    #181825
+set $crust     #11111b
+
+# target                 title     bg    text   indicator  border
+client.focused           $pink     $base $text  $rosewater $mauve
+client.focused_inactive  $mauve    $base $text  $rosewater $surface0
+client.unfocused         $mauve    $base $text  $rosewater $surface0
+client.urgent            $peach    $base $peach $overlay0  $red
+client.placeholder       $overlay0 $base $text  $overlay0  $overlay0
+client.background        $base
+
+# Mod1 is left alt
+set $mod Mod1
+
+# You can get the names of your outputs by running: swaymsg -t get_outputs
+set $laptop_monitor 'eDP-1'
+
+output $laptop_monitor scale 1
+output $laptop_monitor resolution 3840x2160 position 0 0 scale 1.2
+bindswitch --reload --locked lid:on exec $lock && output $laptop_monitor disable
+bindswitch --reload --locked lid:off output $laptop_monitor enable
+
+# You can get the names of your inputs by running: swaymsg -t get_inputs
+input type:keyboard {
+  # See /usr/share/X11/xkb/rules/xorg.lst for options
+
+  # Capslock -> Ctrl
+  xkb_options ctrl:nocaps
+}
+
+# Touchpad configuration
+# Read `man 5 sway-input` for more information about this section.
+input "1739:30383:DELL07E6:00_06CB:76AF_Touchpad" {
+  dwt enabled
+  tap disabled
+  natural_scroll disabled
+  middle_emulation disabled
+  scroll_method two_finger
+  click_method clickfinger
+}
+
+# Use `wezterm --config 'exit_behavior="Hold"' start env` to check out the environment
+set $term wezterm start --always-new-process
+# Must use `bash -l` to get a login shell, otherwise `keychain` won't evaluate and set the right `SSH_*` env vars
+set $editor wezterm start -- bash -l -c nvim
+# set $editor neovide
+set $launcher pkill fuzzel || fuzzel
+
+# Disable focus-follows-mouse
+focus_follows_mouse no
+focus_wrapping no
+
+# Wallpaper
+output "*" bg $HOME/Pictures/Wallpapers/Catppuccin.png fill $base
+
+# Borders and gaps
+default_border pixel 3
+gaps inner 5
+gaps outer 5
+
+# Scratchpads
+bindsym $mod+s exec $HOME/.scripts/scratchpad
+bindsym $mod+w exec $HOME/.scripts/notepad
+bindsym $mod+x exec $HOME/.scripts/docs
+
+# Start a terminal
+bindsym $mod+Shift+Return exec $term
+
+# Start an editor
+bindsym $mod+Return exec $editor
+
+# Kill focused window
+bindsym $mod+q kill
+
+# Start your launcher
+bindsym $mod+space exec $launcher
+
+# 1Password
+bindsym Ctrl+Shift+p exec 1password --quick-access --ozone-platform-hint=auto
+
+# Reload the configuration file
+bindsym $mod+Shift+c reload
+
+# Make fullscreen current window
+bindsym $mod+z fullscreen
+
+# NOTE splith in sway/i3 are different than splith in vim
+# In vim :vsplit opens a window to the left/right and :split to the top/bottom
+# In sway/i3 splith opens a window to the left/right and splitv to the top/bottom
+# Split horizontally with `\`
+bindsym $mod+backslash splith
+# Split horizontally with `-`
+bindsym $mod+minus splitv
+
+# Change focused window
+bindsym $mod+h focus left
+bindsym $mod+j focus down
+bindsym $mod+k focus up
+bindsym $mod+l focus right
+
+# Move focused window
+bindsym $mod+Shift+h move left
+bindsym $mod+Shift+j move down
+bindsym $mod+Shift+k move up
+bindsym $mod+Shift+l move right
+
+mode "resize" {
+    # h will shrink the containers width
+    # l will grow the containers width
+    # k will shrink the containers height
+    # j will grow the containers height
+    bindsym h resize shrink width 10px
+    bindsym k resize grow height 10px
+    bindsym j resize shrink height 10px
+    bindsym l resize grow width 10px
+
+    # Return to default mode
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+bindsym $mod+Shift+r mode "resize"
+
+set $ws1 "1:web"
+set $ws2 "2:chat"
+set $ws3 "3:media"
+set $ws4 "4:game"
+set $ws5 "5:code"
+
+bindsym $mod+1 workspace $ws1
+bindsym $mod+2 workspace $ws2
+bindsym $mod+3 workspace $ws3
+bindsym $mod+4 workspace $ws4
+bindsym $mod+0 workspace $ws5
+
+# Swipe between workspaces
+bindgesture swipe:right workspace next
+bindgesture swipe:left workspace prev
+
+# Move focused container to workspace
+bindsym $mod+Shift+1 move container to workspace $ws1
+bindsym $mod+Shift+2 move container to workspace $ws2
+bindsym $mod+Shift+3 move container to workspace $ws3
+bindsym $mod+Shift+4 move container to workspace $ws4
+bindsym $mod+Shift+0 move container to workspace $ws5
+
+# Bind media keys to their expected function
+bindsym XF86AudioLowerVolume exec --no-startup-id wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-
+bindsym XF86AudioRaiseVolume exec --no-startup-id wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+
+bindsym XF86AudioMute exec --no-startup-id wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
+
+bindsym XF86AudioPlay exec --no-startup-id playerctl play-pause
+bindsym XF86AudioNext exec --no-startup-id playerctl next
+bindsym XF86AudioPrev exec --no-startup-id playerctl previous
+
+# Bind brightness keys to their expected function
+bindsym XF86MonBrightnessUp exec --no-startup-id brightnessctl set +5%
+bindsym XF86MonBrightnessDown exec --no-startup-id brightnessctl set 5%-
+
+# Grim/Slurp
+bindsym Ctrl+Shift+4 exec grim -g "$(slurp)" "$HOME/Pictures/Screenshots/$(date +'grim_%m_%d_%y-%H_%M_%S.png')"
+
+# Waybar
+exec waybar
+
+# Idle and lock
+set $lock 'swaylock --daemonize --indicator --screenshots --clock --effect-greyscale --effect-pixelate 5'
+set $lock-with-grace 'swaylock --daemonize --indicator --screenshots --clock --effect-greyscale --effect-pixelate 5 --grace 15'
+
+bindsym $mod+Shift+space exec $lock
+
+exec swayidle -w \
+   timeout 900 $lock-with-grace \
+   timeout 1800 'swaymsg "output * power off"' resume 'swaymsg "output * power on"' \
+   before-sleep $lock
+
+# Kwallet
+exec test -x /usr/lib/pam_kwallet_init && /usr/lib/pam_kwallet_init
+
+# 1Password ssh agent
+exec /usr/lib/polkit-kde-authentication-agent-1
+exec 1password --silent
+
+# Plex MPV Shim
+exec $HOME/.asdf/shims/plex-mpv-shim
+
+# Limit certain apps to certain workspaces
+assign [class="Google-chrome"] $ws1
+assign [app_id="firefox"] $ws1
+assign [app_id="vivaldi"] $ws1
+assign [app_id="org.mozilla.Thunderbird"] $ws2
+assign [app_id="Slack"] $ws2
+assign [class="Ferdium"] $ws2
+assign [class="senpai"] $ws2
+assign [class="aerc"] $ws2
+assign [app_id="mpv"] $ws3
+assign [class="steam"] $ws4
+assign [class="steam_app.*"] $ws4
+
+# Specific application window settings
+for_window [window_role="GtkFileChooserDialog"] resize set 800 600
+for_window [window_role="GtkFiileChooserDialog"] move position center
+for_window [window_role="pop-up"] floating enable
+for_window [window_role="bubble"] floating enable
+for_window [window_role="task_dialog"] floating enable
+for_window [window_role="Preferences"] floating enable
+for_window [window_type="dialog"] floating enable
+for_window [window_type="menu"] floating enable
+for_window [class="1Password"] floating enable
+for_window [app_id="thunar"] floating enable
+for_window [app_id="org.mozilla.Thunderbird" title="^[0-9]+ Reminders?$"] floating enable
+for_window [class="Headset"] floating enable
+for_window [app_id="org.kde.polkit-kde-authentication-agent-1"] floating enable
+for_window [class="steam"] floating enable
+for_window [class="steam_app.*"] floating enable
+
+# Prevent idling when a browser is full-screened
+for_window [app_id="google-chrome"] inhibit_idle fullscreen
+for_window [app_id="firefox"] inhibit_idle fullscreen
+for_window [app_id="vivaldi"] inhibit_idle fullscreen
+for_window [app_id="mpv"] inhibit_idle fullscreen
+
+exec ~/.dotfiles/sway/start-apps
+
+include /etc/sway/config.d/*

@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+
+# Source shared library
+source "$HOME/.dotfiles/scripts/shared/pkg/lib"
+
+function commit_parufile {
+  commit_pkg_file "${1}" "${PARU_FILE}" "${@:2}"
+}
+
+function add_to_parufile {
+  pkg_list=("$@")
+
+  # Add packages to Parufile (sorted, unique)
+  for pkg in "${pkg_list[@]}"; do
+    if ! grep -q "^${pkg}$" "${PARU_FILE}"; then
+      echo "${pkg}" >> "${PARU_FILE}"
+    fi
+  done
+
+  # Sort and deduplicate Parufile
+  sort -u "${PARU_FILE}" -o "${PARU_FILE}"
+
+  pkg sync
+  commit_parufile "Add" "$@"
+}
+
+function rm_from_parufile {
+  pkg_list=("$@")
+
+  # Remove packages from Parufile
+  for pkg in "${pkg_list[@]}"; do
+    sed -i "/^${pkg}$/d" "${PARU_FILE}"
+  done
+
+  pkg sync
+  commit_parufile "Remove" "$@"
+}

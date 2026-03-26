@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+IFS=$'\n\t'
+
+export PKG_SCRIPTS_DIR="$HOME/.dotfiles/scripts/linux/pkg_scripts"
+export PARU_FILE="$HOME/.dotfiles/bootstrap/Parufile"
+
+case $(uname) in
+Linux) ;;
+*)
+  echo "Unsupported OS. Exiting..."
+  return 1
+  ;;
+esac
+
+# Source common functions
+source "$HOME/.dotfiles/scripts/shared/pkg/common"
+
+main "$@"

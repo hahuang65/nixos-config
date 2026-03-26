@@ -1,0 +1,3 @@
+[MESSAGES CONTROL]
+# Import errors are handled by pyright
+disable=import-error,unused-import

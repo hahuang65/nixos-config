@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+# Wrapper for whatever terminal emulator I'm using,
+# to make it easier to integrate into yabai and skhd
+
+WEZPID=$(ps -ef | grep -v grep | grep wezterm | tr -s ' ' | cut -d' ' -f3)
+
+if [ -z "$WEZPID" ]; then
+	if [ $# -eq 0 ]; then
+		wezterm
+	else
+		wezterm start -- "$@"
+	fi
+else
+	# This used to be the way to get WezTerm to re-use the same GUI socket
+	# But the nightly build fixes this so that it's automatic.
+	# export WEZTERM_UNIX_SOCKET="/Users/$(whoami)/.local/share/wezterm/gui-sock-$WEZPID"
+	wezterm cli spawn --new-window -- "$@"
+fi

@@ -1,0 +1,398 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+readonly CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/lv"
+readonly DEFAULT_CONFIG="$CONFIG_DIR/config.toml"
+readonly SCRIPT_NAME="${0##*/}"
+
+# --- Config parsing ---
+
+config_get() {
+  local section="$1" key="$2" config_file="$3"
+  # Escape regex metacharacters in key so dots, etc. match literally
+  local escaped_key
+  escaped_key=$(printf '%s' "$key" | sed 's/[].[\\*^${}()+?|]/\\&/g')
+  sed -n "/^\[$section\]/,/^\[/p" "$config_file" \
+    | grep -E "^${escaped_key}[[:space:]]*=" \
+    | head -1 \
+    | sed 's/^[^=]*=[[:space:]]*//' \
+    | sed 's/^"//;s/"$//' \
+    || true
+}
+
+validate_host_name() {
+  local name="$1"
+  if [[ ! "$name" =~ ^[a-zA-Z0-9._@/-]+$ ]]; then
+    echo "Invalid host or group name (shell metacharacters not allowed): $name" >&2
+    exit 1
+  fi
+}
+
+resolve_hosts() {
+  local name="$1" config_file="$2"
+  local host_val group_val
+
+  host_val=$(config_get "hosts" "$name" "$config_file")
+  if [[ -n "$host_val" ]]; then
+    validate_host_name "$host_val"
+    echo "$host_val"
+    return
+  fi
+
+  group_val=$(config_get "groups" "$name" "$config_file")
+  if [[ -n "$group_val" ]]; then
+    local IFS=','
+    for member in $group_val; do
+      member=$(echo "$member" | xargs)
+      resolve_hosts "$member" "$config_file"
+    done
+    return
+  fi
+
+  echo "$name"
+}
+
+resolve_path() {
+  local name="$1" config_file="$2"
+  local path_val
+  path_val=$(config_get "paths" "$name" "$config_file")
+  if [[ -n "$path_val" ]]; then
+    echo "$path_val"
+  else
+    echo "$name"
+  fi
+}
+
+resolve_filter() {
+  local name="$1" config_file="$2"
+  config_get "filters" "$name" "$config_file"
+}
+
+is_glob() {
+  [[ "$1" == *'*'* || "$1" == *'?'* ]]
+}
+
+# --- Remote helpers ---
+
+check_remote_file() {
+  local host="$1" remote_path="$2"
+  local quoted_path
+  quoted_path=$(printf '%q' "$remote_path")
+  ssh "$host" "test -f ${quoted_path}" 2>/dev/null && return 0 || return 1
+}
+
+# Expands a glob on a remote host via ls -1t (newest first).
+# Returns one path per line. Empty output means no matches.
+expand_remote_glob() {
+  local host="$1" glob_pattern="$2"
+  ssh "$host" "ls -1t ${glob_pattern} 2>/dev/null" 2>/dev/null || true
+}
+
+build_remote_stream() {
+  local host="$1" remote_path="$2" follow="$3" filter="${4:-}"
+  local quoted_path remote_cmd
+  quoted_path=$(printf '%q' "$remote_path")
+
+  if [[ "$follow" == "true" ]]; then
+    remote_cmd="tail -n 50 -f ${quoted_path}"
+  else
+    remote_cmd="cat ${quoted_path}"
+  fi
+
+  if [[ -n "$filter" ]]; then
+    echo "<(ssh ${host} \"${remote_cmd}\" 2>/dev/null | sed -u '${filter}')"
+  else
+    echo "<(ssh ${host} \"${remote_cmd}\" 2>/dev/null)"
+  fi
+}
+
+build_remote_journal_stream() {
+  local host="$1" follow="$2"
+  local remote_cmd
+
+  if [[ "$follow" == "true" ]]; then
+    remote_cmd="journalctl -f -o short-iso"
+  else
+    remote_cmd="journalctl --no-pager -o short-iso -n 1000"
+  fi
+
+  echo "<(ssh ${host} \"${remote_cmd}\" 2>/dev/null)"
+}
+
+# --- Preset expansion ---
+
+# Adds the first existing file from candidates to lnav_args.
+resolve_local_candidates() {
+  for candidate in "$@"; do
+    if [[ -f "$candidate" ]]; then
+      lnav_args+=("$candidate")
+      return
+    fi
+  done
+}
+
+expand_preset_local() {
+  local preset="$1" follow="$2"
+  case "$preset" in
+    syslog)    resolve_local_candidates /var/log/syslog /var/log/messages ;;
+    journal)
+      if [[ "$follow" == "true" ]]; then
+        lnav_args+=("<(journalctl -f -o short-iso 2>/dev/null)")
+      else
+        lnav_args+=("<(journalctl --no-pager -o short-iso -n 1000 2>/dev/null)")
+      fi ;;
+    auth)      resolve_local_candidates /var/log/auth.log /var/log/secure ;;
+    kern)      resolve_local_candidates /var/log/kern.log ;;
+    nginx)     resolve_local_candidates /var/log/nginx/access.log ;;
+    nginx-err) resolve_local_candidates /var/log/nginx/error.log ;;
+  esac
+}
+
+# Checks candidates on remote host, streams the first that exists.
+# Usage: resolve_remote_candidates host follow label candidate1 [candidate2]
+resolve_remote_candidates() {
+  local host="$1" follow="$2" label="$3"
+  shift 3
+  for candidate in "$@"; do
+    if check_remote_file "$host" "$candidate"; then
+      lnav_args+=("$(build_remote_stream "$host" "$candidate" "$follow")")
+      return
+    fi
+  done
+  echo "File not found on ${label}: $*" >&2
+  exit 1
+}
+
+expand_preset_remote() {
+  local preset="$1" follow="$2" host="$3" label="$4"
+
+  case "$preset" in
+    syslog)    resolve_remote_candidates "$host" "$follow" "$label" /var/log/syslog /var/log/messages ;;
+    journal)   lnav_args+=("$(build_remote_journal_stream "$host" "$follow")") ;;
+    auth)      resolve_remote_candidates "$host" "$follow" "$label" /var/log/auth.log /var/log/secure ;;
+    kern)      resolve_remote_candidates "$host" "$follow" "$label" /var/log/kern.log ;;
+    nginx)     resolve_remote_candidates "$host" "$follow" "$label" /var/log/nginx/access.log ;;
+    nginx-err) resolve_remote_candidates "$host" "$follow" "$label" /var/log/nginx/error.log ;;
+  esac
+}
+
+# --- Glob expansion ---
+
+# Expands a resolved path locally. Handles globs and --latest.
+# Appends results to lnav_args. If filter is set, wraps in process sub with sed.
+expand_local_path() {
+  local resolved_path="$1" latest="$2" filter="${3:-}"
+
+  if is_glob "$resolved_path"; then
+    local -a matches
+    mapfile -t matches < <(eval "ls -1t ${resolved_path} 2>/dev/null" || true)
+    if [[ ${#matches[@]} -eq 0 ]]; then
+      echo "No files matching: $resolved_path" >&2
+      exit 1
+    fi
+    if [[ "$latest" == "true" ]]; then
+      matches=("${matches[0]}")
+    fi
+    for match in "${matches[@]}"; do
+      if [[ -n "$filter" ]]; then
+        lnav_args+=("<(cat '${match}' | sed -u '${filter}')")
+      else
+        lnav_args+=("$match")
+      fi
+    done
+  else
+    if [[ ! -f "$resolved_path" ]]; then
+      echo "File not found: $resolved_path" >&2
+      exit 1
+    fi
+    if [[ -n "$filter" ]]; then
+      lnav_args+=("<(cat '${resolved_path}' | sed -u '${filter}')")
+    else
+      lnav_args+=("$resolved_path")
+    fi
+  fi
+}
+
+# Expands a resolved path on a remote host. Handles globs and --latest.
+# Appends results to lnav_args.
+expand_remote_path() {
+  local resolved_path="$1" latest="$2" follow="$3"
+  local host="$4" label="$5" filter="${6:-}"
+
+  if is_glob "$resolved_path"; then
+    local -a matches
+    mapfile -t matches < <(expand_remote_glob "$host" "$resolved_path")
+    if [[ ${#matches[@]} -eq 0 ]]; then
+      echo "No files matching on ${label}: $resolved_path" >&2
+      exit 1
+    fi
+    if [[ "$latest" == "true" ]]; then
+      lnav_args+=("$(build_remote_stream "$host" "${matches[0]}" "$follow" "$filter")")
+    else
+      for match in "${matches[@]}"; do
+        lnav_args+=("$(build_remote_stream "$host" "$match" "$follow" "$filter")")
+      done
+    fi
+  else
+    if ! check_remote_file "$host" "$resolved_path"; then
+      echo "File not found on ${label}: $resolved_path" >&2
+      exit 1
+    fi
+    lnav_args+=("$(build_remote_stream "$host" "$resolved_path" "$follow" "$filter")")
+  fi
+}
+
+# --- Usage ---
+
+usage() {
+  cat <<EOF
+Usage: $SCRIPT_NAME [options] [@host] [paths...]
+
+Paths resolve through [paths] config first, then as literal files.
+Globs (* ?) expand to all matches. Filters from [filters] are applied.
+
+Options:
+  -h, --help        Show this help
+  -f, --follow      Tail mode (implies --latest)
+  -l, --latest      Open only the most recently modified match
+  --syslog          /var/log/syslog or /var/log/messages
+  --journal         journalctl output
+  --auth            /var/log/auth.log or /var/log/secure
+  --kern            /var/log/kern.log
+  --nginx           /var/log/nginx/access.log
+  --nginx-err       /var/log/nginx/error.log
+  @HOST             Named host or group from config
+  --config FILE     Alternate config file (default: $DEFAULT_CONFIG)
+  --dry-run         Print the constructed command without executing
+
+Examples:
+  $SCRIPT_NAME /var/log/syslog                # literal path
+  $SCRIPT_NAME myapp.rails                    # config path
+  $SCRIPT_NAME --latest "app_*.log"           # glob, newest only
+  $SCRIPT_NAME -f @webservers --nginx         # remote preset, follow
+  $SCRIPT_NAME @web1 myapp.rails              # remote, config path
+EOF
+}
+
+# --- Main ---
+
+main() {
+  # --- Pass 1: Collect flags ---
+  local follow="false"
+  local latest="false"
+  local dry_run="false"
+  local config_file="$DEFAULT_CONFIG"
+  local host_name=""
+  local -a presets=()
+  local -a positional=()
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -h|--help)      usage; exit 0 ;;
+      -f|--follow)    follow="true"; shift ;;
+      -l|--latest)    latest="true"; shift ;;
+      --syslog)       presets+=("syslog"); shift ;;
+      --journal)      presets+=("journal"); shift ;;
+      --auth)         presets+=("auth"); shift ;;
+      --kern)         presets+=("kern"); shift ;;
+      --nginx)        presets+=("nginx"); shift ;;
+      --nginx-err)    presets+=("nginx-err"); shift ;;
+      --config)       [[ $# -lt 2 ]] && { echo "Option $1 requires an argument" >&2; exit 1; }; config_file="$2"; shift 2 ;;
+      --dry-run)      dry_run="true"; shift ;;
+      --)             shift; positional+=("$@"); break ;;
+      @*)             host_name="${1#@}"; shift ;;
+      -*)             echo "Unknown option: $1" >&2; usage >&2; exit 1 ;;
+      *)              positional+=("$1"); shift ;;
+    esac
+  done
+
+  # Follow mode implies latest
+  if [[ "$follow" == "true" ]]; then
+    latest="true"
+  fi
+
+  # --- Pass 2: Expand and build lnav args ---
+  local -a lnav_args=()
+
+  if [[ -n "$host_name" ]]; then
+    # Remote mode
+    validate_host_name "$host_name"
+    if [[ ! -f "$config_file" ]]; then
+      echo "Config file not found: $config_file" >&2
+      echo "Create it or specify --config" >&2
+      exit 1
+    fi
+
+    local -a hosts
+    mapfile -t hosts < <(resolve_hosts "$host_name" "$config_file")
+
+    # Expand presets across all resolved hosts
+    for preset in "${presets[@]}"; do
+      for host_entry in "${hosts[@]}"; do
+        local label="${host_entry##*@}"
+        expand_preset_remote "$preset" "$follow" "$host_entry" "$label"
+      done
+    done
+
+    # Resolve positional args and expand (with glob + --latest support)
+    for path_arg in "${positional[@]}"; do
+      local remote_path filter
+      remote_path=$(resolve_path "$path_arg" "$config_file")
+      filter=$(resolve_filter "$path_arg" "$config_file")
+      for host_entry in "${hosts[@]}"; do
+        local label="${host_entry##*@}"
+        expand_remote_path "$remote_path" "$latest" "$follow" "$host_entry" "$label" "$filter"
+      done
+    done
+
+    if [[ ${#lnav_args[@]} -eq 0 ]]; then
+      echo "Remote mode requires a preset or path argument" >&2
+      exit 1
+    fi
+  else
+    # Local mode — expand presets
+    for preset in "${presets[@]}"; do
+      expand_preset_local "$preset" "$follow"
+    done
+
+    # Resolve positional args and expand (with glob + --latest support)
+    for path_arg in "${positional[@]}"; do
+      local resolved_path filter=""
+      if [[ -f "$config_file" ]]; then
+        resolved_path=$(resolve_path "$path_arg" "$config_file")
+        filter=$(resolve_filter "$path_arg" "$config_file")
+      else
+        resolved_path="$path_arg"
+      fi
+      expand_local_path "$resolved_path" "$latest" "$filter"
+    done
+  fi
+
+  if [[ ${#lnav_args[@]} -eq 0 ]]; then
+    usage
+    exit 1
+  fi
+
+  # Split lnav_args into plain paths (must be quoted) and process
+  # substitutions (must be passed to eval as-is to be interpreted by bash).
+  local -a plain_quoted=()
+  local -a procsubs=()
+  for arg in "${lnav_args[@]}"; do
+    if [[ "$arg" == '<('* ]]; then
+      procsubs+=("$arg")
+    else
+      plain_quoted+=("$(printf '%q' "$arg")")
+    fi
+  done
+
+  if [[ "$dry_run" == "true" ]]; then
+    printf 'lnav'
+    printf ' %s' "${procsubs[@]+"${procsubs[@]}"}" "${plain_quoted[@]+"${plain_quoted[@]}"}"
+    printf '\n'
+    exit 0
+  fi
+
+  eval "lnav ${procsubs[*]+${procsubs[*]}} ${plain_quoted[*]+${plain_quoted[*]}}"
+}
+
+main "$@"

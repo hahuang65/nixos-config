@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=PICO-8
+Comment=Fantasy Console for making, sharing and playing tiny games
+Exec=sh -c '$HOME/.dotfiles/scripts/pico8/pico8'
+Terminal=false
+Categories=Game;Development;
+Keywords=game;development;fantasy;console;lua;
+StartupNotify=false

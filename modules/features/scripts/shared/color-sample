@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+
+source "$HOME"/.dotfiles/scripts/shared/lib/common
+
+usage() {
+  echo -n "$(basename "$0") <filepath>
+
+A script to print out colors designated in a file
+
+  Options:
+    -h, --help      Display this help and exit
+
+  Parameters:
+    filepath        Path of the file to print. The format of the file must be line-separated entries of <name> <#hexcode>.
+"
+}
+
+while :; do
+  flag=${1:-}
+  arg=${2:-}
+
+  case "$flag" in
+  -h | -\? | --help)
+    usage
+    exit
+    ;;
+  --) # Demarcates end of all options.
+    shift
+    break
+    ;;
+  -?*) # Handle any unknown options.
+    printf 'WARN: Unknown option (ignored): %s\n' "$1" >&2
+    ;;
+  *) # End of all options if nothing matches
+    break ;;
+  esac
+
+  shift
+done
+
+main() {
+  if [ $# -eq 0 ]; then
+    usage
+    exit 1
+  fi
+
+  filepath="$1"
+  colors=($(cat "$filepath" | grep --invert-match "^#" | grep "\S"))
+
+  for color in "${colors[@]}"; do
+    unset IFS
+    array=($color)
+    IFS=$'\n\t'
+
+    name=${array[0]}
+    code=${array[1]#"#"}
+
+    perl -e 'foreach $a(@ARGV){print "\e[48:2::".join(":",unpack("C*",pack("H*",$a)))."m \e[49m "};' "$code"
+    printf "#$code - $name\n"
+  done
+}
+
+main "$@"

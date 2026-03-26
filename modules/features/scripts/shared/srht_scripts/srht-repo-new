@@ -1,0 +1,96 @@
+#!/usr/bin/env bash
+
+source "$HOME/.dotfiles/scripts/shared/lib/common"
+
+usage() {
+  echo -n "$(basename "$0" | tr -s '-' ' ') <name>
+
+A script to add a commit for mirroring any
+git.sr.ht codebases to Github.
+
+  Options:
+    -d, --description   Description for the repository
+    -h, --help          Display this help and exit
+    -l, --license       License of the repository (default: \"MIT\")
+                        See \`license --help\` for more info
+    -v, --visibility    Visibility of the repository (default: \"public\")
+                        Valid values are \"public\", \"private\", \"unlisted\"
+
+  Parameters:
+    name                Name of the repository
+"
+}
+
+while :; do
+  flag=${1:-}
+  arg=${2:-}
+
+  case "$flag" in
+  -h | -\? | --help)
+    usage
+    exit
+    ;;
+  -d | --description)
+    description="${arg}"
+    shift
+    ;;
+  -l | --license)
+    license="${arg}"
+    shift
+    ;;
+  -v | --visibility)
+    visibility="${arg}"
+    shift
+    ;;
+  --) # Demarcates end of all options.
+    shift
+    break
+    ;;
+  -?*) # Handle any unknown options.
+    printf 'WARN: Unknown option (ignored): %s\n' "$1" >&2
+    ;;
+  *) # End of all options if nothing matches
+    break ;;
+  esac
+
+  shift
+done
+
+main() {
+  if [ $# -eq 0 ]; then
+    usage
+    exit 1
+  fi
+
+  require_executable "hut"
+
+  name="${1}"
+  [ -d "${name}" ] && echo "./${name} already exists." && exit 1
+
+  if git rev-parse --git-dir >/dev/null 2>&1; then
+    if git ls-remote --exit-code >/dev/null 2>&1; then
+      # Already has a remote
+      echo "This git repository already has a remote. Aborting."
+    else
+      # We're in an existing git repository without a remote
+      # Create the sr.ht repo, and set the remote for this local repo
+      hut git create "${name}" --description="${description:-}" --visibility="${visibility:-public}"
+      srht repo add-mirror
+      license "${license:-mit}"
+      git remote add origin "git@git.sr.ht:~hwrd/${name}"
+      git push --set-upstream origin main
+    fi
+  else
+    # We're not in a git repo,
+    # Create a new repo and pull it down so we can start working on it
+    hut git create "${name}" --clone --description="${description:-}" --visibility="${visibility:-public}"
+    pushd "${name}" || exit
+    echo ""
+    srht repo add-mirror
+    license "${license:-mit}"
+    git push
+    popd || exit
+  fi
+}
+
+main "$@"

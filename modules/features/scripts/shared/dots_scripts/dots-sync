@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+# This script should never be run standalone. It should always be executed thru the `dots` script
+
+pushd ~/.dotfiles >/dev/null || exit
+msg=$(git sync)
+
+if [ "$msg" == "Already up to date." ]; then
+  echo "$msg"
+else
+  mapfile -t modified < <(git diff-tree --no-commit-id --name-only HEAD)
+  for submodule in "${modified[@]}"; do
+    if [ -d "$submodule" ]; then
+      pushd "$submodule" >/dev/null || exit
+      echo "Updating $submodule"
+      git trunk >/dev/null
+      git sync >/dev/null
+      popd >/dev/null || exit
+    fi
+  done
+fi
+popd >/dev/null || exit

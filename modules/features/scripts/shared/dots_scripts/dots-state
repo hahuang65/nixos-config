@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+# This script should never be run standalone. It should always be executed thru the `dots` script
+
+pushd ~/.dotfiles >/dev/null || exit
+git state
+git diff --submodule=diff
+popd >/dev/null || exit

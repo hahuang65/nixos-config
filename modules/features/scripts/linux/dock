@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+IFS=$'\n\t'
+
+INTERNAL_MONITOR='eDP-1'
+EXTERNAL_MONITOR='DP-1'
+
+if swaymsg -t get_outputs | grep \"$EXTERNAL_MONITOR\" > /dev/null; then
+  notify-send --expire-time 5000 "Docked"
+  swaymsg output $EXTERNAL_MONITOR resolution 1920x1080 position 0 0 && \
+  swaymsg output $EXTERNAL_MONITOR resolution 3840x2160 position 0 0 && \
+  swaymsg output $INTERNAL_MONITOR disable
+else
+  notify-send --expire-time 5000 "Undocked"
+  swaymsg output $INTERNAL_MONITOR resolution 3840x2160 position 0 0
+fi

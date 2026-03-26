@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+
+export SRHT_SCRIPT_DIR="$HOME/.dotfiles/scripts/shared/srht_scripts"
+
+usage() {
+  echo -n "$(basename "$0") <service> <command> [options]
+
+A script to work with various sr.ht services.
+Further usage instructions can be found with 
+
+  $(basename "$0") <service> <command> --help
+
+  services and commands:
+"
+  REGEX="srht-([^-]*)-(.*)"
+  PREVIOUS_SERVICE=""
+
+  pushd ${SRHT_SCRIPT_DIR} > /dev/null
+  for i in srht-*
+  do
+    if [[ ${i} =~ ${REGEX} ]];
+    then
+      SERVICE=${BASH_REMATCH[1]}
+      COMMAND=${BASH_REMATCH[2]}
+
+      if [[ "${SERVICE}" != "${PREVIOUS_SERVICE}" ]];
+      then
+        echo ""
+        echo "    ${SERVICE}"
+      fi
+      echo "      ${COMMAND}"
+    fi
+
+    PREVIOUS_SERVICE="${SERVICE}"
+  done
+  popd > /dev/null
+}
+
+main() {
+  if [ $# -eq 0 ]; then
+    usage
+    exit 1
+  fi
+
+  if [[ -x "${SRHT_SCRIPT_DIR}/srht-${1}-${2}" ]]; then
+    exec "${SRHT_SCRIPT_DIR}/srht-${1}-${2}" "${@:3:$#}"
+  fi
+
+  usage
+  exit 1
+}
+
+main "$@"

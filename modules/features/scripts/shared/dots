@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+IFS=$'\n\t'
+
+export DOTS_SCRIPTS_DIR="$HOME/.dotfiles/scripts/shared/dots_scripts"
+
+case $(uname) in
+  Darwin)
+    OS="macos"
+    ;;
+  Linux)
+    OS="arch"
+    ;;
+  *)
+    echo "Unsupported OS. Exiting..."
+    return 1
+    ;;
+esac
+
+function help {
+  echo "Available commands:"
+  pushd ${DOTS_SCRIPTS_DIR} > /dev/null
+  REGEX="dots-(.*)"
+  for i in dots-*
+  do
+    if [[ ${i} =~ ${REGEX} ]]; then
+      command=${BASH_REMATCH[1]}
+      echo "${command}"
+    fi
+  done
+
+  echo
+  echo "Run command as follows: dots <command> (e.g. dots ${command})."
+  exit 0
+}
+
+function main {
+  if [ $# -eq 0 ]; then
+    help
+    exit 1
+  fi
+
+  if [[ -x "${DOTS_SCRIPTS_DIR}/dots-${1}" ]]; then
+    pushd "${HOME}/.dotfiles/bootstrap/" > /dev/null
+    exec env OS=${OS} "${DOTS_SCRIPTS_DIR}/dots-${1}" "${@:2:$#}"
+    popd > /dev/null
+  fi
+
+  help
+  exit 1
+}
+
+main $@

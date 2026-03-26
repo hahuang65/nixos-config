@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+# Shared library functions for pkg_scripts
+
+# Generic function to commit package file changes
+# Usage: commit_pkg_file <verb> <pkg_file> <packages...>
+function commit_pkg_file {
+  verb="${1}"
+  pkg_file="${2}"
+  pkg_list=("${@:3}")
+  pkg_str=$(echo "${pkg_list[@]}" | paste -s -d ' ')
+
+  pushd "${HOME}/.dotfiles/bootstrap" >/dev/null || exit
+  if [[ -n $(git status -s "${pkg_file}") ]]; then
+    git add "${pkg_file}" >/dev/null
+    git commit -m "${verb} ${pkg_str}" >/dev/null
+    git publish >/dev/null 2>&1
+  fi
+  popd >/dev/null || exit
+}

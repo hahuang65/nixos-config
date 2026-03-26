@@ -1,0 +1,35 @@
+# OS Files #
+.DS_Store
+._*
+Thumbs.db
+
+# Ctags #
+tags
+tags.lock
+tags.temp
+
+# Rails #
+.bundle
+vendor/bundle
+vendor/plugins
+log/*
+tmp/*
+db/*.sqlite3
+public/assets/
+coverage/
+coverage.data
+spec/tmp/*
+**.orig
+.powrc
+
+# Python #
+*.pyc
+
+# Snyk #
+.dccache
+
+# AI #
+.crush/
+AGENTS.md
+CRUSH.md
+.claude/settings.local.json

@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+
+# Source shared library
+source "$HOME/.dotfiles/scripts/shared/pkg/lib"
+
+function commit_brewfile {
+  commit_pkg_file "${1}" "${HOMEBREW_BUNDLE_FILE}" "${@:2}"
+}
+
+function add_to_brewfile {
+  pkg_type="${1}"
+  pkg_list=("${@:2}")
+  brew bundle add --"${pkg_type}" "${pkg_list[@]}"
+  pkg sync
+  commit_brewfile "Add" "$@"
+}
+
+function rm_from_brewfile {
+  pkg_type="${1}"
+  pkg_list=("${@:2}")
+  brew bundle remove --"${pkg_type}" "${pkg_list[@]}"
+  pkg sync
+  commit_brewfile "Remove" "$@"
+}
+
+function add_formula {
+  add_to_brewfile "formula" "$@"
+}
+
+function add_cask {
+  add_to_brewfile "cask" "$@"
+}
+
+function add_tap {
+  add_to_brewfile "tap" "$@"
+}
+
+function rm_formula {
+  rm_from_brewfile "formula" "$@"
+}
+
+function rm_cask {
+  rm_from_brewfile "cask" "$@"
+}
+
+function rm_tap {
+  rm_from_brewfile "tap" "$@"
+}

@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+# This script should never be run standalone. It should always be executed thru the `pkg` script
+
+# Add new packages into the package list
+source "${PKG_DIR}/common"
+add_formula "$@"

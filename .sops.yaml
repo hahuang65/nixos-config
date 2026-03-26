@@ -1,0 +1,23 @@
+keys:
+  - &user_hao age1h785vf44tcg7qceznylm47dzr8u9aqxd4q4l8xajmxfue5zkx9pqz6cgpd
+
+creation_rules:
+  - path_regex: secrets/common\.yaml$
+    key_groups:
+      - age:
+          - *user_hao
+
+  - path_regex: secrets/home\.yaml$
+    key_groups:
+      - age:
+          - *user_hao
+
+  - path_regex: secrets/nixos\.yaml$
+    key_groups:
+      - age:
+          - *user_hao
+
+  - path_regex: secrets/darwin\.yaml$
+    key_groups:
+      - age:
+          - *user_hao

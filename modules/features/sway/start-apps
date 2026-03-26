@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+
+function window_exist {
+  swaymsg -t get_tree | jq -r '.. | (.nodes? // empty)[] | select(.pid and .visible) | {name} | "\(.name)"' | grep "$1"
+}
+
+function wait_for_window {
+  until window_exist "$1"; do
+    sleep 0.2
+  done
+}
+
+function wait_for_service {
+  until systemctl --user is-active --quiet "$1"; do
+    sleep 0.2
+  done
+}
+
+function wait_for_kwallet {
+  local attempts=0
+  until kwallet-query -f 'Chromium Keys' -l kdewallet 2>/dev/null | grep -q 'Chromium Safe Storage'; do
+    attempts=$((attempts + 1))
+    if [ "$attempts" -ge 20 ]; then
+      return
+    fi
+    sleep 0.5
+  done
+}
+
+wait_for_kwallet
+swaymsg "exec vivaldi"
+wait_for_window "Vivaldi"
+swaymsg "workspace 2:chat"
+swaymsg "exec slack"
+wait_for_window "Slack"
+swaymsg "splith; exec wezterm start --class senpai -- bash -l -c senpai"
+wait_for_window "senpai"
+swaymsg "splitv; exec thunderbird"
+wait_for_window "Thunderbird"
+swaymsg "focus left; splitv; exec ferdium"
+wait_for_window "Ferdium"

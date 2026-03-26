@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+
+_setup_aliases() {
+  alias_available() {
+    local target="$1"
+    shift
+
+    for alternative in "$@"; do
+      if exists "$alternative"; then
+        alias "$target"="$alternative"
+        return 0
+      fi
+    done
+
+    return 1
+  }
+
+  alias cp="cp --interactive --verbose --recursive"
+  alias hs="history | grep --color=auto"
+  alias ls="ls --color=auto"
+  alias mkdir="mkdir --verbose --parents"
+  alias mv="mv --interactive --verbose"
+  alias scp='rsync --archive --verbose --human-readable --compress --partial --progress --xattrs --acls --rsh="ssh"'
+
+  if [[ $OSTYPE == linux-gnu* ]]; then
+    alias logout='loginctl terminate-session "$XDG_SESSION_ID"'
+  fi
+
+  if alias_available cat bat; then
+    if ! alias_available man batman; then
+      export MANPAGER="sh -c 'col -bx | bat --language man --plain --pager=\"less --raw-control-chars\"'"
+      export MANROFFOPT="-c"
+    fi
+
+    alias_available rg batgrep
+  fi
+
+  alias_available curl curlie http
+  alias_available dig doggo
+  alias_available watch hwatch
+  alias_available less ov
+  alias_available ping prettyping
+  alias_available ps procs
+  alias_available top btm htop
+
+}
+
+# Defer alias setup to first prompt to avoid blocking shell startup.
+# The alias_available() calls search PATH for each candidate command,
+# which is slow with a long PATH. By deferring to PROMPT_COMMAND,
+# aliases are ready before the user types anything.
+_deferred_aliases() {
+  _setup_aliases
+  unset -f _setup_aliases alias_available
+  # Redefine as no-op; removing from PROMPT_COMMAND is fragile when
+  # starship converts it to an array (bash 5.1+)
+  _deferred_aliases() { :; }
+}
+PROMPT_COMMAND="_deferred_aliases;${PROMPT_COMMAND}"

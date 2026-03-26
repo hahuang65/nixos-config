@@ -1,0 +1,845 @@
+#!/usr/bin/env -S uv run --script
+# /// script
+# dependencies = [
+#   "requests",
+#   "urllib3",
+#   "textual",
+#   "paramiko",
+# ]
+# ///
+"""
+RomM to SD Card Copier
+Downloads ROMs and artwork from RomM and organizes them for NextUI on an SD card.
+"""
+
+import base64
+import os
+import re
+import subprocess
+import sys
+from pathlib import Path
+from typing import Dict, List, Optional, Tuple
+
+import paramiko
+import requests
+import urllib3
+from textual.app import App, ComposeResult
+from textual.binding import Binding
+from textual.containers import Container, Horizontal, VerticalScroll
+from textual.screen import Screen
+from textual.widgets import Button, Checkbox, Footer, Header, ProgressBar, Static
+
+# Disable SSL warnings
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+# Configuration — read from environment (set via sops-decrypted secrets)
+SSH_HOST = os.environ["ROMM_SSH_HOST"]
+ROMM_PORT = int(os.environ["ROMM_PORT"])
+ROMM_URL = f"http://{SSH_HOST}:{ROMM_PORT}"
+SSH_PORT = int(os.environ["ROMM_SSH_PORT"])
+SFTP_PORT = int(os.environ["ROMM_SFTP_PORT"])
+SSH_USERNAME = os.getenv("USER")
+ROMM_BASE_PATH = (
+    "/archives/Emulation"  # Base path on Synology (SFTP is chrooted to /volume1)
+)
+VERIFY_SSL = False
+SD_CARD_BASE = f"/run/media/{os.getenv('USER', 'hao')}"
+
+# Platform to SD card directory mapping
+# Maps RomM platform slug to the emulator/core name
+# The code will find folders ending with (VALUE)
+# Example: 'gba': 'MGBA' will match 'Game Boy Advance (MGBA)'
+PLATFORM_MAPPING = {
+    "arcade": "FBN",  # Arcade
+    "gb": "GB",  # Game Boy
+    "gba": "MGBA",  # Game Boy Advance
+    "gbc": "GBC",  # Game Boy Color
+    "neo-geo-pocket-color": "NGPC",  # Neo Geo Pocket Color
+    "nds": "NDS",  # Nintendo DS
+    "nes": "FC",  # Nintendo Entertainment System
+    "pico": "P8",  # Pico-8
+    "psx": "PS",  # PlayStation
+    "psp": "PSP",  # PlayStation Portable
+    "sms": "SMS",  # Sega Master System/Mark III
+    "genesis": "MD",  # Sega Mega Drive/Genesis
+    "snes": "SFC",  # Super Nintendo Entertainment System
+}
+
+
+def get_auth_header():
+    """Get the Basic Authentication header from 1Password"""
+    try:
+        result = subprocess.run(
+            ["op", "item", "get", "RomM", "--reveal", "--fields", "username,password"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        credentials = result.stdout.strip().replace(",", ":", 1)
+        encoded = base64.b64encode(credentials.encode()).decode()
+        return f"Basic {encoded}"
+    except subprocess.CalledProcessError as e:
+        print(f"❌ Error getting credentials from 1Password: {e}")
+        print("Make sure you're logged in: op signin")
+        sys.exit(1)
+    except FileNotFoundError:
+        print("❌ 1Password CLI (op) not found. Please install it.")
+        sys.exit(1)
+
+
+def api_request(endpoint: str, params: Optional[dict] = None) -> dict:
+    """Make a request to the RomM API"""
+    url = f"{ROMM_URL}{endpoint}"
+    headers = {"accept": "application/json", "Authorization": get_auth_header()}
+
+    try:
+        response = requests.get(url, headers=headers, params=params, verify=VERIFY_SSL)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"❌ API request failed: {url}")
+        print(f"   Error: {e}")
+        return None
+
+
+def get_platforms() -> List[Dict]:
+    """Fetch all platforms from RomM"""
+    platforms = api_request("/api/platforms")
+    if not platforms:
+        return []
+    return sorted(platforms, key=lambda p: p.get("name", ""))
+
+
+def get_roms_for_platform(platform_id: int) -> List[Dict]:
+    """Fetch all ROMs for a specific platform"""
+    all_roms = []
+    offset = 0
+    limit = 100
+
+    while True:
+        params = {"platform_id": platform_id, "limit": limit, "offset": offset}
+
+        data = api_request("/api/roms", params=params)
+        if not data:
+            break
+
+        items = data.get("items", data if isinstance(data, list) else [])
+        if not items:
+            break
+
+        all_roms.extend(items)
+
+        total = data.get("total", len(items))
+        if len(all_roms) >= total:
+            break
+
+        offset += limit
+
+    return all_roms
+
+
+def get_sd_cards() -> List[tuple]:
+    """Get available SD cards"""
+    if not os.path.exists(SD_CARD_BASE):
+        return []
+
+    mounts = []
+    for d in os.listdir(SD_CARD_BASE):
+        mount_path = os.path.join(SD_CARD_BASE, d)
+        if os.path.isdir(mount_path):
+            try:
+                stat = os.statvfs(mount_path)
+                total_gb = (stat.f_blocks * stat.f_frsize) / (1024**3)
+                free_gb = (stat.f_bavail * stat.f_frsize) / (1024**3)
+                mounts.append((mount_path, d, free_gb, total_gb))
+            except:
+                mounts.append((mount_path, d, 0, 0))
+
+    return mounts
+
+
+def setup_sftp() -> Optional[paramiko.SFTPClient]:
+    """Setup SFTP connection to RomM server using SSH config"""
+    try:
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+        # Load SSH config from ~/.ssh/config
+        ssh_config = paramiko.SSHConfig()
+        ssh_config_path = Path.home() / ".ssh" / "config"
+
+        if ssh_config_path.exists():
+            with open(ssh_config_path) as f:
+                ssh_config.parse(f)
+
+            # Look up config for the host
+            host_config = ssh_config.lookup(SSH_HOST)
+
+            # Get connection parameters from SSH config
+            hostname = host_config.get("hostname", SSH_HOST)
+            username = host_config.get("user", SSH_USERNAME)
+
+            # Check for IdentityAgent (1Password SSH agent)
+            identity_agent = host_config.get("identityagent")
+
+            connect_kwargs = {
+                "hostname": hostname,
+                "port": SFTP_PORT,  # Use SFTP port
+                "username": username,
+                "timeout": 10,
+            }
+
+            # If IdentityAgent is set, expand ~ in the path
+            if identity_agent:
+                identity_agent = os.path.expanduser(identity_agent)
+                # Set the agent socket path as environment variable
+                os.environ["SSH_AUTH_SOCK"] = identity_agent
+                connect_kwargs["allow_agent"] = True
+                connect_kwargs["look_for_keys"] = False
+            else:
+                # Fall back to default behavior
+                connect_kwargs["allow_agent"] = True
+                connect_kwargs["look_for_keys"] = True
+
+            ssh.connect(**connect_kwargs)
+        else:
+            # No SSH config, use defaults
+            ssh.connect(
+                SSH_HOST,
+                port=SFTP_PORT,  # Use SFTP port
+                username=SSH_USERNAME,
+                allow_agent=True,
+                look_for_keys=True,
+                timeout=10,
+            )
+
+        sftp = ssh.open_sftp()
+        return sftp
+    except Exception as e:
+        print(f"❌ SFTP connection failed: {e}")
+        print(f"   Host: {SSH_HOST}:{SFTP_PORT}")
+        print(f"   User: {SSH_USERNAME}")
+        return None
+
+
+def scan_sd_card_platforms(sd_card_path: Path) -> List[str]:
+    """Scan the SD card /Roms directory for platform folders"""
+    roms_dir = sd_card_path / "Roms"
+    if not roms_dir.exists():
+        return []
+
+    try:
+        # Get all directories in /Roms
+        directories = [d.name for d in roms_dir.iterdir() if d.is_dir()]
+        return sorted(directories)
+    except Exception:
+        return []
+
+
+def get_default_platform_name(platform: Dict) -> str:
+    """Get default platform folder name from ROM extension"""
+    # Try to get file extension from platform data
+    # If not available, use the slug in uppercase
+    slug = platform.get("slug", "")
+    return slug.upper() if slug else platform.get("name", "Unknown")
+
+
+def find_matching_directories(sd_card_path: Path, emulator_name: str) -> List[str]:
+    """Find directories on SD card that end with ({emulator_name})"""
+    directories = scan_sd_card_platforms(sd_card_path)
+    pattern = f"({emulator_name})"
+
+    # Find directories that end with (emulator_name)
+    matches = [d for d in directories if d.endswith(pattern)]
+    return matches
+
+
+def find_directory_by_emulator(sd_card_path: Path, emulator_name: str) -> Optional[str]:
+    """Find the full directory name for a given emulator name"""
+    matches = find_matching_directories(sd_card_path, emulator_name)
+    return matches[0] if matches else None
+
+
+def extract_emulator_name(directory_name: str) -> Optional[str]:
+    """Extract emulator name from directory like 'Game Boy Advance (MGBA)' -> 'MGBA'"""
+    match = re.search(r"\(([^)]+)\)$", directory_name)
+    return match.group(1) if match else None
+
+
+def download_rom(
+    rom: Dict, output_path: Path, sftp: paramiko.SFTPClient
+) -> Tuple[bool, str]:
+    """Download a ROM file via SFTP"""
+    # Get the file path from ROM data
+    file_path = None
+    file_name = rom.get("fs_name")
+
+    # Check 'files' field first (it's a list of file objects)
+    if rom.get("files") and isinstance(rom["files"], list) and len(rom["files"]) > 0:
+        file_path = rom["files"][0].get("file_path")
+
+    # Fallback to other path fields
+    if not file_path:
+        file_path = rom.get("full_path") or rom.get("fs_path")
+
+    if not file_path:
+        return False, "No file path found in ROM data"
+
+    # Construct full path: base + directory + filename
+    if not file_path.startswith("/"):
+        # file_path is relative (e.g., "roms/arcade")
+        # We need to append the filename
+        if file_name:
+            full_path = f"{ROMM_BASE_PATH}/{file_path}/{file_name}"
+        else:
+            full_path = f"{ROMM_BASE_PATH}/{file_path}"
+    else:
+        # Already absolute path
+        full_path = file_path
+
+    try:
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        sftp.get(full_path, str(output_path))
+        return True, "Success"
+    except FileNotFoundError:
+        return False, f"File not found: {full_path}"
+    except Exception as e:
+        return False, str(e)
+
+
+def download_artwork(
+    rom: Dict, output_path: Path, sftp: paramiko.SFTPClient = None
+) -> bool:
+    """Download artwork for a ROM, preferring SFTP over HTTPS"""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Try SFTP first if available
+    if sftp:
+        artwork_path = rom.get("path_cover_large") or rom.get("path_cover_small")
+        if artwork_path:
+            # Remove query string if present (the ?ts=... part)
+            if "?" in artwork_path:
+                artwork_path = artwork_path.split("?")[0]
+
+            # Map API path to SFTP path
+            # API: /assets/romm/resources/... → SFTP: /docker/romm/resources/...
+            if artwork_path.startswith("/assets/romm/"):
+                sftp_path = artwork_path.replace("/assets/romm/", "/docker/romm/")
+            else:
+                sftp_path = artwork_path
+
+            try:
+                sftp.get(sftp_path, str(output_path))
+                return True
+            except Exception:
+                # Fall through to HTTPS fallback
+                pass
+
+    # Fallback to HTTPS
+    url_cover = rom.get("url_cover")
+    if not url_cover:
+        return False
+
+    try:
+        response = requests.get(url_cover, timeout=30, verify=VERIFY_SSL)
+        response.raise_for_status()
+        output_path.write_bytes(response.content)
+        return True
+    except Exception:
+        return False
+
+
+class PlatformSelectScreen(Screen):
+    """Screen for selecting platforms"""
+
+    BINDINGS = [
+        Binding("c", "confirm", "Continue", show=True),
+        Binding("a", "toggle_all", "Toggle All", show=True),
+        Binding("q", "quit", "Quit", show=True),
+    ]
+
+    def __init__(self, platforms: List[Dict]):
+        super().__init__()
+        self.platforms = platforms
+        self.checkboxes = []
+
+    def compose(self) -> ComposeResult:
+        yield Header()
+        yield Container(
+            Static("Select Platforms to Download", classes="title"),
+            Static(
+                "💡 Use Tab/Space to select platforms, then click 'Continue' button or press 'c'",
+                classes="instructions",
+            ),
+            VerticalScroll(
+                *[
+                    Horizontal(
+                        Checkbox(
+                            f"{p['name']} ({p['rom_count']} ROMs)",
+                            id=f"platform_{p['id']}",
+                            value=False,
+                        ),
+                        classes="checkbox-row",
+                    )
+                    for p in self.platforms
+                ],
+                id="platform-list",
+            ),
+            Button("Continue", id="continue-btn", variant="primary"),
+            id="main-container",
+        )
+        yield Footer()
+
+    def action_toggle_all(self):
+        """Toggle all checkboxes"""
+        checkboxes = list(self.query(Checkbox))
+        if not checkboxes:
+            return
+
+        any_unchecked = any(not cb.value for cb in checkboxes)
+        for cb in checkboxes:
+            cb.value = any_unchecked
+
+    def action_confirm(self):
+        """Continue to ROM selection"""
+        selected_ids = []
+        for widget in self.query(Checkbox):
+            if widget.value:
+                platform_id = int(widget.id.replace("platform_", ""))
+                selected_ids.append(platform_id)
+
+        if not selected_ids:
+            self.notify("Please select at least one platform", severity="warning")
+            return
+
+        selected_platforms = [p for p in self.platforms if p["id"] in selected_ids]
+        self.app.push_screen(ROMSelectScreen(selected_platforms))
+
+    def action_quit(self):
+        self.app.exit()
+
+    def on_button_pressed(self, event: Button.Pressed):
+        """Handle button clicks"""
+        if event.button.id == "continue-btn":
+            self.action_confirm()
+
+
+class ROMSelectScreen(Screen):
+    """Screen for selecting ROMs"""
+
+    BINDINGS = [
+        Binding("d", "confirm", "Download", show=True),
+        Binding("escape", "back", "Back", show=True),
+        Binding("a", "toggle_all", "Toggle All", show=True),
+    ]
+
+    def __init__(self, platforms: List[Dict]):
+        super().__init__()
+        self.platforms = platforms
+        self.roms_by_platform = {}
+        self.loading = True
+
+    def compose(self) -> ComposeResult:
+        yield Header()
+        yield Container(
+            Static("Loading ROMs...", id="status"),
+            VerticalScroll(id="rom-list"),
+            Button("Download Selected", id="download-btn", variant="success"),
+            id="main-container",
+        )
+        yield Footer()
+
+    def on_mount(self):
+        """Load ROMs when screen is mounted"""
+        self.load_roms()
+
+    def load_roms(self):
+        """Load all ROMs for selected platforms"""
+        status = self.query_one("#status", Static)
+        rom_list = self.query_one("#rom-list", VerticalScroll)
+
+        total_roms = 0
+        for platform in self.platforms:
+            status.update(f"Loading ROMs for {platform['name']}...")
+            roms = get_roms_for_platform(platform["id"])
+            self.roms_by_platform[platform["id"]] = roms
+            total_roms += len(roms)
+
+        status.update(f"Select ROMs to Download ({total_roms} total)")
+
+        # Add instructions
+        rom_list.mount(
+            Static(
+                "💡 Select ROMs to download. Press 'a' to select/deselect all, then click 'Download Selected' or press 'd'",
+                classes="instructions",
+            )
+        )
+
+        # Add checkboxes for each ROM
+        for platform in self.platforms:
+            rom_list.mount(
+                Static(f"\n[bold]{platform['name']}[/bold]", classes="platform-header")
+            )
+
+            for rom in self.roms_by_platform[platform["id"]]:
+                rom_name = rom.get("name") or rom.get("fs_name", f"ROM #{rom['id']}")
+                rom_list.mount(
+                    Horizontal(
+                        Checkbox(
+                            rom_name,
+                            id=f"rom_{platform['id']}_{rom['id']}",
+                            value=False,  # Not selected by default
+                        ),
+                        classes="checkbox-row",
+                    )
+                )
+
+        self.loading = False
+
+    def action_toggle_all(self):
+        """Toggle all checkboxes"""
+        checkboxes = list(self.query(Checkbox))
+        if not checkboxes:
+            return
+
+        # Check if any are unchecked
+        any_unchecked = any(not cb.value for cb in checkboxes)
+
+        for cb in checkboxes:
+            cb.value = any_unchecked
+
+    def action_confirm(self):
+        """Start downloading selected ROMs"""
+        if self.loading:
+            return
+
+        selected_roms = []
+        for widget in self.query(Checkbox):
+            if widget.value and widget.id.startswith("rom_"):
+                parts = widget.id.split("_")
+                platform_id = int(parts[1])
+                rom_id = int(parts[2])
+
+                platform = next(p for p in self.platforms if p["id"] == platform_id)
+                rom = next(
+                    r for r in self.roms_by_platform[platform_id] if r["id"] == rom_id
+                )
+
+                selected_roms.append((platform, rom))
+
+        if not selected_roms:
+            self.notify("Please select at least one ROM", severity="warning")
+            return
+
+        # Get SD card
+        sd_cards = get_sd_cards()
+        if not sd_cards:
+            self.notify("No SD card found", severity="error")
+            return
+
+        if len(sd_cards) == 1:
+            sd_card = Path(sd_cards[0][0])
+            self.app.push_screen(DownloadScreen(selected_roms, sd_card))
+        else:
+            self.app.push_screen(SDCardSelectScreen(selected_roms, sd_cards))
+
+    def action_back(self):
+        self.app.pop_screen()
+
+    def on_button_pressed(self, event: Button.Pressed):
+        """Handle button clicks"""
+        if event.button.id == "download-btn":
+            self.action_confirm()
+
+
+class SDCardSelectScreen(Screen):
+    """Screen for selecting SD card"""
+
+    BINDINGS = [
+        Binding("c", "confirm", "Continue", show=True),
+        Binding("escape", "back", "Back", show=True),
+    ]
+
+    def __init__(self, selected_roms: List[tuple], sd_cards: List[tuple]):
+        super().__init__()
+        self.selected_roms = selected_roms
+        self.sd_cards = sd_cards
+        self.selected_index = 0
+
+    def compose(self) -> ComposeResult:
+        yield Header()
+        yield Container(
+            Static("Select SD Card", classes="title"),
+            VerticalScroll(
+                *[
+                    Horizontal(
+                        Checkbox(
+                            f"{name} ({free_gb:.1f} GB free / {total_gb:.1f} GB total)",
+                            id=f"sd_{i}",
+                            value=(i == 0),
+                        ),
+                        classes="checkbox-row",
+                    )
+                    for i, (path, name, free_gb, total_gb) in enumerate(self.sd_cards)
+                ],
+                id="sd-list",
+            ),
+            Button("Continue", id="continue-sd-btn", variant="primary"),
+            id="main-container",
+        )
+        yield Footer()
+
+    def action_confirm(self):
+        """Continue to download"""
+        for i, widget in enumerate(self.query(Checkbox)):
+            if widget.value:
+                sd_card = Path(self.sd_cards[i][0])
+                self.app.push_screen(DownloadScreen(self.selected_roms, sd_card))
+                return
+
+        self.notify("Please select an SD card", severity="warning")
+
+    def action_back(self):
+        self.app.pop_screen()
+
+    def on_button_pressed(self, event: Button.Pressed):
+        """Handle button clicks"""
+        if event.button.id == "continue-sd-btn":
+            self.action_confirm()
+
+
+class DownloadScreen(Screen):
+    """Screen for downloading ROMs"""
+
+    def __init__(self, selected_roms: List[tuple], sd_card: Path):
+        super().__init__()
+        self.selected_roms = selected_roms
+        self.sd_card = sd_card
+
+    def compose(self) -> ComposeResult:
+        yield Header()
+        yield Container(
+            Static("Downloading ROMs...", id="status"),
+            ProgressBar(total=len(self.selected_roms), show_eta=True, id="progress"),
+            VerticalScroll(id="log"),
+            Button("Done", id="done-btn", variant="success", disabled=True),
+            id="main-container",
+        )
+        yield Footer()
+
+    def on_mount(self):
+        """Start download when screen is mounted"""
+        self.download_roms()
+
+    def download_roms(self):
+        """Download all selected ROMs"""
+        status = self.query_one("#status", Static)
+        progress = self.query_one("#progress", ProgressBar)
+        log = self.query_one("#log", VerticalScroll)
+
+        # Setup SFTP connection
+        log.mount(Static("[cyan]→[/cyan] Connecting to server via SFTP..."))
+        sftp = setup_sftp()
+
+        if not sftp:
+            log.mount(Static("[red]✗[/red] SFTP connection failed"))
+            status.update("Failed to connect to server")
+            self.query_one("#done-btn", Button).disabled = False
+            return
+
+        log.mount(Static("[green]✓[/green] Connected"))
+
+        success_count = 0
+        artwork_count = 0
+        skipped_count = 0
+        skipped_platforms = set()
+
+        for i, (platform, rom) in enumerate(self.selected_roms):
+            rom_name = rom.get("name") or rom.get("fs_name", f"ROM #{rom['id']}")
+            status.update(
+                f"Downloading {rom_name}... ({i + 1}/{len(self.selected_roms)})"
+            )
+
+            # Check if platform has a mapping
+            slug = platform.get("slug", "")
+            emulator_name = PLATFORM_MAPPING.get(slug, "")
+
+            if not emulator_name:
+                # Skip this ROM - no mapping found
+                log.mount(Static(f"[yellow]⊘[/yellow] {rom_name}"))
+                log.mount(
+                    Static(
+                        f"  [yellow]⚠[/yellow] Skipped - no mapping for platform '{slug}'"
+                    )
+                )
+                skipped_count += 1
+                skipped_platforms.add(platform.get("name", slug))
+                progress.advance(1)
+                continue
+
+            # Find the full directory name on SD card or create new one
+            platform_dir_name = find_directory_by_emulator(self.sd_card, emulator_name)
+            if not platform_dir_name:
+                # Create new directory with pattern: Platform Name (EMULATOR)
+                platform_name = platform.get("name", "Unknown")
+                platform_dir_name = f"{platform_name} ({emulator_name})"
+
+            platform_dir = self.sd_card / "Roms" / platform_dir_name
+            media_dir = platform_dir / ".media"
+
+            fs_name = rom.get("fs_name")
+            fs_extension = rom.get("fs_extension", "bin")
+            rom_filename = fs_name or f"{rom_name}.{fs_extension}"
+            dest_rom = platform_dir / rom_filename
+
+            # Download ROM
+            log.mount(Static(f"[cyan]→[/cyan] {rom_name}"))
+            rom_success, rom_error = download_rom(rom, dest_rom, sftp)
+            if rom_success:
+                log.mount(Static(f"  [green]✓[/green] ROM saved to: {dest_rom}"))
+                success_count += 1
+
+                # Download artwork
+                artwork_name = Path(rom_filename).stem + ".png"
+                dest_artwork = media_dir / artwork_name
+
+                if download_artwork(rom, dest_artwork, sftp):
+                    log.mount(
+                        Static(f"  [green]✓[/green] Artwork saved to: {dest_artwork}")
+                    )
+                    artwork_count += 1
+                else:
+                    log.mount(Static("  [yellow]⚠[/yellow] No artwork"))
+            else:
+                log.mount(Static(f"  [red]✗[/red] Failed: {rom_error}"))
+
+            progress.advance(1)
+
+        # Close SFTP connection
+        if sftp:
+            sftp.close()
+            log.mount(Static("[cyan]→[/cyan] Disconnected from server"))
+
+        status.update(
+            f"Complete! {success_count}/{len(self.selected_roms)} ROMs downloaded"
+        )
+        log.mount(
+            Static(
+                f"\n[bold green]✓ Downloaded {success_count} ROMs and {artwork_count} artworks[/bold green]"
+            )
+        )
+        log.mount(Static(f"[bold]Location:[/bold] {self.sd_card / 'Roms'}"))
+
+        # Show skipped ROMs if any
+        if skipped_count > 0:
+            log.mount(Static(""))
+            log.mount(
+                Static(
+                    f"[bold yellow]⚠ Skipped {skipped_count} ROMs - no platform mapping found[/bold yellow]"
+                )
+            )
+            log.mount(
+                Static(
+                    f"[yellow]Unmapped platforms:[/yellow] {', '.join(sorted(skipped_platforms))}"
+                )
+            )
+            log.mount(
+                Static(
+                    "[yellow]Add mappings to PLATFORM_MAPPING in the script to download these ROMs.[/yellow]"
+                )
+            )
+
+        # Enable done button
+        self.query_one("#done-btn", Button).disabled = False
+
+    def on_button_pressed(self, event: Button.Pressed):
+        if event.button.id == "done-btn":
+            self.app.exit()
+
+
+class RomMApp(App):
+    """RomM to SD Card TUI Application"""
+
+    CSS = """
+    Screen {
+        align: center middle;
+    }
+
+    #main-container {
+        width: 90%;
+        height: 90%;
+        border: solid $primary;
+        background: $surface;
+        padding: 1;
+    }
+
+    .title {
+        text-align: center;
+        text-style: bold;
+        color: $primary;
+        margin-bottom: 1;
+    }
+
+    .instructions {
+        text-align: center;
+        color: $text-muted;
+        margin-bottom: 1;
+    }
+
+    .platform-header {
+        color: $secondary;
+        margin-top: 1;
+        margin-bottom: 1;
+    }
+
+    .checkbox-row {
+        margin: 0 1;
+        height: auto;
+    }
+
+    VerticalScroll {
+        height: 1fr;
+        border: solid $primary-darken-1;
+        margin: 1 0;
+    }
+
+    ProgressBar {
+        margin: 1 0;
+    }
+
+    Button {
+        margin: 1 0;
+        width: 100%;
+    }
+
+    .button-row {
+        height: auto;
+        width: 100%;
+        margin: 1 0;
+    }
+
+    .button-row Button {
+        width: 1fr;
+        margin: 0 1;
+    }
+
+    #log {
+        height: 1fr;
+    }
+    """
+
+    def on_mount(self):
+        """Initialize the app"""
+        platforms = get_platforms()
+
+        if not platforms:
+            self.notify("Failed to fetch platforms from RomM", severity="error")
+            self.exit()
+            return
+
+        self.push_screen(PlatformSelectScreen(platforms))
+
+
+if __name__ == "__main__":
+    app = RomMApp()
+    app.run()
