@@ -1,6 +1,9 @@
 { self, inputs, ... }: {
   flake.nixosModules.home = { pkgs, ... }: {
-    imports = [ self.nixosModules.user-hao ];
+    imports = [
+      self.nixosModules.user-hao
+      self.nixosModules.onepassword
+    ];
 
     home-manager = {
       useGlobalPkgs = true;

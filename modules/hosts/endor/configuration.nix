@@ -3,6 +3,8 @@
     imports = [
       self.nixosModules.endor-hardware
       self.nixosModules.desktop
+      self.nixosModules.home
+      self.nixosModules.podman
     ];
 
     networking.hostName = "endor";

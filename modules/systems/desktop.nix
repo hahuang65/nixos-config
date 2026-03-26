@@ -5,8 +5,7 @@
       self.nixosModules.fonts
       self.nixosModules.niri
       self.nixosModules.noctalia
-      self.nixosModules.onepassword
-      self.nixosModules.home
+      self.nixosModules.printing
     ];
   };
 }

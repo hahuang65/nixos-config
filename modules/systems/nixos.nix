@@ -5,7 +5,20 @@
     nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
       "1password"
       "1password-cli"
+      "claude-code"
+      "ferdium"
+      "obsidian"
+      "plex-desktop"
+      "plexamp"
+      "slack"
+      "steam"
+      "steam-original"
+      "steam-run"
+      "steam-unwrapped"
+      "vivaldi"
     ];
+
+    programs.nix-ld.enable = true;
 
     networking.networkmanager.enable = true;
     hardware.bluetooth.enable = true;

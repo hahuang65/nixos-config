@@ -3,6 +3,8 @@
     imports = [
       self.nixosModules.bespin-hardware
       self.nixosModules.desktop
+      self.nixosModules.home
+      self.nixosModules.podman
     ];
 
     networking.hostName = "bespin";

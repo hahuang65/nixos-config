@@ -4,17 +4,9 @@
       enable = true;
       defaultEditor = true;
       extraPackages = with pkgs; [
-        lua-language-server
-        nil
-        gopls
-        nodePackages.typescript-language-server
-        stylua
-        nixfmt
-        gofumpt
-        nodePackages.prettier
         gcc
         gnumake
-        nodejs
+        tree-sitter
       ];
     };
 
