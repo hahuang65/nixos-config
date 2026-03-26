@@ -45,7 +45,6 @@
       plex-desktop
       plexamp
       slack
-      steam
       thunderbird
       xdg-user-dirs
     ];

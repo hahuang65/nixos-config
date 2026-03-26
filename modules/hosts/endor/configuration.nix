@@ -4,7 +4,9 @@
       self.nixosModules.endor-hardware
       self.nixosModules.desktop
       self.nixosModules.home
+      self.nixosModules.amdgpu
       self.nixosModules.bluetooth
+      self.nixosModules.gaming
       self.nixosModules.podman
     ];
 
