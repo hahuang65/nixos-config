@@ -16,6 +16,7 @@
       "steam-run"
       "steam-unwrapped"
       "vivaldi"
+      "widevine-cdm"
     ];
 
     # Locale and timezone

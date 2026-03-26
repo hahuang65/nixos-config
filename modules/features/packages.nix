@@ -47,7 +47,6 @@
       slack
       steam
       thunderbird
-      vivaldi
       xdg-user-dirs
     ];
   };
